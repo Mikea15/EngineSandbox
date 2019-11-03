@@ -1,23 +1,16 @@
-﻿
+
 #include <iostream>
+#include <memory>
 
-#include "../Core/Core.h"
-#include "../RendererOgl/WindowParams.h"
+#include "../Core/Game.h"
 
-using namespace std;
+#include "DefaultState.h"
 
-int main()
+int main(int argc, char* argv[])
 {
-	Core core;
-	core.param1 = 1.0f;
-	core.param2 = 2;
+	std::unique_ptr<DefaultState> state = std::make_unique<DefaultState>();
+	Game g;
 
-	Renderer::WindowParams params;
-	params.width = 200;
-	params.height = 100;
-	params.bits = 32;
-
-	cout << "Hello CMake." << endl;
-	getchar();
-	return 0;
+	g.SetState(state.get());
+	return g.Execute();
 }

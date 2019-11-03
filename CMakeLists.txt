@@ -7,14 +7,16 @@ project (EngineSandbox)
 
 message(STATUS "Setting MSVC Flags")
 
-set(CMAKE_CXX_FLAG "${CMAKE_CXX_FLAGS} /std:c++11")
+set (CMAKE_CXX_STANDARD 17)
 
 # Include sub-projects.
-add_subdirectory ("EmptyLauncher")
-add_subdirectory ("Core")
-add_subdirectory ("RendererOgl")
+add_subdirectory (EmptyLauncher)
+add_subdirectory (Core)
+#  add_subdirectory (RendererOgl)
 
-add_dependencies(RendererOgl Core)
-add_dependencies(EmptyLauncher RendererOgl)
+# add_dependencies(RendererOgl Core)
+add_dependencies(EmptyLauncher Core)
 
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT EmptyLauncher)
+
+

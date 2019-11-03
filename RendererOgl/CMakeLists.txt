@@ -1,3 +1,5 @@
 
-add_library(RendererOgl SHARED WindowParams.h WindowParams.cpp)
+set(MODULE_NAME RendererOgl)
+
+# add_library(RendererOgl SHARED )
 

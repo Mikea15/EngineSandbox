@@ -1,0 +1,2 @@
+#include "SimpleTextureAssetJob.h"
+

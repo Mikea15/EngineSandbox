@@ -1,0 +1,2 @@
+#include "CameraSnapshot.h"
+
