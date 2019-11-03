@@ -40,6 +40,6 @@ public:
 	int GL_MultiSamplesSamples = 4;
 };
 
-//void to_json(json& j, const WindowParams& p);
-//void from_json(const json& j, WindowParams& p);
+void to_json(json& j, const WindowParams& p);
+void from_json(const json& j, WindowParams& p);
 

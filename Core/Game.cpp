@@ -7,7 +7,7 @@
 
 #include "Components/System/FpsCounterSystemComponent.h"
 
-const char* Game::s_configFileName = "Levels/config.json";
+const char* Game::s_configFileName = "Data/Levels/config.json";
 
 Game::Game()
 	: m_isRunning(true)
@@ -128,8 +128,8 @@ int Game::Execute()
 		// ui
 		m_sdlHandler.BeginUIRender();
 
-		// m_systemComponentManager->RenderUI();
-		// m_gameState->RenderUI();
+		m_systemComponentManager->RenderUI();
+		m_gameState->RenderUI();
 
 		m_sdlHandler.EndUIRender();
 		m_sdlHandler.EndRender();
@@ -152,32 +152,32 @@ void Game::CleanupSystems()
 
 void Game::LoadConfig()
 {
-	//std::stringstream stream;
-	//std::fstream file(s_configFileName, std::fstream::in);
-	//if (file.is_open())
-	//{
-	//	while (!file.eof())
-	//	{
-	//		std::string buffer;
-	//		std::getline(file, buffer);
-	//		stream << buffer;
-	//	}
-	//}
+	std::stringstream stream;
+	std::fstream file(s_configFileName, std::fstream::in);
+	if (file.is_open())
+	{
+		while (!file.eof())
+		{
+			std::string buffer;
+			std::getline(file, buffer);
+			stream << buffer;
+		}
+	}
 
-	//if (!stream.str().empty())
-	//{
-	//	json jsonParams = json::parse(stream.str());
-	//	if (!jsonParams.is_null()) {
-	//		m_winParams = jsonParams;
-	//	}
-	//}
+	if (!stream.str().empty())
+	{
+		json jsonParams = json::parse(stream.str());
+		if (!jsonParams.is_null()) {
+			m_winParams = jsonParams;
+		}
+	}
 }
 
 void Game::SaveConfig()
 {
-	//std::ofstream file;
-	//file.open(s_configFileName, std::fstream::out);
+	std::ofstream file;
+	file.open(s_configFileName, std::fstream::out);
 
-	//file << static_cast<json>(m_winParams).dump(4);
-	//file.close();
+	file << static_cast<json>(m_winParams).dump(4);
+	file.close();
 }

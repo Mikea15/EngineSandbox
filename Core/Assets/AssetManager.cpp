@@ -6,7 +6,7 @@
 #include <thread>
 #include <future>
 
-#define MULTITHREAD 1
+#define MULTITHREAD 0
 
 const std::string AssetManager::s_assetDirectoryPath = "Data/";
 

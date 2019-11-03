@@ -137,20 +137,6 @@ void SceneCameraComponent::RenderUI()
 	ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_None;
 	if (ImGui::BeginTabBar("Scene Camera", tab_bar_flags))
 	{
-		if (ImGui::BeginTabItem("Interpolation"))
-		{
-			if (ImGui::Button("Set Camera 1 ( K ) - Go To Camera 1 ( I )"))
-			{
-				m_camera.InterpolateTo(m_camera1, m_cameraInterpolationTime);
-			}
-			if (ImGui::Button("Set Camera 2 ( L ) - Go To Camera 2 ( O )"))
-			{
-				m_camera.InterpolateTo(m_camera2, m_cameraInterpolationTime);
-			}
-			ImGui::SliderFloat("Time", &m_cameraInterpolationTime, 0.0f, 10.0f);
-			ImGui::EndTabItem();
-		}
-
 		if (ImGui::BeginTabItem("Params"))
 		{
 			Camera::Params currentParams = m_camera.GetParams();
@@ -175,6 +161,21 @@ void SceneCameraComponent::RenderUI()
 
 			ImGui::EndTabItem();
 		}
+
+		if (ImGui::BeginTabItem("Interpolation"))
+		{
+			if (ImGui::Button("Set Camera 1 ( K ) - Go To Camera 1 ( I )"))
+			{
+				m_camera.InterpolateTo(m_camera1, m_cameraInterpolationTime);
+			}
+			if (ImGui::Button("Set Camera 2 ( L ) - Go To Camera 2 ( O )"))
+			{
+				m_camera.InterpolateTo(m_camera2, m_cameraInterpolationTime);
+			}
+			ImGui::SliderFloat("Time", &m_cameraInterpolationTime, 0.0f, 10.0f);
+			ImGui::EndTabItem();
+		}
+
 		ImGui::EndTabBar();
 	}
 }

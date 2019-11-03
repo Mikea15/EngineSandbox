@@ -3,7 +3,6 @@
 #include <memory>
 #include <chrono>
 
-#include "WindowParams.h"
 #include "SDLHandler.h"
 #include "State.h"
 

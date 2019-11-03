@@ -48,4 +48,5 @@ protected:
 
 	std::shared_ptr<Model> m_model;
 	Shader m_simpleShader;
+	Shader m_groundShader;
 };

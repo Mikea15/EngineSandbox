@@ -20,6 +20,9 @@ add_library(
 	Components/System/FpsCounterSystemComponent.h
 	Components/System/SceneCameraComponent.cpp
 	Components/System/SceneCameraComponent.h
+
+	Imgui/imgui_impl_opengl3.cpp
+	Imgui/imgui_impl_sdl.cpp
 	
 	Systems/Camera/Camera.cpp
 	Systems/Camera/Camera.h

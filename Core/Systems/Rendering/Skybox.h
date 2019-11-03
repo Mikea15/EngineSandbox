@@ -32,6 +32,7 @@ public:
 	Skybox();
 	~Skybox();
 
+	void Initialize();
 	void SetTexture(unsigned int texture) { m_texture = texture; }
 	void SetSettings(const Settings& settings) { m_currentSettings = settings; }
 

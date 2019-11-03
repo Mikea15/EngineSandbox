@@ -35,6 +35,12 @@ void DefaultState::Init(Game* game)
 	m_assetManager = game->GetAssetManager();
 	m_sceneCamera = &game->GetSystemComponentManager()->GetComponent<SceneCameraComponent>();
 
+	Camera& cam = m_sceneCamera->GetCamera();
+
+	cam.Move(glm::vec3(0.0f, 2.0f, -2.0f));
+	cam.LookAt(glm::vec3(0.0f, 0.0f, 0.0f));
+
+
 	m_windowParams = game->GetWindowParameters();
 
 	currentParams = m_windowParams;
@@ -51,12 +57,16 @@ void DefaultState::Init(Game* game)
 
 	const unsigned int skyboxTex = m_assetManager->LoadCubemap("lake", faces);
 
-	// m_skybox = Skybox();
-	// m_skybox.SetTexture(skyboxTex);
+	m_skybox.SetTexture(skyboxTex);
+	m_skybox.Initialize();
 
 	skyboxShader = shaderManager.LoadShader("gradientSkybox", "skybox/skybox.vert", "skybox/horizon_sun.frag");
 	m_simpleShader = shaderManager.LoadShader("simple_textured", "model_loading.vert", "model_loading.frag");
-	// m_simpleShader = shaderManager.LoadShader("wireframeSimple", "unlit/simple.vert", "unlit/color.frag");
+
+	m_groundShader = shaderManager.LoadShader("groundShader", "model_loading.vert", "model_loading.frag");
+
+	m_groundShader.Use();
+	m_groundShader.SetInt("albedoMap", m_assetManager->GetDefaultTex());
 
 	m_model = m_assetManager->LoadModel("Data/Objects/nanosuit/nanosuit.obj");
 	m_model->Initialize();
@@ -64,7 +74,7 @@ void DefaultState::Init(Game* game)
 
 	std::shared_ptr<Entity> entity = std::make_shared<Entity>();
 	entity->SetModel(*m_model);
-	entity->GetTransform().SetScale(glm::vec3(1.0f));
+	entity->GetTransform().SetScale(glm::vec3(0.1f));
 
 	m_sceneManager.AddEntity(entity);
 }
@@ -83,7 +93,7 @@ void DefaultState::Render(float alpha)
 {
 	// render
 	// ------
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
 	glViewport(0, 0, m_windowParams.Width, m_windowParams.Height);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -94,7 +104,11 @@ void DefaultState::Render(float alpha)
 	Transform t;
 	t.RotateLocal(glm::vec3(1.0f, 0.0f, 0.0f), 90.0f);
 	t.Scale(10.0f);
-	m_simpleShader.SetMat4("model", t.GetModelMat());
+
+	m_groundShader.Use();
+	m_groundShader.SetMat4("projection", camera.GetProjection());
+	m_groundShader.SetMat4("view", camera.GetView());
+	m_groundShader.SetMat4("model", t.GetModelMat());
 	Primitives::RenderQuad();
 
 	// render skybox last. but before transparent objects

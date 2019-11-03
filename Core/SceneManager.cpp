@@ -38,8 +38,5 @@ void SceneManager::Draw(const Camera& camera)
 
 void SceneManager::RenderUI()
 {
-	ImGui::SetNextWindowSize(ImVec2(600, 450), ImGuiCond_FirstUseEver);
-	ImGui::Begin("Hierachy");
 
-	ImGui::End();
 }

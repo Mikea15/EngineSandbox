@@ -77,6 +77,8 @@ public:
 	
 	unsigned int GetHDRTexture(const std::string& path);
 
+	unsigned int GetDefaultTex() const { return m_defaultTex; }
+
 private:
 	std::vector<TextureLoadData> LoadTexturesFromAssetJob(TextureAssetJob& job);
 
