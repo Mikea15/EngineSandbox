@@ -61,16 +61,36 @@ void DefaultState::Init(Game* game)
 	m_skybox.Initialize();
 
 	skyboxShader = shaderManager.LoadShader("gradientSkybox", "skybox/skybox.vert", "skybox/horizon_sun.frag");
-	m_simpleShader = shaderManager.LoadShader("simple_textured", "model_loading.vert", "model_loading.frag");
+	m_simpleShader = shaderManager.LoadShader("lighting", "lit/basic.vert", "lit/basic.frag");
+	
+	m_simpleShader.Use();
+	m_simpleShader.SetInt("material.diffuse", m_assetManager->GetDefaultTex());
+	m_simpleShader.SetInt("material.specular", m_assetManager->GetDefaultTex());
+
+	m_simpleShader.SetVec3("objectColor", 1.0f, 0.5f, 0.31f);
+	m_simpleShader.SetVec3("lightColor", 1.0f, 1.0f, 1.0f);
 
 	m_groundShader = shaderManager.LoadShader("groundShader", "model_loading.vert", "model_loading.frag");
 
 	m_groundShader.Use();
 	m_groundShader.SetInt("albedoMap", m_assetManager->GetDefaultTex());
 
+	TextureInfo df = m_assetManager->GetDefaultTexture();
+	m_litMat.AddTexture(df);
+	df.m_textureType = TextureType::SpecularMap;
+	m_litMat.AddTexture(df);
+	m_litMat.SetMaterialProperty("material.diffuse", (int) df.m_id);
+	m_litMat.SetMaterialProperty("material.specular", (int) df.m_id);
+	m_litMat.SetShader(m_simpleShader);
+
 	m_model = m_assetManager->LoadModel("Data/Objects/nanosuit/nanosuit.obj");
 	m_model->Initialize();
-	m_model->SetShader(m_simpleShader);
+	// Override material and shader.
+	for (auto m : m_model->GetMeshes())
+	{
+		m->SetMaterial(std::make_shared<Material>(m_litMat));
+	}
+	
 
 	std::shared_ptr<Entity> entity = std::make_shared<Entity>();
 	entity->SetModel(*m_model);
@@ -79,14 +99,48 @@ void DefaultState::Init(Game* game)
 	m_sceneManager.AddEntity(entity);
 }
 
-void DefaultState::HandleInput(SDL_Event * event)
+void DefaultState::HandleInput(SDL_Event* event)
 {
-
+	if (event->type == SDL_KEYDOWN)
+	{
+		switch (event->key.keysym.sym) {
+		case SDLK_g:
+		{
+			Camera& cam = m_sceneCamera->GetCamera();
+			m_lightPosition = cam.GetPosition();
+		}
+			break;
+		default: break;
+		}
+	}
 }
 
 void DefaultState::Update(float deltaTime)
 {
 	m_sceneManager.Update(deltaTime);
+
+	Camera& cam = m_sceneCamera->GetCamera();
+	
+	m_simpleShader.Use();
+	m_simpleShader.SetVec3("light.position", m_lightPosition);
+	m_simpleShader.SetVec3("viewPos", cam.GetPosition());
+
+	glm::vec3 lightColor( 0.3f, 0.7f, 1.3f);
+	glm::vec3 diffuseColor = lightColor * glm::vec3(0.5f); // decrease the influence
+	glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f); // low influence
+
+	m_simpleShader.SetVec3("light.ambient", 0.2f, 0.2f, 0.2f);
+	m_simpleShader.SetVec3("light.diffuse", 0.5f, 0.5f, 0.5f);
+	m_simpleShader.SetVec3("light.specular", 1.0f, 1.0f, 1.0f);
+
+	// material properties
+	m_simpleShader.SetVec3("material.ambient", 1.0f, 0.5f, 0.31f);
+	
+	// Swap Material Diffuse/Specular to use textures.
+	// m_simpleShader.SetVec3("material.diffuse", 1.0f, 0.5f, 0.31f);
+	// m_simpleShader.SetVec3("material.specular", 0.5f, 0.5f, 0.5f); // specular lighting doesn't have full effect on this object's material
+
+	m_simpleShader.SetFloat("material.shininess", 64.0f);
 }
 
 void DefaultState::Render(float alpha)
@@ -99,17 +153,21 @@ void DefaultState::Render(float alpha)
 
 	const Camera& camera = m_sceneCamera->GetCamera();
 
+	glm::mat4 view = m_sceneCamera->GetCamera().GetView();
+	glm::mat4 projection = m_sceneCamera->GetCamera().GetProjection();
+	glm::vec3 cameraPosition = m_sceneCamera->GetCamera().GetPosition();
+
+	m_simpleShader.Use();
+	m_simpleShader.SetMat4("projection", projection);
+	m_simpleShader.SetMat4("view", view);
+
 	m_sceneManager.Draw(camera);
 
 	Transform t;
-	t.RotateLocal(glm::vec3(1.0f, 0.0f, 0.0f), 90.0f);
-	t.Scale(10.0f);
+	t.SetPosition(glm::vec3(-2.0f, 0.0f, 0.0f));
 
-	m_groundShader.Use();
-	m_groundShader.SetMat4("projection", camera.GetProjection());
-	m_groundShader.SetMat4("view", camera.GetView());
-	m_groundShader.SetMat4("model", t.GetModelMat());
-	Primitives::RenderQuad();
+	m_simpleShader.SetMat4("model", t.GetModelMat());
+	Primitives::RenderCube();
 
 	// render skybox last. but before transparent objects
 	skyboxShader.Use();

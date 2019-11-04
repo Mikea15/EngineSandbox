@@ -62,4 +62,5 @@ _deps
 # No Output
 out/
 build/
-Data/
+Data/Images
+Data/Objects

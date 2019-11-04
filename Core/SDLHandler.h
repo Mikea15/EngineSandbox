@@ -6,6 +6,7 @@
 #include <unordered_map>
 
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_events.h>
 
 #include "IMGUIHandler.h"
 #include "WindowParams.h"

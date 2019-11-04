@@ -79,6 +79,8 @@ public:
 
 	unsigned int GetDefaultTex() const { return m_defaultTex; }
 
+	TextureInfo GetDefaultTexture() const { return m_defaultTexture; }
+
 private:
 	std::vector<TextureLoadData> LoadTexturesFromAssetJob(TextureAssetJob& job);
 
@@ -94,6 +96,7 @@ private:
 
 	std::unordered_map<size_t, std::shared_ptr<Model>> m_modelsMap;
 
+	TextureInfo m_defaultTexture;
 	unsigned int m_defaultTex;
 
 	ThreadSafeQueue<SimpleTextureAssetJob> m_simpleTextureAssetJobQueue;

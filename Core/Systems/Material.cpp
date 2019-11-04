@@ -53,8 +53,8 @@ void Material::BindTextures()
 		switch (m_textures[i].GetType())
 		{
 		case TextureType::DiffuseMap:
-			glActiveTexture(GL_TEXTURE3);
-			m_shader.SetInt("albedoMap", 3);
+			glActiveTexture(GL_TEXTURE0);
+			m_shader.SetInt("albedoMap", 0);
 			break;
 		case TextureType::NormalMap:
 			glActiveTexture(GL_TEXTURE4);
@@ -77,8 +77,8 @@ void Material::BindTextures()
 			m_shader.SetInt("heightMap", 8);
 			break;
 		case TextureType::SpecularMap:
-			glActiveTexture(GL_TEXTURE9);
-			m_shader.SetInt("specularMap", 9);
+			glActiveTexture(GL_TEXTURE1);
+			m_shader.SetInt("specularMap", 1);
 			break;
 		default: break;
 		}

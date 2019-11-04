@@ -15,8 +15,6 @@
 
 #include "../Core/Components/System/SceneCameraComponent.h"
 
-using namespace nlohmann;
-
 class DefaultState
 	: public State
 {
@@ -49,4 +47,7 @@ protected:
 	std::shared_ptr<Model> m_model;
 	Shader m_simpleShader;
 	Shader m_groundShader;
+
+	glm::vec3 m_lightPosition;
+	Material m_litMat;
 };

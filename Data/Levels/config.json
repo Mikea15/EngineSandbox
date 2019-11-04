@@ -1,0 +1,15 @@
+{
+    "FPSLimit": 91,
+    "Fullscreen": false,
+    "GL_MultiSampleBuffers": 1,
+    "GL_MultiSamplesSamples": 4,
+    "Resolution": {
+        "Depth": 24,
+        "DisplayIndex": 0,
+        "Height": 900,
+        "ResolutionIndex": 1,
+        "Width": 1440
+    },
+    "VSync": false,
+    "WindowName": "Sandbox"
+}

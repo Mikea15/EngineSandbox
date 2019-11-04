@@ -55,7 +55,8 @@ AssetManager::~AssetManager()
 
 void AssetManager::Initialize()
 {
-	m_defaultTex = LoadTexture("Data/Images/default.jpg").GetId();
+	m_defaultTexture = LoadTexture("Data/Images/default.jpg");
+	m_defaultTex = m_defaultTexture.GetId();
 }
 
 void AssetManager::LoaderThread()

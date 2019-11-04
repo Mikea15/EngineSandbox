@@ -1,0 +1,42 @@
+{
+    "Material": [
+        {
+            "TexturePaths": [
+                "Data/Images/pbr/rusted_iron/albedo.png"
+            ],
+            "TextureType": 1
+        },
+        {
+            "TexturePaths": [
+                "Data/Images/pbr/rusted_iron/normal.png"
+            ],
+            "TextureType": 2
+        },
+        {
+            "TexturePaths": [],
+            "TextureType": 4
+        },
+        {
+            "TexturePaths": [
+                "Data/Images/pbr/rusted_iron/metallic.png"
+            ],
+            "TextureType": 5
+        },
+        {
+            "TexturePaths": [
+                "Data/Images/pbr/rusted_iron/roughness.png"
+            ],
+            "TextureType": 7
+        },
+        {
+            "TexturePaths": [],
+            "TextureType": 3
+        },
+        {
+            "TexturePaths": [
+                "Data/Images/pbr/rusted_iron/ao.png"
+            ],
+            "TextureType": 6
+        }
+    ]
+}
