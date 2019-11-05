@@ -8,9 +8,9 @@
 
 struct HeightmapParams
 {
-	unsigned int octaves;
-	float lacunarity;
-	float persistence;
+	unsigned int octaves = 2;
+	float lacunarity = 0.2f;
+	float persistence = 0.01f;
 
 	bool operator!=(const HeightmapParams& a) const 
 	{

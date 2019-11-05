@@ -122,7 +122,8 @@ void DefaultState::Update(float deltaTime)
 	Camera& cam = m_sceneCamera->GetCamera();
 	
 	m_simpleShader.Use();
-	m_simpleShader.SetVec3("light.position", m_lightPosition);
+	m_simpleShader.SetVec3("light.position", cam.GetPosition());
+	// m_simpleShader.SetVec3("light.direction", -0.2f, -1.0f, -0.3f);
 	m_simpleShader.SetVec3("viewPos", cam.GetPosition());
 
 	glm::vec3 lightColor( 0.3f, 0.7f, 1.3f);
@@ -133,8 +134,12 @@ void DefaultState::Update(float deltaTime)
 	m_simpleShader.SetVec3("light.diffuse", 0.5f, 0.5f, 0.5f);
 	m_simpleShader.SetVec3("light.specular", 1.0f, 1.0f, 1.0f);
 
+	m_simpleShader.SetFloat("light.constant",	1.0f);
+	m_simpleShader.SetFloat("light.linear",		0.027f); // 0.09f);
+	m_simpleShader.SetFloat("light.quadratic",	0.0028f); // 0.032f);
+
 	// material properties
-	m_simpleShader.SetVec3("material.ambient", 1.0f, 0.5f, 0.31f);
+	// m_simpleShader.SetVec3("material.ambient", 1.0f, 0.5f, 0.31f);
 	
 	// Swap Material Diffuse/Specular to use textures.
 	// m_simpleShader.SetVec3("material.diffuse", 1.0f, 0.5f, 0.31f);
