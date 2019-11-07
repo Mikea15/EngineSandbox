@@ -19,8 +19,10 @@ class AssimpImporter
 public:
 	AssimpImporter();
 	
+	std::shared_ptr<Model> LoadModel2(const std::string& path);
 	std::shared_ptr<Model> LoadModel(const std::string& path);
-	std::shared_ptr<Mesh> LoadMesh(const aiScene* rootScene, const aiMesh* mesh);
+
+	std::shared_ptr<Mesh> LoadMesh(const aiMesh* mesh);
 	std::shared_ptr<Material> LoadMaterial( const aiMaterial* material, const std::string& dir);
 
 	TextureType GetTextureTypeFrom(aiTextureType type);

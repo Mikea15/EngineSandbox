@@ -43,35 +43,45 @@ std::shared_ptr<Model> AssimpImporter::LoadModel(const std::string& path)
 	return model;
 }
 
-std::shared_ptr<Mesh> AssimpImporter::LoadMesh(const aiScene* rootScene, const aiMesh* mesh)
+std::shared_ptr<Mesh> AssimpImporter::LoadMesh(const aiMesh* mesh)
 {
 	std::shared_ptr<Mesh> meshData = std::make_shared<Mesh>();
 
 	meshData->SetName(mesh->mName.C_Str());
 
 	std::vector<VertexInfo> vertices;
-	std::vector<unsigned int> indices;
-
 	for (unsigned int i = 0; i < mesh->mNumVertices; ++i)
 	{
 		VertexInfo vertex;
-		vertex.Position = glm::vec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
-
-		if(mesh->mNormals)
-			vertex.Normal = glm::vec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
-
-		if (mesh->mTangents)
-			vertex.Tangent = glm::vec3(mesh->mTangents[i].x, mesh->mTangents[i].y, mesh->mTangents[i].z);
-
-		if (mesh->mBitangents)
-			vertex.Bitangent = glm::vec3(mesh->mBitangents[i].x, mesh->mBitangents[i].y, mesh->mBitangents[i].z);
-
-		vertex.TexCoords = glm::vec2(0.0f);
-		if (mesh->mTextureCoords[0])
+		if (mesh->HasPositions()) 
 		{
-			vertex.TexCoords = glm::vec2(
+			vertex.Position = glm::vec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
+		}
+
+		if (mesh->HasNormals()) 
+		{
+			vertex.Normal = glm::vec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
+		}
+		
+		if (mesh->HasTangentsAndBitangents()) 
+		{
+			vertex.Tangent = glm::vec3(mesh->mTangents[i].x, mesh->mTangents[i].y, mesh->mTangents[i].z);
+			vertex.Bitangent = glm::vec3(mesh->mBitangents[i].x, mesh->mBitangents[i].y, mesh->mBitangents[i].z);
+		}
+
+		if (mesh->HasTextureCoords(0))
+		{
+			vertex.TexCoords0 = glm::vec2(
 				mesh->mTextureCoords[0][i].x,
 				mesh->mTextureCoords[0][i].y
+			);
+		}
+
+		if (mesh->HasTextureCoords(1))
+		{
+			vertex.TexCoords1 = glm::vec2(
+				mesh->mTextureCoords[1][i].x,
+				mesh->mTextureCoords[1][i].y
 			);
 		}
 
@@ -79,6 +89,7 @@ std::shared_ptr<Mesh> AssimpImporter::LoadMesh(const aiScene* rootScene, const a
 	}
 	meshData->SetVertices(vertices);
 
+	std::vector<unsigned int> indices;
 	for (unsigned int i = 0; i < mesh->mNumFaces; ++i)
 	{
 		aiFace face = mesh->mFaces[i];
@@ -88,6 +99,8 @@ std::shared_ptr<Mesh> AssimpImporter::LoadMesh(const aiScene* rootScene, const a
 		}
 	}
 	meshData->SetIndices(indices);
+
+	meshData->SetMaterialIndex(mesh->mMaterialIndex);
 	
 	return meshData;
 }
@@ -120,7 +133,7 @@ void AssimpImporter::ProcessModelNode(const aiScene* scene, aiNode* node, std::s
 	for (unsigned int i = 0; i < node->mNumMeshes; ++i)
 	{
 		const aiMesh* currentMesh = scene->mMeshes[node->mMeshes[i]];
-		std::shared_ptr<Mesh> loadedMesh = LoadMesh(scene, currentMesh);
+		std::shared_ptr<Mesh> loadedMesh = LoadMesh(currentMesh);
 
 		const aiMaterial* currentMaterial = scene->mMaterials[currentMesh->mMaterialIndex];
 		std::shared_ptr<Material> loadedMaterial = LoadMaterial(currentMaterial, directory);
