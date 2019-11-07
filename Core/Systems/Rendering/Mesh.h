@@ -52,6 +52,9 @@ public:
 
 	const unsigned int GetId() const { return m_id; }
 
+	void SetMaterialIndex(unsigned int index) { m_materialIndex = index; }
+	const unsigned int GetMaterialIndex() const { return m_materialIndex; }
+
 private:
 	std::string m_name;
 	std::shared_ptr<Material> m_material;
@@ -65,6 +68,8 @@ private:
 
 	unsigned int m_id;
 	bool m_isReady;
+
+	unsigned int m_materialIndex;
 
 	static unsigned int ID;
 };
