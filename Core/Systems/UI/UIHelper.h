@@ -15,5 +15,4 @@ namespace ImGui
 		ColorEdit3(label, color, flags);
 		outColor = glm::vec3(color[0], color[1], color[2]);
 	}
-
 }

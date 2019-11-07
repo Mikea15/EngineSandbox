@@ -27,6 +27,13 @@ namespace ImGui
 		return ListBox(label, currIndex, vector_getter,
 			static_cast<void*>(&values), static_cast<int>(values.size()));
 	}
+
+	void Color3(const char* label, glm::vec3& outColor, ImGuiColorEditFlags flags = ImGuiColorEditFlags_RGB)
+	{
+		float color[3] = { outColor.x, outColor.y, outColor.z };
+		ColorEdit3(label, color, flags);
+		outColor = glm::vec3(color[0], color[1], color[2]);
+	}
 }
 
 void DefaultState::Init(Game* game)
@@ -42,8 +49,7 @@ void DefaultState::Init(Game* game)
 
 
 	m_windowParams = game->GetWindowParameters();
-
-	currentParams = m_windowParams;
+	m_tempWindowParams = m_windowParams;
 
 	std::vector<std::string> faces
 	{
@@ -97,6 +103,34 @@ void DefaultState::Init(Game* game)
 	entity->GetTransform().SetScale(glm::vec3(0.1f));
 
 	m_sceneManager.AddEntity(entity);
+
+	// lights
+	PointLight l;
+	l.position = glm::vec4(1, 3, 1, 1);
+
+	l.ambient = glm::vec3(0.1f, 0.1f, 0.1f);
+	l.diffuse = glm::vec3(0.8f, 0.8f, 0.8f);
+	l.specular = glm::vec3(1.0f, 1.0f, 1.0f);
+
+	l.constant = 1.0f;
+	l.linear = 0.09f;
+	l.quadratic = 0.032f;
+
+	m_pointLights.push_back(l);
+
+	m_directionalLight.direction = glm::vec3(-0.2f, -1.0f, -0.3f);
+	m_directionalLight.ambient = glm::vec3(0.05f, 0.05f, 0.05f);
+	m_directionalLight.diffuse = glm::vec3(0.4f, 0.4f, 0.4f);
+	m_directionalLight.specular = glm::vec3(0.5f, 0.5f, 0.5f);
+
+	m_spotLight.ambient  = glm::vec3(0.0f, 0.0f, 0.0f);
+	m_spotLight.diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
+	m_spotLight.specular = glm::vec3(1.0f, 1.0f, 1.0f);
+	m_spotLight.constant = 1.0f;
+	m_spotLight.linear = 0.09f;
+	m_spotLight.quadratic  = 0.032f;
+	m_spotLight.cutOff = glm::cos(glm::radians(12.5f));
+	m_spotLight.outerCutOff = glm::cos(glm::radians(15.0f));
 }
 
 void DefaultState::HandleInput(SDL_Event* event)
@@ -107,7 +141,19 @@ void DefaultState::HandleInput(SDL_Event* event)
 		case SDLK_g:
 		{
 			Camera& cam = m_sceneCamera->GetCamera();
-			m_lightPosition = cam.GetPosition();
+
+			// Update Spotlight Position and Direction;
+			m_spotLight.position = cam.GetPosition();
+			m_spotLight.direction = cam.GetForward();
+		}
+
+
+		case SDLK_t:
+		{
+			Camera& cam = m_sceneCamera->GetCamera();
+
+			// Update Directional Light direction;
+			m_directionalLight.direction = cam.GetForward();
 		}
 			break;
 		default: break;
@@ -119,60 +165,68 @@ void DefaultState::Update(float deltaTime)
 {
 	m_sceneManager.Update(deltaTime);
 
-	Camera& cam = m_sceneCamera->GetCamera();
-	
-	m_simpleShader.Use();
-	m_simpleShader.SetVec3("light.position", cam.GetPosition());
-	// m_simpleShader.SetVec3("light.direction", -0.2f, -1.0f, -0.3f);
-	m_simpleShader.SetVec3("viewPos", cam.GetPosition());
+	if (m_updateOnTick)
+	{
+		Camera& cam = m_sceneCamera->GetCamera();
 
-	glm::vec3 lightColor( 0.3f, 0.7f, 1.3f);
-	glm::vec3 diffuseColor = lightColor * glm::vec3(0.5f); // decrease the influence
-	glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f); // low influence
-
-	m_simpleShader.SetVec3("light.ambient", 0.2f, 0.2f, 0.2f);
-	m_simpleShader.SetVec3("light.diffuse", 0.5f, 0.5f, 0.5f);
-	m_simpleShader.SetVec3("light.specular", 1.0f, 1.0f, 1.0f);
-
-	m_simpleShader.SetFloat("light.constant",	1.0f);
-	m_simpleShader.SetFloat("light.linear",		0.027f); // 0.09f);
-	m_simpleShader.SetFloat("light.quadratic",	0.0028f); // 0.032f);
-
-	// material properties
-	// m_simpleShader.SetVec3("material.ambient", 1.0f, 0.5f, 0.31f);
-	
-	// Swap Material Diffuse/Specular to use textures.
-	// m_simpleShader.SetVec3("material.diffuse", 1.0f, 0.5f, 0.31f);
-	// m_simpleShader.SetVec3("material.specular", 0.5f, 0.5f, 0.5f); // specular lighting doesn't have full effect on this object's material
-
-	m_simpleShader.SetFloat("material.shininess", 64.0f);
+		// Update Spotlight Position and Direction;
+		m_spotLight.position = cam.GetPosition();
+		m_spotLight.direction = cam.GetForward();
+	}
 }
 
 void DefaultState::Render(float alpha)
 {
 	// render
 	// ------
-	glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
+	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 	glViewport(0, 0, m_windowParams.Width, m_windowParams.Height);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	const Camera& camera = m_sceneCamera->GetCamera();
 
-	glm::mat4 view = m_sceneCamera->GetCamera().GetView();
-	glm::mat4 projection = m_sceneCamera->GetCamera().GetProjection();
-	glm::vec3 cameraPosition = m_sceneCamera->GetCamera().GetPosition();
+	glm::mat4 view = camera.GetView();
+	glm::mat4 projection = camera.GetProjection();
+	glm::vec3 cameraPosition = camera.GetPosition();
 
 	m_simpleShader.Use();
 	m_simpleShader.SetMat4("projection", projection);
 	m_simpleShader.SetMat4("view", view);
+	m_simpleShader.SetVec3("viewPos", cameraPosition);
+
+	// Set Directional light info
+	m_directionalLight.SetShader(m_simpleShader);
+
+	// Set Point Light info
+	for (auto& l : m_pointLights)
+	{
+		l.SetShader(m_simpleShader);
+	}
+	
+	// Set Spotlight Info
+	m_spotLight.SetShader(m_simpleShader);
+
+
+	m_simpleShader.SetFloat("material.shininess", 32.0f);
+
 
 	m_sceneManager.Draw(camera);
 
-	Transform t;
-	t.SetPosition(glm::vec3(-2.0f, 0.0f, 0.0f));
 
-	m_simpleShader.SetMat4("model", t.GetModelMat());
-	Primitives::RenderCube();
+	{
+		Transform t;
+		t.SetPosition(glm::vec3(-5.0f, 0.0f, 0.0f));
+		m_simpleShader.SetMat4("model", t.GetModelMat());
+		Primitives::RenderCube();
+
+		t.SetPosition(glm::vec3(0.0f, -1.0f, 0.0f));
+		m_simpleShader.SetMat4("model", t.GetModelMat());
+		Primitives::RenderCube();
+
+		t.SetPosition(glm::vec3(5.0f, 0.0f, 0.0f));
+		m_simpleShader.SetMat4("model", t.GetModelMat());
+		Primitives::RenderCube();
+	}
 
 	// render skybox last. but before transparent objects
 	skyboxShader.Use();
@@ -200,39 +254,78 @@ void DefaultState::RenderUI()
 
 		ImGui::Begin("Window Parameters");
 
-		ImGui::Combo("Resolutions", &currentParams.ResolutionIndex, displayNamesStr);
-		ImGui::Checkbox("Fullscreen", &currentParams.Fullscreen);
-		ImGui::Checkbox("VSync", &currentParams.VSync);
-		ImGui::DragInt("FPS Limit", &currentParams.FPSLimit, 1.0f, 30, 200);
+		ImGui::Combo("Resolutions", &m_tempWindowParams.ResolutionIndex, displayNamesStr);
+		ImGui::Checkbox("Fullscreen", &m_tempWindowParams.Fullscreen);
+		ImGui::Checkbox("VSync", &m_tempWindowParams.VSync);
+		ImGui::DragInt("FPS Limit", &m_tempWindowParams.FPSLimit, 1.0f, 30, 200);
 
-		ImGui::SliderInt("Multisample Buffers", &currentParams.GL_MultiSampleBuffers, 1, 4);
-		ImGui::SliderInt("Multisample Samples", &currentParams.GL_MultiSamplesSamples, 1, 32);
+		ImGui::SliderInt("Multisample Buffers", &m_tempWindowParams.GL_MultiSampleBuffers, 1, 4);
+		ImGui::SliderInt("Multisample Samples", &m_tempWindowParams.GL_MultiSamplesSamples, 1, 32);
 
 		if (ImGui::Button("Apply Changes", ImVec2(140, 30)))
 		{
-			const bool resolutionChanged = currentParams.ResolutionIndex != m_windowParams.ResolutionIndex
-				|| currentParams.VSync != m_windowParams.VSync
-				|| currentParams.Fullscreen != m_windowParams.Fullscreen;
+			const bool resolutionChanged = m_tempWindowParams.ResolutionIndex != m_windowParams.ResolutionIndex
+				|| m_tempWindowParams.VSync != m_windowParams.VSync
+				|| m_tempWindowParams.Fullscreen != m_windowParams.Fullscreen;
 
-			const bool globalSettingsChanged = currentParams.FPSLimit != m_windowParams.FPSLimit
-				|| currentParams.GL_MultiSampleBuffers != m_windowParams.GL_MultiSampleBuffers
-				|| currentParams.GL_MultiSamplesSamples != m_windowParams.GL_MultiSamplesSamples;
+			const bool globalSettingsChanged = m_tempWindowParams.FPSLimit != m_windowParams.FPSLimit
+				|| m_tempWindowParams.GL_MultiSampleBuffers != m_windowParams.GL_MultiSampleBuffers
+				|| m_tempWindowParams.GL_MultiSamplesSamples != m_windowParams.GL_MultiSamplesSamples;
 
 			if (resolutionChanged) 
 			{
-				currentParams.Width = displayModes[currentParams.ResolutionIndex].w;
-				currentParams.Height = displayModes[currentParams.ResolutionIndex].h;
+				m_tempWindowParams.Width = displayModes[m_tempWindowParams.ResolutionIndex].w;
+				m_tempWindowParams.Height = displayModes[m_tempWindowParams.ResolutionIndex].h;
 			}
 
 			if (resolutionChanged || globalSettingsChanged)
 			{
-				m_windowParams = currentParams;
+				m_windowParams = m_tempWindowParams;
 				m_sdlHandler->SetWindowParameters(m_windowParams);
 			}
 		}
 		
 		ImGui::End();
 	}
+
+	ImGui::Begin("Directional Light Settings");
+
+	DirectionalLight currentDirLightParams = m_directionalLight;
+
+	ImGui::Color3("Ambient", currentDirLightParams.ambient);
+	ImGui::Color3("Diffuse", currentDirLightParams.diffuse);
+	ImGui::Color3("Specular", currentDirLightParams.specular);
+
+	m_directionalLight = currentDirLightParams;
+
+	ImGui::End();
+
+	ImGui::Begin("SpotLight Settings");
+
+	SpotLight currentSpotLightParams = m_spotLight;
+	ImGui::Checkbox("Update OnTick", &m_updateOnTick);
+
+	ImGui::Color3("Ambient", currentSpotLightParams.ambient);
+	ImGui::Color3("Diffuse", currentSpotLightParams.diffuse);
+	ImGui::Color3("Specular", currentSpotLightParams.specular);
+	ImGui::Separator();
+	ImGui::SliderFloat("Constant", &currentSpotLightParams.constant, 0.0f, 10.0f);
+	ImGui::SliderFloat("Linear", &currentSpotLightParams.linear, 0.0f, 1.0f);
+	ImGui::SliderFloat("Quadratic", &currentSpotLightParams.quadratic, 0.0f, 5.0f, "%.5f");
+	ImGui::Separator();
+
+	float tempCutOff = currentSpotLightParams.cutOff;
+	float tempOuterCutOff = currentSpotLightParams.outerCutOff;
+
+	ImGui::SliderFloat("Inner CutOff", &tempCutOff, 0.0f, tempOuterCutOff);
+	ImGui::SliderFloat("Outer CutOff", &tempOuterCutOff, tempCutOff, 90.0f);
+
+	currentSpotLightParams.cutOff = tempCutOff;
+	currentSpotLightParams.outerCutOff = tempOuterCutOff;
+
+	m_spotLight = currentSpotLightParams;
+
+	ImGui::End();
 
 	const float DISTANCE = 10.0f;
 	static int corner = 1;
@@ -253,6 +346,8 @@ void DefaultState::RenderUI()
 		ImGui::Text("C - Toggle Perspective/Orthographic Camera");
 		ImGui::Text("F - Focus on Origin");
 		ImGui::Text("R - Reset Camera Position");
+		ImGui::Text("G - Set Spotlight Pos/Direction");
+		ImGui::Text("T - Set Directional Light Direction");
 
 		if (ImGui::BeginPopupContextWindow())
 		{

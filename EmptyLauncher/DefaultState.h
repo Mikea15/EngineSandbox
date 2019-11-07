@@ -12,8 +12,11 @@
 #include "../Core/Systems/Rendering/Primitives.h"
 #include "../Core/Systems/Rendering/Primitives/Quad.h"
 #include "../Core/Systems/Rendering/Terrain.h"
+#include "../Core/Systems/Light.h"
 
 #include "../Core/Components/System/SceneCameraComponent.h"
+
+#define N_LIGHTS 10
 
 class DefaultState
 	: public State
@@ -32,7 +35,7 @@ public:
 protected:
 	SDLHandler* m_sdlHandler;
 	WindowParams m_windowParams;
-	WindowParams currentParams;
+	WindowParams m_tempWindowParams;
 
 	SceneCameraComponent* m_sceneCamera;
 	AssetManager* m_assetManager;
@@ -48,6 +51,11 @@ protected:
 	Shader m_simpleShader;
 	Shader m_groundShader;
 
-	glm::vec3 m_lightPosition;
 	Material m_litMat;
+
+	DirectionalLight m_directionalLight;
+	
+	bool m_updateOnTick = true;
+	SpotLight m_spotLight;
+	std::vector<PointLight> m_pointLights;
 };
