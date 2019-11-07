@@ -26,6 +26,8 @@ std::shared_ptr<Model> AssimpImporter::LoadModel(const std::string& path)
 	std::shared_ptr<Model> model = std::make_shared<Model>();
 
 	Assimp::Importer importer;
+
+	// aiPostProcessSteps flags = aiProcess_Triangulate | aiProcess_CalcTangentSpace;
 	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_CalcTangentSpace);
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 	{

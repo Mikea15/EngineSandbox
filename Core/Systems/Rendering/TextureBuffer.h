@@ -5,6 +5,8 @@
 class TextureBuffer
 {
 public:
+	static void CreateTextureColorBuffer(int width, int height, unsigned int& frameBufferId, unsigned int& textureId, unsigned int& rboId);
+
 	static void CreateFrameBuffer(int width, int height, unsigned int& frameBufferId, unsigned int& textureId, unsigned int& depthTextureId);
 	static void CreateDepthMapFBO(int width, int height, unsigned int& frameBufferId, unsigned int& textureId);
 

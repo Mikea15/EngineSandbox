@@ -10,12 +10,14 @@ message(STATUS "Setting MSVC Flags")
 set (CMAKE_CXX_STANDARD 17)
 
 # Include sub-projects.
-add_subdirectory (EmptyLauncher)
 add_subdirectory (Core)
+add_subdirectory (EmptyLauncher)
+add_subdirectory (FrameBuffer)
 #  add_subdirectory (RendererOgl)
 
 # add_dependencies(RendererOgl Core)
 add_dependencies(EmptyLauncher Core)
+add_dependencies(FrameBuffer Core)
 
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT EmptyLauncher)
 
