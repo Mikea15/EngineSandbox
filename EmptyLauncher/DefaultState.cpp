@@ -129,8 +129,8 @@ void DefaultState::Init(Game* game)
 	m_spotLight.constant = 1.0f;
 	m_spotLight.linear = 0.09f;
 	m_spotLight.quadratic  = 0.032f;
-	m_spotLight.cutOff = glm::cos(glm::radians(12.5f));
-	m_spotLight.outerCutOff = glm::cos(glm::radians(15.0f));
+	m_spotLight.cutOff = 12.5f;
+	m_spotLight.outerCutOff = 15.0f;
 }
 
 void DefaultState::HandleInput(SDL_Event* event)
@@ -146,8 +146,6 @@ void DefaultState::HandleInput(SDL_Event* event)
 			m_spotLight.position = cam.GetPosition();
 			m_spotLight.direction = cam.GetForward();
 		}
-
-
 		case SDLK_t:
 		{
 			Camera& cam = m_sceneCamera->GetCamera();
@@ -206,9 +204,8 @@ void DefaultState::Render(float alpha)
 	// Set Spotlight Info
 	m_spotLight.SetShader(m_simpleShader);
 
-
 	m_simpleShader.SetFloat("material.shininess", 32.0f);
-
+	m_simpleShader.SetVec2("uvScale", glm::vec2(1.0f, 1.0f));
 
 	m_sceneManager.Draw(camera);
 
@@ -224,6 +221,12 @@ void DefaultState::Render(float alpha)
 		Primitives::RenderCube();
 
 		t.SetPosition(glm::vec3(5.0f, 0.0f, 0.0f));
+		m_simpleShader.SetMat4("model", t.GetModelMat());
+		Primitives::RenderCube();
+
+		t.SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+		t.SetScale(glm::vec3(100.0f, 0.1f, 100.0f));
+		m_simpleShader.SetVec2("uvScale", glm::vec2(100.f, 100.f));
 		m_simpleShader.SetMat4("model", t.GetModelMat());
 		Primitives::RenderCube();
 	}
