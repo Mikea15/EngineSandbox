@@ -27,6 +27,8 @@ public:
 	~Material() = default;
 
 	void SetShader(const Shader& shader);
+	Shader& GetShader() { return m_shader; }
+
 	void SetMVP(const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection);
 	void SetMaterialProperty(const std::string& name, const std::variant<int, float, std::string, bool>& value);
 
@@ -34,7 +36,6 @@ public:
 
 	void AddTexture(TextureInfo texture);
 	void AddTexturePath(TextureType type, const std::string& path);
-	void AddTexturePaths(TextureType type, const std::vector<std::string>& paths);
 
 	std::vector<std::string> GetTexturePaths(TextureType type) { return m_texturePathPerType[type]; }
 	const std::vector<std::string> GetTexturePathsConst(TextureType type) const 

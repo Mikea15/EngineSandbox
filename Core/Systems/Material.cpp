@@ -54,7 +54,7 @@ void Material::BindTextures()
 		{
 		case TextureType::DiffuseMap:
 			glActiveTexture(GL_TEXTURE0);
-			m_shader.SetInt("albedoMap", 0);
+			m_shader.SetInt("material.diffuse", 0);
 			break;
 		case TextureType::NormalMap:
 			glActiveTexture(GL_TEXTURE4);
@@ -78,7 +78,7 @@ void Material::BindTextures()
 			break;
 		case TextureType::SpecularMap:
 			glActiveTexture(GL_TEXTURE1);
-			m_shader.SetInt("specularMap", 1);
+			m_shader.SetInt("material.specular", 1);
 			break;
 		default: break;
 		}
@@ -95,10 +95,5 @@ void Material::AddTexture(TextureInfo texture)
 void Material::AddTexturePath(TextureType type, const std::string& path)
 {
 	m_texturePathPerType[type].push_back(path);
-}
-
-void Material::AddTexturePaths(TextureType type, const std::vector<std::string>& paths)
-{
-	m_texturePathPerType[type] = paths;
 }
 

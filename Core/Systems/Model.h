@@ -29,15 +29,20 @@ public:
 
 	void Draw(const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection);
 	void Draw(Material& material);
-	void Draw(const Shader& shader);
-	void DrawInstanced(const Shader& shader, int instanceCount);
 
+	void AddMesh(std::shared_ptr<Mesh> mesh);
 	std::vector<std::shared_ptr<Mesh>>& GetMeshes() { return m_meshes; }
 	unsigned int GetMeshCount() const { return static_cast<unsigned int>(m_meshes.size()); }
 
-	void AddMesh(std::shared_ptr<Mesh> mesh);
+	void AddMaterial(std::shared_ptr<Material> material);
+	std::vector<std::shared_ptr<Material>>& GetMaterials() { return m_materials; }
+	unsigned int GetMaterialCount() const { return static_cast<unsigned int>(m_materials.size()); }
+
+	void SetMaterialOverride(std::shared_ptr<Material> material) { m_materialOverride = std::move(material); }
 
 private:
 	std::vector<std::shared_ptr<Mesh>> m_meshes;
-	int i;
+	std::vector<std::shared_ptr<Material>> m_materials;
+
+	std::shared_ptr<Material> m_materialOverride;
 };

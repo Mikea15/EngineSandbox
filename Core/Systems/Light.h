@@ -5,7 +5,7 @@
 
 struct DirectionalLight
 {
-	void SetShader(Shader& shader)
+	void SetShaderProperties(Shader& shader)
 	{
 		shader.SetVec3("dirLight.direction", direction);
 
@@ -23,7 +23,7 @@ struct DirectionalLight
 
 struct PointLight
 {
-	void SetShader(Shader& shader)
+	void SetShaderProperties(Shader& shader)
 	{
 		shader.SetVec3("pointLights[0].position", position);
 
@@ -49,7 +49,7 @@ struct PointLight
 
 struct SpotLight
 {
-	void SetShader(Shader& shader) 
+	void SetShaderProperties(Shader& shader) 
 	{
 		shader.SetVec3("spotLight.position", position);
 		shader.SetVec3("spotLight.direction", direction);

@@ -7,10 +7,16 @@
 
 #include "Vertex.h"
 
+
+
 unsigned int Mesh::ID = 0;
 
 Mesh::Mesh()
 	: m_id(++ID)
+	, m_VAO(0)
+	, m_VBO(0)
+	, m_EBO(0)
+	, m_materialIndex(0)
 	, m_isReady(false)
 {
 }
@@ -24,7 +30,7 @@ Mesh::Mesh(const Mesh& copy)
 	, m_EBO(copy.m_EBO)
 	, m_isReady(copy.m_isReady)
 	, m_name(copy.m_name)
-	, m_material(copy.m_material)
+	, m_materialIndex(copy.m_materialIndex)
 {
 }
 
@@ -37,7 +43,7 @@ Mesh::Mesh(Mesh&& move)
 	, m_EBO(move.m_EBO)
 	, m_isReady(move.m_isReady)
 	, m_name(move.m_name)
-	, m_material(move.m_material)
+	, m_materialIndex(move.m_materialIndex)
 {
 }
 
@@ -51,7 +57,7 @@ Mesh& Mesh::operator=(const Mesh & assign)
 	m_EBO = assign.m_EBO;
 	m_isReady = assign.m_isReady;
 	m_name = assign.m_name;
-	m_material = assign.m_material;
+	m_materialIndex = assign.m_materialIndex;
 	return *this;
 }
 
@@ -99,7 +105,7 @@ void Mesh::CreateBuffers()
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(VertexInfo), (void*)offsetof(VertexInfo, Normal));
 	// vertex texture coords
 	glEnableVertexAttribArray(2); // layout (location = 2)
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(VertexInfo), (void*)offsetof(VertexInfo, TexCoords));
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(VertexInfo), (void*)offsetof(VertexInfo, TexCoords0));
 	// vertex tangent
 	glEnableVertexAttribArray(3); // layout (location = 3)
 	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(VertexInfo), (void*)offsetof(VertexInfo, Tangent));
@@ -112,83 +118,26 @@ void Mesh::CreateBuffers()
 	m_isReady = m_VAO != 0;
 }
 
-void Mesh::Draw()
+void Mesh::Draw(unsigned int instanceCount /*= 1*/) const
 {
-	if (!m_isReady)
-	{
-		return;
-	}
-
-	if (m_material != nullptr)
-	{
-		m_material->BindTextures();
-	}
-
 	// draw mesh
 	glBindVertexArray(m_VAO);
-	glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(m_indices.size()), GL_UNSIGNED_INT, 0);
+
+	if (instanceCount > 1)
+	{
+		glDrawElementsInstanced(GL_TRIANGLES,
+			static_cast<GLsizei>(m_indices.size()),
+			GL_UNSIGNED_INT, 0, instanceCount);
+	}
+	else
+	{
+		glDrawElements(GL_TRIANGLES,
+			static_cast<GLsizei>(m_indices.size()),
+			GL_UNSIGNED_INT, 0);
+	}
+
 	glBindVertexArray(0);
 
 	// always good practice to set everything back to defaults once configured.
 	glActiveTexture(GL_TEXTURE0);
 }
-
-void Mesh::Draw(Material& material)
-{
-	if (!m_isReady)
-	{
-		return;
-	}
-
-	material.BindTextures();
-
-	// draw mesh
-	glBindVertexArray(m_VAO);
-	glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(m_indices.size()), GL_UNSIGNED_INT, 0);
-	glBindVertexArray(0);
-
-	// always good practice to set everything back to defaults once configured.
-	glActiveTexture(GL_TEXTURE0);
-}
-
-
-void Mesh::Draw(const Shader& shader)
-{
-	if (!m_isReady) 
-	{
-		return;
-	}
-
-	if (m_material != nullptr) 
-	{
-		m_material->SetShader(shader);
-		m_material->BindTextures();
-	}
-
-	// draw mesh
-	glBindVertexArray(m_VAO);
-	glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(m_indices.size()), GL_UNSIGNED_INT, 0);
-	glBindVertexArray(0);
-
-	// always good practice to set everything back to defaults once configured.
-	glActiveTexture(GL_TEXTURE0);
-}
-
-void Mesh::DrawInstanced(const Shader& shader, int instanceCount)
-{
-	if (!m_isReady)
-	{
-		return;
-	}
-	m_material->SetShader(shader);
-	m_material->BindTextures();
-
-	// draw mesh
-	glBindVertexArray(m_VAO);
-	glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(m_indices.size()), GL_UNSIGNED_INT, 0, instanceCount);
-	glBindVertexArray(0);
-
-	glActiveTexture(GL_TEXTURE0);
-}
-
-

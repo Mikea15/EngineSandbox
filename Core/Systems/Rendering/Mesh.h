@@ -36,15 +36,9 @@ public:
 	void SetName(const std::string& name) { m_name = name; }
 	const std::string& GetName() const { return m_name; }
 	
-	void SetMaterial(std::shared_ptr<Material> material) { m_material = material; }
-	std::shared_ptr<Material> GetMaterial() { return m_material; }
-
 	void CreateBuffers();
 
-	void Draw();
-	void Draw(Material& material);
-	void Draw(const Shader& shader);
-	void DrawInstanced(const Shader& shader, int instanceCount);
+	void Draw(unsigned int instanceCount = 1) const;
 
 	const unsigned int GetVAO() const { return m_VAO; }
 	const unsigned int GetVBO() const { return m_VBO; }
@@ -56,20 +50,17 @@ public:
 	const unsigned int GetMaterialIndex() const { return m_materialIndex; }
 
 private:
-	std::string m_name;
-	std::shared_ptr<Material> m_material;
-
 	std::vector<VertexInfo> m_vertices;
 	std::vector<unsigned int> m_indices;
+	std::string m_name;
 
+	unsigned int m_id;
 	unsigned int m_VAO; // vertex array object
 	unsigned int m_VBO; // vertex buffer object
 	unsigned int m_EBO; // element buffer object
-
-	unsigned int m_id;
-	bool m_isReady;
-
 	unsigned int m_materialIndex;
+
+	bool m_isReady;
 
 	static unsigned int ID;
 };
