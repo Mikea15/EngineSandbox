@@ -132,6 +132,8 @@ std::shared_ptr<Model> AssetManager::LoadModel(const std::string& path)
 	std::string lowercasePath = GetLowercase(path);
 	size_t pathHash = std::hash<std::string>{}(lowercasePath);
 
+	std::cout << "[AssetManager] Loading Model: " << lowercasePath << "\n";
+
 	std::shared_ptr<Model> model = m_assimpImporter.LoadModel(lowercasePath);
 	if (!model)
 	{
@@ -139,12 +141,13 @@ std::shared_ptr<Model> AssetManager::LoadModel(const std::string& path)
 	}
 
 	m_modelsMap.emplace(pathHash, model);
+
+	std::cout << "[AssetManager] Loading Material\n";
 	
-	const std::vector<std::shared_ptr<Mesh>>& meshes = model->GetMeshes();
-	const unsigned int meshCount = static_cast<unsigned int>(meshes.size());
-	for (const std::shared_ptr<Mesh>& mesh : meshes)
+	const std::vector<std::shared_ptr<Material>>& materials = model->GetMaterials();
+	const unsigned int meshCount = static_cast<unsigned int>(materials.size());
+	for (const std::shared_ptr<Material>& material : materials)
 	{
-		const std::shared_ptr<Material>& material = mesh->GetMaterial();
 		m_materialCache.push_back(material);
 
 		std::shared_ptr<Material> materialRef = m_materialCache.back();
@@ -171,12 +174,10 @@ std::shared_ptr<Model> AssetManager::LoadModel(const std::string& path)
 				material->AddTexture(texInfo);
 			}
 #endif
-
 		}
-		
-		
-		m_meshCache.push_back(mesh);
 	}
+
+	std::cout << "[AssetManager] Model Finished loading\n";
 
 	return model;
 }

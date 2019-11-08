@@ -27,18 +27,50 @@ std::shared_ptr<Model> AssimpImporter::LoadModel(const std::string& path)
 
 	Assimp::Importer importer;
 
-	// aiPostProcessSteps flags = aiProcess_Triangulate | aiProcess_CalcTangentSpace;
-	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_CalcTangentSpace);
+	std::cout << "[Import] Model: " << path << " loading...";
+	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate);
+
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 	{
-		std::cerr << "[AssetManager] Model: " << path << " failed to load.\n";
+		std::cerr << "[Import] Model: " << path << " failed to load.\n";
 		std::cerr << "[Error] Assimp: " << importer.GetErrorString() << "\n";
-		return model;
 	}
+
+	std::cout << " [ok]\n";
 
 	const std::string currentDirectory = path.substr(0, path.find_last_of('/') + 1);
 
-	ProcessModelNode(scene, scene->mRootNode, model, currentDirectory);
+	if (scene->HasMaterials()) 
+	{
+		std::cout << "[Import] Materials \n";
+		const unsigned int materialCount = scene->mNumMaterials;
+		for (unsigned int i = 0; i < materialCount; ++i)
+		{
+			std::cout << "[Import] ["<< i <<"/"<< materialCount <<"] Material: " << scene->mMaterials[i]->GetName().C_Str();
+
+			auto material = LoadMaterial(scene->mMaterials[i], currentDirectory);
+			model->AddMaterial(material);
+
+			std::cout << " [ok]\n";
+		}
+	}
+
+	if (scene->HasMeshes())
+	{
+		std::cout << "[Import] Meshes \n";
+		const unsigned int meshCount = scene->mNumMeshes;
+		for (unsigned int i = 0; i < meshCount; ++i)
+		{
+			std::cout << "[Import] [" << i << "/" << meshCount << "] Mesh: " << scene->mMeshes[i]->mName.C_Str();
+
+			auto mesh = LoadMesh(scene->mMeshes[i]);
+			model->AddMesh(mesh);
+
+			std::cout << " [ok]\n";
+		}
+	}
+
+	std::cout << "[Import] Model imported.\n";
 
 	return model;
 }
@@ -123,29 +155,9 @@ std::shared_ptr<Material> AssimpImporter::LoadMaterial(const aiMaterial* materia
 	return newMaterial;
 }
 
-TextureType AssimpImporter::GetTextureTypeFrom(aiTextureType type)
+TextureType AssimpImporter::GetTextureTypeFrom(aiTextureType type) 
 {
 	return m_typeConversion[type];
-}
-
-void AssimpImporter::ProcessModelNode(const aiScene* scene, aiNode* node, std::shared_ptr<Model> model, const std::string& directory)
-{
-	for (unsigned int i = 0; i < node->mNumMeshes; ++i)
-	{
-		const aiMesh* currentMesh = scene->mMeshes[node->mMeshes[i]];
-		std::shared_ptr<Mesh> loadedMesh = LoadMesh(currentMesh);
-
-		const aiMaterial* currentMaterial = scene->mMaterials[currentMesh->mMaterialIndex];
-		std::shared_ptr<Material> loadedMaterial = LoadMaterial(currentMaterial, directory);
-
-		loadedMesh->SetMaterial(loadedMaterial);
-		model->AddMesh(loadedMesh);
-	}
-
-	for (unsigned int i = 0; i < node->mNumChildren; ++i)
-	{
-		ProcessModelNode(scene, node->mChildren[i], model, directory);
-	}
 }
 
 

@@ -105,7 +105,6 @@ private:
 	ThreadSafeQueue<TextureAssetJob> m_textureAssetJobQueue;
 	ThreadSafeQueue<TextureAssetJobResult> m_textureAssetJobResultQueue;
 
-	std::vector<std::shared_ptr<Mesh>> m_meshCache;
 	std::vector<std::shared_ptr<Material>> m_materialCache;
 
 	int m_maxThreads = 1;

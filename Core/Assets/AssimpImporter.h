@@ -19,7 +19,6 @@ class AssimpImporter
 public:
 	AssimpImporter();
 	
-	std::shared_ptr<Model> LoadModel2(const std::string& path);
 	std::shared_ptr<Model> LoadModel(const std::string& path);
 
 	std::shared_ptr<Mesh> LoadMesh(const aiMesh* mesh);
@@ -27,9 +26,6 @@ public:
 
 	TextureType GetTextureTypeFrom(aiTextureType type);
 	std::vector<aiTextureType> GetSupportedTypes() const { return m_supportedTypes; }
-
-private:
-	void ProcessModelNode(const aiScene* scene, aiNode* node, std::shared_ptr<Model> model, const std::string& directory);
 
 private:
 	std::unordered_map<aiTextureType, TextureType> m_typeConversion;
