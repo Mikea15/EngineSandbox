@@ -48,10 +48,11 @@ protected:
 	Skybox::Settings skyboxSettings;
 
 	std::shared_ptr<Model> m_model;
+
 	Shader m_simpleShader;
 	Shader m_groundShader;
 
-	Material m_litMat;
+	Material m_defaultMat;
 
 	DirectionalLight m_directionalLight;
 	

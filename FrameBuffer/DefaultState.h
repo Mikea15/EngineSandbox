@@ -25,7 +25,6 @@ public:
 	DefaultState() = default;
 	virtual ~DefaultState() = default;
 
-
 	void Init(Game* game) override;
 	void HandleInput(SDL_Event* event) override;
 	void Update(float deltaTime) override;
@@ -51,8 +50,6 @@ protected:
 	std::shared_ptr<Model> m_model;
 	Shader m_simpleShader;
 	Shader m_groundShader;
-
-	Material m_litMat;
 
 	DirectionalLight m_directionalLight;
 	

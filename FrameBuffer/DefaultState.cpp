@@ -70,9 +70,9 @@ void DefaultState::Init(Game* game)
 	skyboxShader = shaderManager.LoadShader("gradientSkybox", "skybox/skybox.vert", "skybox/horizon_sun.frag");
 	m_simpleShader = shaderManager.LoadShader("lighting", "lit/basic.vert", "lit/basic.frag");
 	
-	m_simpleShader.Use();
-	m_simpleShader.SetInt("material.diffuse", m_assetManager->GetDefaultTex());
-	m_simpleShader.SetInt("material.specular", m_assetManager->GetDefaultTex());
+	// m_simpleShader.Use();
+	// m_simpleShader.SetInt("material.diffuse", m_assetManager->GetDefaultTex());
+	// m_simpleShader.SetInt("material.specular", m_assetManager->GetDefaultTex());
 
 	m_simpleShader.SetVec3("objectColor", 1.0f, 0.5f, 0.31f);
 	m_simpleShader.SetVec3("lightColor", 1.0f, 1.0f, 1.0f);
@@ -86,21 +86,10 @@ void DefaultState::Init(Game* game)
 	m_screenShader.Use();
 	m_screenShader.SetInt("screenTexture", 0);
 
-	TextureInfo df = m_assetManager->GetDefaultTexture();
-	m_litMat.AddTexture(df);
-	df.m_textureType = TextureType::SpecularMap;
-	m_litMat.AddTexture(df);
-	m_litMat.SetMaterialProperty("material.diffuse", (int) df.m_id);
-	m_litMat.SetMaterialProperty("material.specular", (int) df.m_id);
-	m_litMat.SetShader(m_simpleShader);
-
 	m_model = m_assetManager->LoadModel("Data/Objects/sponza/sponza_.fbx");
+	// m_model = m_assetManager->LoadModel("Data/Objects/sanmiguel/sanmiguel.fbx");
 	m_model->Initialize();
-	// Override material and shader.
-	for (auto m : m_model->GetMeshes())
-	{
-		m->SetMaterial(std::make_shared<Material>(m_litMat));
-	}
+	m_model->SetShader(m_simpleShader);
 
 	std::shared_ptr<Entity> entity = std::make_shared<Entity>();
 	entity->SetModel(*m_model);
@@ -201,48 +190,29 @@ void DefaultState::Render(float alpha)
 	glm::mat4 projection = camera.GetProjection();
 	glm::vec3 cameraPosition = camera.GetPosition();
 
+	// custom light settings for this shader.
 	m_simpleShader.Use();
 	m_simpleShader.SetMat4("projection", projection);
 	m_simpleShader.SetMat4("view", view);
 	m_simpleShader.SetVec3("viewPos", cameraPosition);
 
 	// Set Directional light info
-	m_directionalLight.SetShader(m_simpleShader);
+	m_directionalLight.SetShaderProperties(m_simpleShader);
 
 	// Set Point Light info
 	for (auto& l : m_pointLights)
 	{
-		l.SetShader(m_simpleShader);
+		l.SetShaderProperties(m_simpleShader);
 	}
 	
 	// Set Spotlight Info
-	m_spotLight.SetShader(m_simpleShader);
+	m_spotLight.SetShaderProperties(m_simpleShader);
 
 	m_simpleShader.SetFloat("material.shininess", 32.0f);
 	m_simpleShader.SetVec2("uvScale", glm::vec2(1.0f, 1.0f));
+	// --
 
 	m_sceneManager.Draw(camera);
-
-	{
-		//Transform t;
-		//t.SetPosition(glm::vec3(-5.0f, 0.0f, 0.0f));
-		//m_simpleShader.SetMat4("model", t.GetModelMat());
-		//Primitives::RenderCube();
-
-		//t.SetPosition(glm::vec3(0.0f, -1.0f, 0.0f));
-		//m_simpleShader.SetMat4("model", t.GetModelMat());
-		//Primitives::RenderCube();
-
-		//t.SetPosition(glm::vec3(5.0f, 0.0f, 0.0f));
-		//m_simpleShader.SetMat4("model", t.GetModelMat());
-		//Primitives::RenderCube();
-
-		//t.SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
-		//t.SetScale(glm::vec3(100.0f, 0.1f, 100.0f));
-		//m_simpleShader.SetVec2("uvScale", glm::vec2(100.f, 100.f));
-		//m_simpleShader.SetMat4("model", t.GetModelMat());
-		//Primitives::RenderCube();
-	}
 
 	// render skybox last. but before transparent objects
 	skyboxShader.Use();
