@@ -6,9 +6,13 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
-void TextureManager::LoadTexture(const std::string& path, TextureLoadData& outData)
+void TextureManager::LoadTexture(const std::string& path, TextureLoadData& outData, bool flipVertically)
 {
 	std::cout << "[TextureManager] Loading " << path << "\n";
+
+	stbi_set_flip_vertically_on_load(flipVertically);
+	// stbi_hdr_to_ldr_gamma(2.2f);
+	// stbi_hdr_to_ldr_scale(1.0f);
 
 	int height = 0, width = 0, channels = 0;
 	unsigned char* data = stbi_load(path.c_str(), &width, &height, &channels, 0);
@@ -50,23 +54,25 @@ TextureInfo TextureManager::GenerateTexture(TextureLoadData textureData, Texture
 
 	GLenum internalFormat = 0;
 	GLenum dataFormat = 0;
+
+	const bool gammaCorrect = useGammaCorrection && type == TextureType::DiffuseMap;
+
 	if (textureData.m_channels == 1)
 	{
 		internalFormat = dataFormat = GL_RED;
 	}
 	else if (textureData.m_channels == 3)
 	{
-		internalFormat = useGammaCorrection ? GL_SRGB : GL_RGB;
+		internalFormat = gammaCorrect ? GL_SRGB : GL_RGB;
 		dataFormat = GL_RGB;
 	}
 	else if (textureData.m_channels == 4)
 	{
-		internalFormat = useGammaCorrection ? GL_SRGB_ALPHA : GL_RGBA;
+		internalFormat = gammaCorrect ? GL_SRGB_ALPHA : GL_RGBA;
 		dataFormat = GL_RGBA;
 	}
 
 	glGenTextures(1, &texInfo.m_id);
-
 	glBindTexture(GL_TEXTURE_2D, texInfo.m_id);
 	glTexImage2D(GL_TEXTURE_2D, 0, internalFormat,
 		textureData.m_width,
@@ -75,9 +81,9 @@ TextureInfo TextureManager::GenerateTexture(TextureLoadData textureData, Texture
 		textureData.m_dataPtr);
 
 	glGenerateMipmap(GL_TEXTURE_2D);
-
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 

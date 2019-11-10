@@ -54,6 +54,9 @@ protected:
 	Shader m_screenShader;
 	Material m_defaultMat;
 
+	// materialShininess
+	float shininess = 32.0f;
+
 	unsigned int quadVAO, quadVBO;
 	unsigned int m_frameBufferId;
 	unsigned int m_textureColorId;

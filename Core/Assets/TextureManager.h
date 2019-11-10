@@ -52,9 +52,9 @@ class TextureManager
 public:
 	TextureManager() = default;
 
-	void LoadTexture(const std::string& path, TextureLoadData& outData);
+	void LoadTexture(const std::string& path, TextureLoadData& outData, bool flipVertically = true);
 
-	void LoadHDRTexture(const std::string& path, HDRTextureLoadData& outData, bool flipVertically = false);
+	void LoadHDRTexture(const std::string& path, HDRTextureLoadData& outData, bool flipVertically = true);
 
 	TextureInfo GenerateTexture(TextureLoadData textureData, TextureType type, bool useGammaCorrection);
 

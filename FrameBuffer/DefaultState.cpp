@@ -37,13 +37,13 @@ void DefaultState::Init(Game* game)
 	m_simpleShader = m_assetManager->LoadShader("lighting", "lit/basic.vert", "lit/basic.frag");
 	
 	m_simpleShader.Use();
-	// m_simpleShader.SetInt("material.diffuse", m_assetManager->GetDefaultTex());
-	// m_simpleShader.SetInt("material.specular", m_assetManager->GetDefaultTex());
 	m_simpleShader.SetVec3("objectColor", 1.0f, 0.5f, 0.31f);
 	m_simpleShader.SetVec3("lightColor", 1.0f, 1.0f, 1.0f);
+	m_simpleShader.SetFloat("material.shininess", shininess);
 
 	// m_model = m_assetManager->LoadModel("Data/Objects/sponza/sponza_.fbx");
-	m_model = m_assetManager->LoadModel("Data/Objects/sanmiguel/san-miguel-low-poly.obj");
+	// m_model = m_assetManager->LoadModel("Data/Objects/sanmiguel/san-miguel-low-poly.obj");
+	m_model = m_assetManager->LoadModel("Data/Objects/nanosuit/nanosuit.obj");
 	m_model->Initialize();
 	m_model->SetShader(m_simpleShader);
 	// m_model->SetMaterialOverride(std::make_shared<Material>(m_defaultMat));
@@ -108,6 +108,7 @@ void DefaultState::HandleInput(SDL_Event* event)
 			m_spotLight->position = cam.GetPosition();
 			m_spotLight->direction = cam.GetForward();
 		}
+			break;
 		case SDLK_t:
 		{
 			Camera& cam = m_sceneCamera->GetCamera();
@@ -133,11 +134,17 @@ void DefaultState::Update(float deltaTime)
 		// Update Spotlight Position and Direction;
 		m_spotLight->position = cam.GetPosition();
 		m_spotLight->direction = cam.GetForward();
+
+		m_simpleShader.Use();
+		m_simpleShader.SetVec3("viewPos", cam.GetForward());
+		// m_directionalLight->direction = cam.GetForward();
 	}
 }
 
+
 void DefaultState::Render(float alpha)
 {
+
 	// render
 	// ------
 	glBindFramebuffer(GL_FRAMEBUFFER, m_frameBufferId);
@@ -213,6 +220,13 @@ void DefaultState::RenderUI()
 
 	*m_spotLight = currentSpotLightParams;
 
+	ImGui::End();
+
+	ImGui::Begin("Simple Material Settings");
+	ImGui::SliderFloat("Shininess", &shininess, 0.0f, 64.0f);
+
+	m_simpleShader.Use();
+	m_simpleShader.SetFloat("material.shininess", shininess);
 	ImGui::End();
 
 	const float DISTANCE = 10.0f;

@@ -95,6 +95,7 @@ void DefaultState::HandleInput(SDL_Event* event)
 			m_spotLight->position = cam.GetPosition();
 			m_spotLight->direction = cam.GetForward();
 		}
+			break;
 		case SDLK_t:
 		{
 			Camera& cam = m_sceneCamera->GetCamera();

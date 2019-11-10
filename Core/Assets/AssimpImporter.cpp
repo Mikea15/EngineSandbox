@@ -28,7 +28,7 @@ std::shared_ptr<Model> AssimpImporter::LoadModel(const std::string& path)
 	Assimp::Importer importer;
 
 	std::cout << "[Import] Model: " << path << " loading...";
-	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate);
+	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_CalcTangentSpace /* | aiProcess_GenNormals */);
 
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 	{
@@ -103,17 +103,9 @@ std::shared_ptr<Mesh> AssimpImporter::LoadMesh(const aiMesh* mesh)
 
 		if (mesh->HasTextureCoords(0))
 		{
-			vertex.TexCoords0 = glm::vec2(
+			vertex.TexCoords = glm::vec2(
 				mesh->mTextureCoords[0][i].x,
 				mesh->mTextureCoords[0][i].y
-			);
-		}
-
-		if (mesh->HasTextureCoords(1))
-		{
-			vertex.TexCoords1 = glm::vec2(
-				mesh->mTextureCoords[1][i].x,
-				mesh->mTextureCoords[1][i].y
 			);
 		}
 

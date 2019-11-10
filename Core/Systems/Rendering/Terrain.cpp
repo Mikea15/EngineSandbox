@@ -62,10 +62,10 @@ void Terrain::GenerateMesh()
 			vertices[index + 3].Normal = glm::normalize(glm::cross(v3 - v1, v3 - v0));
 
 			// uvs
-			vertices[index + 0].TexCoords0 = glm::vec2(0, 0);
-			vertices[index + 1].TexCoords0 = glm::vec2(1, 0);
-			vertices[index + 2].TexCoords0 = glm::vec2(0, 1);
-			vertices[index + 3].TexCoords0 = glm::vec2(1, 1);
+			vertices[index + 0].TexCoords = glm::vec2(0, 0);
+			vertices[index + 1].TexCoords = glm::vec2(1, 0);
+			vertices[index + 2].TexCoords = glm::vec2(0, 1);
+			vertices[index + 3].TexCoords = glm::vec2(1, 1);
 		}
 	}
 
