@@ -1,10 +1,12 @@
 #include "AssetManager.h"
 
-#include <algorithm>
+
 #include <string>
 #include <chrono>
 #include <thread>
 #include <future>
+
+#include "../Utils.h"
 
 #define MULTITHREAD 0
 
@@ -56,7 +58,6 @@ AssetManager::~AssetManager()
 void AssetManager::Initialize()
 {
 	m_defaultTexture = LoadTexture("Data/Images/default.jpg");
-	m_defaultTex = m_defaultTexture.GetId();
 }
 
 void AssetManager::LoaderThread()
@@ -129,8 +130,8 @@ void AssetManager::Update()
 
 std::shared_ptr<Model> AssetManager::LoadModel(const std::string& path)
 {
-	std::string lowercasePath = GetLowercase(path);
-	size_t pathHash = std::hash<std::string>{}(lowercasePath);
+	std::string lowercasePath = Utils::Lowercase(path);
+	size_t pathHash = Utils::Hash(lowercasePath);
 
 	std::cout << "[AssetManager] Loading Model: " << lowercasePath << "\n";
 
@@ -209,8 +210,7 @@ void AssetManager::LoadTexture(Material& material)
 
 TextureInfo AssetManager::LoadTexture(const std::string& path, TextureType type)
 {
-	std::string lowercasePath = path;
-	GetLowercase(lowercasePath);
+	std::string lowercasePath = Utils::Lowercase(path);
 
 	const TextureInfo texture = m_textureManager.FindTexture(lowercasePath);
 	if (texture.IsValid())
@@ -231,10 +231,17 @@ TextureInfo AssetManager::LoadTexture(const std::string& path, TextureType type)
 	return m_textureManager.GenerateTexture(textureData, type, m_properties.m_gammaCorrection);
 }
 
+void AssetManager::LoadShader(const std::string& name, const std::string& vertPath, const std::string& fragPath, const std::string& geomFrag)
+{
+	std::string lowercase = Utils::Lowercase(name);
+	size_t nameHash = Utils::Hash(lowercase);
+
+	m_shaderManager.LoadShader(vertPath, fragPath, geomFrag);
+}
+
 void AssetManager::LoadTextureAsync(const std::string& path, unsigned int* outId)
 {
-	std::string lowercasePath = path;
-	GetLowercase(lowercasePath);
+	std::string lowercasePath = Utils::Lowercase(path);
 
 	const TextureInfo texture = m_textureManager.FindTexture(lowercasePath);
 	if (texture.IsValid())
@@ -254,7 +261,7 @@ void AssetManager::LoadTextureAsync(const std::string& path, unsigned int* outId
 	// return default texture while we load the intended one.
 	// note: expand this to be handled by material, so we return
 	// a temporary material instead. ( which in turn, has the temp tex )
-	*outId = m_defaultTex;
+	*outId = m_defaultTexture.GetId();
 }
 
 unsigned int AssetManager::LoadCubemap(const std::string& cubemapName, const std::vector<std::string>& paths)
@@ -288,8 +295,7 @@ unsigned int AssetManager::LoadCubemap(const std::string& cubemapName, const std
 
 unsigned int AssetManager::GetHDRTexture(const std::string& path)
 {
-	std::string lowercasePath = path;
-	GetLowercase(lowercasePath);
+	std::string lowercasePath = Utils::Lowercase(path);
 
 	const TextureInfo texture = m_textureManager.FindTexture(lowercasePath);
 	if (texture.IsValid())
@@ -324,9 +330,3 @@ std::vector<TextureLoadData> AssetManager::LoadTexturesFromAssetJob(TextureAsset
 	return textureInfos;
 }
 
-std::string AssetManager::GetLowercase(const std::string& path)
-{
-	std::string lowercasePath = path;
-	std::transform(lowercasePath.begin(), lowercasePath.end(), lowercasePath.begin(), ::tolower);
-	return lowercasePath;
-}

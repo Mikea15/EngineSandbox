@@ -58,6 +58,7 @@ protected:
 	std::vector<PointLight> m_pointLights;
 
 	Shader m_screenShader;
+	Material m_defaultMat;
 
 	unsigned int quadVAO, quadVBO;
 	unsigned int m_frameBufferId;

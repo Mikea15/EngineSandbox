@@ -55,7 +55,7 @@ uniform PointLight pointLights[NR_POINT_LIGHTS];
 uniform SpotLight spotLight;
 uniform Material material;
 
-uniform vec2 uvScale;
+uniform vec2 uvScale = vec2(1, 1);
 
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir);
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
@@ -73,11 +73,11 @@ void main()
     // phase 2: point lights
     //for( int i = 0; i < NR_POINT_LIGHTS; ++i )
     {
-        light += CalcPointLight(pointLights[0], normal, FragPos, viewDir);
+        //light += CalcPointLight(pointLights[0], normal, FragPos, viewDir);
     }
 
     // phase 3: spot light
-    light += CalcSpotLight(spotLight, normal, FragPos, viewDir);
+    //light += CalcSpotLight(spotLight, normal, FragPos, viewDir);
 
     FragColor = vec4(light, 1.0);
 } 

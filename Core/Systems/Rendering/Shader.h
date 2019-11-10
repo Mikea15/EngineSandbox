@@ -1,9 +1,6 @@
 #pragma once
 
 #include <string>
-#include <fstream>
-#include <sstream>
-#include <iostream>
 
 #include <gl/glew.h>
 #include <glm/glm.hpp>
@@ -13,11 +10,11 @@
 class Shader
 {
 public:
-	unsigned int ID = INVALID_SHADER_ID;
+	Shader()
+		: m_id(s_InvalidId)
+	{}
 
-	Shader() = default;
-	Shader(const Shader& copy) = default;
-	Shader(const char* vertexPath, const char* fragmentPath, const char* geometryPath = nullptr);
+	Shader(const std::string& vertPath, const std::string& fragPath, const std::string& geomPath);
 	
 	void Use();
 
@@ -39,5 +36,11 @@ public:
 	void SetMat4(const std::string& name, const glm::mat4& mat) const;
 
 private:
-	void CheckCompileErrors(GLuint shader, std::string type);
+	std::string LoadShaderContent(const std::string& filePath) const;
+	void CheckCompileErrors(GLuint shader, const std::string& type) const;
+
+private:
+	unsigned int m_id;
+
+	static const unsigned int s_InvalidId;
 };

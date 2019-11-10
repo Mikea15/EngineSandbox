@@ -22,7 +22,7 @@ Shader ShaderManager::LoadShader(const std::string& name, const std::string& ver
 	const std::string fragmentPath = s_shaderDirectory + fragment;
 	const std::string geometryPath = s_shaderDirectory + geometry;
 
-	shader = Shader(vertexPath.c_str(), fragmentPath.c_str(), !geometry.empty() ? geometryPath.c_str() : nullptr );
+	shader = Shader(vertexPath, fragmentPath, !geometry.empty() ? geometryPath : "" );
 
 	auto result = m_shaderMap.emplace(name, shader);
 	if (result.second)

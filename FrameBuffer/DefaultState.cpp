@@ -62,34 +62,34 @@ void DefaultState::Init(Game* game)
 		std::string("Data/Images/skybox/lake/negz.jpg")
 	};
 
-	const unsigned int skyboxTex = m_assetManager->LoadCubemap("lake", faces);
-
-	m_skybox.SetTexture(skyboxTex);
+	m_skybox.SetTexture(m_assetManager->LoadCubemap("lake", faces));
 	m_skybox.Initialize();
 
 	skyboxShader = shaderManager.LoadShader("gradientSkybox", "skybox/skybox.vert", "skybox/horizon_sun.frag");
 	m_simpleShader = shaderManager.LoadShader("lighting", "lit/basic.vert", "lit/basic.frag");
 	
-	// m_simpleShader.Use();
+	m_simpleShader.Use();
 	// m_simpleShader.SetInt("material.diffuse", m_assetManager->GetDefaultTex());
 	// m_simpleShader.SetInt("material.specular", m_assetManager->GetDefaultTex());
-
 	m_simpleShader.SetVec3("objectColor", 1.0f, 0.5f, 0.31f);
 	m_simpleShader.SetVec3("lightColor", 1.0f, 1.0f, 1.0f);
 
 	m_groundShader = shaderManager.LoadShader("groundShader", "model_loading.vert", "model_loading.frag");
-
 	m_groundShader.Use();
-	m_groundShader.SetInt("albedoMap", m_assetManager->GetDefaultTex());
+	m_groundShader.SetInt("material.diffuse", m_assetManager->GetDefaultTexture().GetId());
+
+	m_defaultMat.AddTexture(m_assetManager->GetDefaultTexture());
+	m_defaultMat.SetShader(m_groundShader);
+
+	// m_model = m_assetManager->LoadModel("Data/Objects/sponza/sponza_.fbx");
+	m_model = m_assetManager->LoadModel("Data/Objects/sanmiguel/san-miguel-low-poly.obj");
+	m_model->Initialize();
+	m_model->SetShader(m_simpleShader);
+	// m_model->SetMaterialOverride(std::make_shared<Material>(m_defaultMat));
 
 	m_screenShader = shaderManager.LoadShader("screen", "screen/screen_texture.vert", "screen/screen_texture.frag");
 	m_screenShader.Use();
 	m_screenShader.SetInt("screenTexture", 0);
-
-	m_model = m_assetManager->LoadModel("Data/Objects/sponza/sponza_.fbx");
-	// m_model = m_assetManager->LoadModel("Data/Objects/sanmiguel/sanmiguel.fbx");
-	m_model->Initialize();
-	m_model->SetShader(m_simpleShader);
 
 	std::shared_ptr<Entity> entity = std::make_shared<Entity>();
 	entity->SetModel(*m_model);
@@ -192,24 +192,25 @@ void DefaultState::Render(float alpha)
 
 	// custom light settings for this shader.
 	m_simpleShader.Use();
-	m_simpleShader.SetMat4("projection", projection);
-	m_simpleShader.SetMat4("view", view);
-	m_simpleShader.SetVec3("viewPos", cameraPosition);
+	//m_simpleShader.SetMat4("projection", projection);
+	//m_simpleShader.SetMat4("view", view);
+	//m_simpleShader.SetVec3("viewPos", cameraPosition);
 
 	// Set Directional light info
 	m_directionalLight.SetShaderProperties(m_simpleShader);
 
-	// Set Point Light info
-	for (auto& l : m_pointLights)
-	{
-		l.SetShaderProperties(m_simpleShader);
-	}
-	
+	//// Set Point Light info
+	//for (auto& l : m_pointLights)
+	//{
+	//	l.SetShaderProperties(m_simpleShader);
+	//}
+	//
+
 	// Set Spotlight Info
 	m_spotLight.SetShaderProperties(m_simpleShader);
 
-	m_simpleShader.SetFloat("material.shininess", 32.0f);
-	m_simpleShader.SetVec2("uvScale", glm::vec2(1.0f, 1.0f));
+	// m_simpleShader.SetFloat("material.shininess", 32.0f);
+	// m_simpleShader.SetVec2("uvScale", glm::vec2(1.0f, 1.0f));
 	// --
 
 	m_sceneManager.Draw(camera);

@@ -4,6 +4,7 @@
 #include <cmath>
 #include <algorithm>
 #include <sstream>
+#include <fstream>
 
 #include "Components/System/FpsCounterSystemComponent.h"
 

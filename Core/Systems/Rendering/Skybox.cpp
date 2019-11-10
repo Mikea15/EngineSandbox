@@ -98,8 +98,6 @@ void Skybox::Draw(const Shader& shader)
 	glBindVertexArray(0);
 
 	glDepthFunc(GL_LESS);
-
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void Skybox::DrawUIPanel()
