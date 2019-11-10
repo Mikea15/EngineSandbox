@@ -47,11 +47,14 @@ public:
 	}
 	const SDL_DisplayMode* GetCurrentDisplayMode();
 
+	void RenderUI();
+
 private:
 	void FindDisplayModes();
 
 private:
 	WindowParams* m_params;
+	WindowParams m_tempWindowParams;
 
 	SDL_Window* m_window;
 	SDL_GLContext m_glContext;

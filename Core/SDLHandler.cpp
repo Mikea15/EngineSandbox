@@ -5,6 +5,7 @@
 #include <fstream>
 
 #include "WindowParams.h"
+#include "Utils.h"
 
 
 SDLHandler::SDLHandler(WindowParams& params)
@@ -136,6 +137,54 @@ const SDL_DisplayMode* SDLHandler::GetCurrentDisplayMode()
 		displayMode = &m_displayModes[m_params->ResolutionIndex];
 	}
 	return displayMode;
+}
+
+void SDLHandler::RenderUI()
+{
+	auto displayModes = GetDisplayModes();
+	const unsigned int size = static_cast<unsigned int>(displayModes.size());
+	std::vector<std::string> displayNamesStr;
+
+	for (unsigned int i = 0; i < size; ++i)
+	{
+		const std::string name = GetDisplayModeName(i);
+		displayNamesStr.push_back(name);
+	}
+
+	ImGui::Begin("Window Parameters");
+
+	ImGui::Combo("Resolutions", &m_tempWindowParams.ResolutionIndex, displayNamesStr);
+	ImGui::Checkbox("Fullscreen", &m_tempWindowParams.Fullscreen);
+	ImGui::Checkbox("VSync", &m_tempWindowParams.VSync);
+	ImGui::DragInt("FPS Limit", &m_tempWindowParams.FPSLimit, 1.0f, 30, 200);
+
+	ImGui::SliderInt("Multi sample Buffers", &m_tempWindowParams.GL_MultiSampleBuffers, 1, 4);
+	ImGui::SliderInt("Multi sample Samples", &m_tempWindowParams.GL_MultiSamplesSamples, 1, 32);
+
+	if (ImGui::Button("Apply Changes", ImVec2(140, 30)))
+	{
+		const bool resolutionChanged = m_tempWindowParams.ResolutionIndex != m_params->ResolutionIndex
+			|| m_tempWindowParams.VSync != m_params->VSync
+			|| m_tempWindowParams.Fullscreen != m_params->Fullscreen;
+
+		const bool globalSettingsChanged = m_tempWindowParams.FPSLimit != m_params->FPSLimit
+			|| m_tempWindowParams.GL_MultiSampleBuffers != m_params->GL_MultiSampleBuffers
+			|| m_tempWindowParams.GL_MultiSamplesSamples != m_params->GL_MultiSamplesSamples;
+
+		if (resolutionChanged)
+		{
+			m_tempWindowParams.Width = displayModes[m_tempWindowParams.ResolutionIndex].w;
+			m_tempWindowParams.Height = displayModes[m_tempWindowParams.ResolutionIndex].h;
+		}
+
+		if (resolutionChanged || globalSettingsChanged)
+		{
+			*m_params = m_tempWindowParams;
+			SetWindowParameters(*m_params);
+		}
+	}
+
+	ImGui::End();
 }
 
 void SDLHandler::FindDisplayModes()

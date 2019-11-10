@@ -4,38 +4,6 @@
 #include "../Core/Utils.h"
 #include "../Core/Systems/Rendering/Primitives.h"
 
-namespace ImGui
-{
-	static auto vector_getter = [](void* vec, int idx, const char** out_text)
-	{
-		auto& vector = *static_cast<std::vector<std::string>*>(vec);
-		if (idx < 0 || idx >= static_cast<int>(vector.size())) { return false; }
-		*out_text = vector.at(idx).c_str();
-		return true;
-	};
-
-	bool Combo(const char* label, int* currIndex, std::vector<std::string>& values)
-	{
-		if (values.empty()) { return false; }
-		return Combo(label, currIndex, vector_getter,
-			static_cast<void*>(&values), static_cast<int>(values.size()));
-	}
-
-	bool ListBox(const char* label, int* currIndex, std::vector<std::string>& values)
-	{
-		if (values.empty()) { return false; }
-		return ListBox(label, currIndex, vector_getter,
-			static_cast<void*>(&values), static_cast<int>(values.size()));
-	}
-
-	void Color3(const char* label, glm::vec3& outColor, ImGuiColorEditFlags flags = ImGuiColorEditFlags_RGB)
-	{
-		float color[3] = { outColor.x, outColor.y, outColor.z };
-		ColorEdit3(label, color, flags);
-		outColor = glm::vec3(color[0], color[1], color[2]);
-	}
-}
-
 void DefaultState::Init(Game* game)
 {
 	m_sdlHandler = game->GetSDLHandler();
@@ -84,32 +52,34 @@ void DefaultState::Init(Game* game)
 	m_sceneManager.AddEntity(entity);
 
 	// lights
-	PointLight l;
-	l.position = glm::vec4(1, 3, 1, 1);
+	auto pointLight0 = std::make_shared<PointLight>();
+	pointLight0->position = glm::vec4(1, 3, 1, 1);
+	pointLight0->ambient = glm::vec3(0.1f, 0.1f, 0.1f);
+	pointLight0->diffuse = glm::vec3(0.8f, 0.8f, 0.8f);
+	pointLight0->specular = glm::vec3(1.0f, 1.0f, 1.0f);
+	pointLight0->constant = 1.0f;
+	pointLight0->linear = 0.09f;
+	pointLight0->quadratic = 0.032f;
 
-	l.ambient = glm::vec3(0.1f, 0.1f, 0.1f);
-	l.diffuse = glm::vec3(0.8f, 0.8f, 0.8f);
-	l.specular = glm::vec3(1.0f, 1.0f, 1.0f);
+	m_directionalLight = std::make_shared<DirectionalLight>();
+	m_directionalLight->direction = glm::vec3(-0.2f, -1.0f, -0.3f);
+	m_directionalLight->ambient = glm::vec3(0.05f, 0.05f, 0.05f);
+	m_directionalLight->diffuse = glm::vec3(0.4f, 0.4f, 0.4f);
+	m_directionalLight->specular = glm::vec3(0.5f, 0.5f, 0.5f);
 
-	l.constant = 1.0f;
-	l.linear = 0.09f;
-	l.quadratic = 0.032f;
+	m_spotLight = std::make_shared<SpotLight>();
+	m_spotLight->ambient  = glm::vec3(0.0f, 0.0f, 0.0f);
+	m_spotLight->diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
+	m_spotLight->specular = glm::vec3(1.0f, 1.0f, 1.0f);
+	m_spotLight->constant = 1.0f;
+	m_spotLight->linear = 0.09f;
+	m_spotLight->quadratic  = 0.032f;
+	m_spotLight->cutOff = 12.5f;
+	m_spotLight->outerCutOff = 15.0f;
 
-	m_pointLights.push_back(l);
-
-	m_directionalLight.direction = glm::vec3(-0.2f, -1.0f, -0.3f);
-	m_directionalLight.ambient = glm::vec3(0.05f, 0.05f, 0.05f);
-	m_directionalLight.diffuse = glm::vec3(0.4f, 0.4f, 0.4f);
-	m_directionalLight.specular = glm::vec3(0.5f, 0.5f, 0.5f);
-
-	m_spotLight.ambient  = glm::vec3(0.0f, 0.0f, 0.0f);
-	m_spotLight.diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
-	m_spotLight.specular = glm::vec3(1.0f, 1.0f, 1.0f);
-	m_spotLight.constant = 1.0f;
-	m_spotLight.linear = 0.09f;
-	m_spotLight.quadratic  = 0.032f;
-	m_spotLight.cutOff = 12.5f;
-	m_spotLight.outerCutOff = 15.0f;
+	m_sceneManager.AddLightSource(pointLight0);
+	m_sceneManager.AddLightSource(m_directionalLight);
+	m_sceneManager.AddLightSource(m_spotLight);
 }
 
 void DefaultState::HandleInput(SDL_Event* event)
@@ -122,15 +92,15 @@ void DefaultState::HandleInput(SDL_Event* event)
 			Camera& cam = m_sceneCamera->GetCamera();
 
 			// Update Spotlight Position and Direction;
-			m_spotLight.position = cam.GetPosition();
-			m_spotLight.direction = cam.GetForward();
+			m_spotLight->position = cam.GetPosition();
+			m_spotLight->direction = cam.GetForward();
 		}
 		case SDLK_t:
 		{
 			Camera& cam = m_sceneCamera->GetCamera();
 
 			// Update Directional Light direction;
-			m_directionalLight.direction = cam.GetForward();
+			m_directionalLight->direction = cam.GetForward();
 		}
 			break;
 		default: break;
@@ -147,8 +117,8 @@ void DefaultState::Update(float deltaTime)
 		Camera& cam = m_sceneCamera->GetCamera();
 
 		// Update Spotlight Position and Direction;
-		m_spotLight.position = cam.GetPosition();
-		m_spotLight.direction = cam.GetForward();
+		m_spotLight->position = cam.GetPosition();
+		m_spotLight->direction = cam.GetForward();
 	}
 }
 
@@ -187,22 +157,11 @@ void DefaultState::Render(float alpha)
 		Primitives::RenderCube();
 	}
 
+	// TODO: Find a way to set this outside render func.
 	m_simpleShader.Use();
 	m_simpleShader.SetVec3("viewPos", cameraPosition);
-	// Set Directional light info
-	m_directionalLight.SetShaderProperties(m_simpleShader);
-
-	// Set Point Light info
-	for (auto& l : m_pointLights)
-	{
-		l.SetShaderProperties(m_simpleShader);
-	}
-	
-	// Set Spotlight Info
-	m_spotLight.SetShaderProperties(m_simpleShader);
 
 	m_sceneManager.Draw(camera);
-
 
 	// render skybox last. but before transparent objects
 	skyboxShader.Use();
@@ -217,68 +176,23 @@ void DefaultState::RenderUI()
 
 	m_skybox.DrawUIPanel();
 
-	{
-		auto displayModes = m_sdlHandler->GetDisplayModes();
-		const unsigned int size = static_cast<unsigned int>(displayModes.size());
-		std::vector<std::string> displayNamesStr;
-
-		for (unsigned int i = 0; i < size; ++i)
-		{
-			const std::string name = m_sdlHandler->GetDisplayModeName(i);
-			displayNamesStr.push_back(name);
-		}
-
-		ImGui::Begin("Window Parameters");
-
-		ImGui::Combo("Resolutions", &m_tempWindowParams.ResolutionIndex, displayNamesStr);
-		ImGui::Checkbox("Fullscreen", &m_tempWindowParams.Fullscreen);
-		ImGui::Checkbox("VSync", &m_tempWindowParams.VSync);
-		ImGui::DragInt("FPS Limit", &m_tempWindowParams.FPSLimit, 1.0f, 30, 200);
-
-		ImGui::SliderInt("Multisample Buffers", &m_tempWindowParams.GL_MultiSampleBuffers, 1, 4);
-		ImGui::SliderInt("Multisample Samples", &m_tempWindowParams.GL_MultiSamplesSamples, 1, 32);
-
-		if (ImGui::Button("Apply Changes", ImVec2(140, 30)))
-		{
-			const bool resolutionChanged = m_tempWindowParams.ResolutionIndex != m_windowParams.ResolutionIndex
-				|| m_tempWindowParams.VSync != m_windowParams.VSync
-				|| m_tempWindowParams.Fullscreen != m_windowParams.Fullscreen;
-
-			const bool globalSettingsChanged = m_tempWindowParams.FPSLimit != m_windowParams.FPSLimit
-				|| m_tempWindowParams.GL_MultiSampleBuffers != m_windowParams.GL_MultiSampleBuffers
-				|| m_tempWindowParams.GL_MultiSamplesSamples != m_windowParams.GL_MultiSamplesSamples;
-
-			if (resolutionChanged) 
-			{
-				m_tempWindowParams.Width = displayModes[m_tempWindowParams.ResolutionIndex].w;
-				m_tempWindowParams.Height = displayModes[m_tempWindowParams.ResolutionIndex].h;
-			}
-
-			if (resolutionChanged || globalSettingsChanged)
-			{
-				m_windowParams = m_tempWindowParams;
-				m_sdlHandler->SetWindowParameters(m_windowParams);
-			}
-		}
-		
-		ImGui::End();
-	}
+	m_sdlHandler->RenderUI();
 
 	ImGui::Begin("Directional Light Settings");
 
-	DirectionalLight currentDirLightParams = m_directionalLight;
+	DirectionalLight currentDirLightParams = *m_directionalLight;
 
 	ImGui::Color3("Ambient", currentDirLightParams.ambient);
 	ImGui::Color3("Diffuse", currentDirLightParams.diffuse);
 	ImGui::Color3("Specular", currentDirLightParams.specular);
 
-	m_directionalLight = currentDirLightParams;
+	*m_directionalLight = currentDirLightParams;
 
 	ImGui::End();
 
 	ImGui::Begin("SpotLight Settings");
 
-	SpotLight currentSpotLightParams = m_spotLight;
+	SpotLight currentSpotLightParams = *m_spotLight;
 	ImGui::Checkbox("Update OnTick", &m_updateOnTick);
 
 	ImGui::Color3("Ambient", currentSpotLightParams.ambient);
@@ -287,7 +201,7 @@ void DefaultState::RenderUI()
 	ImGui::Separator();
 	ImGui::SliderFloat("Constant", &currentSpotLightParams.constant, 0.0f, 10.0f);
 	ImGui::SliderFloat("Linear", &currentSpotLightParams.linear, 0.0f, 1.0f);
-	ImGui::SliderFloat("Quadratic", &currentSpotLightParams.quadratic, 0.0f, 5.0f, "%.5f");
+	ImGui::SliderFloat("Quadratic", &currentSpotLightParams.quadratic, 0.0f, 1.0f, "%.5f");
 	ImGui::Separator();
 
 	float tempCutOff = currentSpotLightParams.cutOff;
@@ -299,7 +213,7 @@ void DefaultState::RenderUI()
 	currentSpotLightParams.cutOff = tempCutOff;
 	currentSpotLightParams.outerCutOff = tempOuterCutOff;
 
-	m_spotLight = currentSpotLightParams;
+	*m_spotLight = currentSpotLightParams;
 
 	ImGui::End();
 

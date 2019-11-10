@@ -16,8 +16,6 @@
 
 #include "../Core/Components/System/SceneCameraComponent.h"
 
-#define N_LIGHTS 10
-
 class DefaultState
 	: public State
 {
@@ -43,16 +41,14 @@ protected:
 	
 	Shader skyboxShader;
 	Skybox m_skybox;
-	Skybox::Settings skyboxSettings;
 
 	std::shared_ptr<Model> m_model;
 	Shader m_simpleShader;
 	Shader m_groundShader;
 
-	DirectionalLight m_directionalLight;
-	
 	bool m_updateOnTick = true;
-	SpotLight m_spotLight;
+	std::shared_ptr<SpotLight> m_spotLight;
+	std::shared_ptr<DirectionalLight> m_directionalLight;
 	std::vector<PointLight> m_pointLights;
 
 	Shader m_screenShader;
