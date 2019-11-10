@@ -39,8 +39,6 @@ protected:
 
 	SceneCameraComponent* m_sceneCamera;
 	AssetManager* m_assetManager;
-
-	ShaderManager shaderManager;
 	SceneManager m_sceneManager;
 	
 	Shader skyboxShader;

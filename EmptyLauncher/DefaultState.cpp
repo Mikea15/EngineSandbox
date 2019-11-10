@@ -63,14 +63,14 @@ void DefaultState::Init(Game* game)
 	m_skybox.SetTexture(m_assetManager->LoadCubemap("lake", faces));
 	m_skybox.Initialize();
 
-	skyboxShader = shaderManager.LoadShader("gradientSkybox", "skybox/skybox.vert", "skybox/horizon_sun.frag");
-	m_simpleShader = shaderManager.LoadShader("lighting", "lit/basic.vert", "lit/basic.frag");
+	skyboxShader = m_assetManager->LoadShader("gradientSkybox", "skybox/skybox.vert", "skybox/horizon_sun.frag");
+	m_simpleShader = m_assetManager->LoadShader("lighting", "lit/basic.vert", "lit/basic.frag");
 
 	m_simpleShader.Use();
 	m_simpleShader.SetVec3("objectColor", 1.0f, 0.5f, 0.31f);
 	m_simpleShader.SetVec3("lightColor", 1.0f, 1.0f, 1.0f);
 
-	m_groundShader = shaderManager.LoadShader("groundShader", "model_loading.vert", "model_loading.frag");
+	m_groundShader = m_assetManager->LoadShader("groundShader", "model_loading.vert", "model_loading.frag");
 
 	m_defaultMat.AddTexture(m_assetManager->GetDefaultTexture());
 	m_defaultMat.SetShader(m_groundShader);

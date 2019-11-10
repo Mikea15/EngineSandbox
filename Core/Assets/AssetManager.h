@@ -66,7 +66,7 @@ public:
 	void LoadTexture(Material& material);
 
 	// Shaders
-	void LoadShader(const std::string& name, const std::string& vertPath, const std::string& fragPath, const std::string& geomFrag);
+	Shader LoadShader(const std::string& name, const std::string& vertPath, const std::string& fragPath, const std::string& geomFrag = "");
 	
 	// Textures
 	TextureInfo LoadTexture(const std::string& path, TextureType type = TextureType::DiffuseMap);
@@ -78,6 +78,8 @@ public:
 	unsigned int GetHDRTexture(const std::string& path);
 
 	TextureInfo GetDefaultTexture() const { return m_defaultTexture; }
+	Material GetDefaultMaterial() const { return m_defaultMaterial; }
+	Shader GetDefaultShader() const { return m_defaultShader; }
 
 private:
 	std::vector<TextureLoadData> LoadTexturesFromAssetJob(TextureAssetJob& job);
@@ -92,6 +94,8 @@ private:
 
 	std::unordered_map<size_t, std::shared_ptr<Model>> m_modelsMap;
 
+	Shader m_defaultShader;
+	Material m_defaultMaterial;
 	TextureInfo m_defaultTexture;
 
 	ThreadSafeQueue<SimpleTextureAssetJob> m_simpleTextureAssetJobQueue;

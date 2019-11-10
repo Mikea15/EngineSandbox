@@ -57,7 +57,11 @@ AssetManager::~AssetManager()
 
 void AssetManager::Initialize()
 {
+	m_defaultShader = LoadShader("groundShader", "model_loading.vert", "model_loading.frag");
 	m_defaultTexture = LoadTexture("Data/Images/default.jpg");
+
+	m_defaultMaterial.AddTexture(m_defaultTexture);
+	m_defaultMaterial.SetShader(m_defaultShader);
 }
 
 void AssetManager::LoaderThread()
@@ -231,12 +235,12 @@ TextureInfo AssetManager::LoadTexture(const std::string& path, TextureType type)
 	return m_textureManager.GenerateTexture(textureData, type, m_properties.m_gammaCorrection);
 }
 
-void AssetManager::LoadShader(const std::string& name, const std::string& vertPath, const std::string& fragPath, const std::string& geomFrag)
+Shader AssetManager::LoadShader(const std::string& name, const std::string& vertPath, const std::string& fragPath, const std::string& geomFrag)
 {
 	std::string lowercase = Utils::Lowercase(name);
 	size_t nameHash = Utils::Hash(lowercase);
 
-	m_shaderManager.LoadShader(vertPath, fragPath, geomFrag);
+	return m_shaderManager.LoadShader(name, vertPath, fragPath, geomFrag);
 }
 
 void AssetManager::LoadTextureAsync(const std::string& path, unsigned int* outId)
