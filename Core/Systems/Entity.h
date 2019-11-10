@@ -2,6 +2,7 @@
 
 #include "Model.h"
 #include "Transform.h"
+#include "Light.h"
 
 class Entity
 {
@@ -28,6 +29,7 @@ public:
 
 	void Update(float deltaTime);
 	void Draw(const glm::mat4& view, const glm::mat4& projection);
+	void ApplyLightingPass(ILight& light);
 
 private:
 	unsigned int m_id;

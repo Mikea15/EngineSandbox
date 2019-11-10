@@ -42,3 +42,8 @@ void Entity::Draw(const glm::mat4& view, const glm::mat4& projection)
 	m_model.Draw(m_transform.GetModelMat(), view, projection);
 }
 
+void Entity::ApplyLightingPass(ILight& light)
+{
+	m_model.ApplyLight(light);
+}
+

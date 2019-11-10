@@ -111,3 +111,22 @@ void Model::AddMaterial(std::shared_ptr<Material> material)
 {
 	m_materials.push_back(material);
 }
+
+void Model::ApplyLight(ILight& light)
+{
+	const unsigned int matCount = static_cast<unsigned int>(m_materials.size());
+
+	if (m_materialOverride != nullptr)
+	{
+		m_materialOverride->GetShader().Use();
+		light.SetProperties(m_materialOverride->GetShader());
+	}
+	else
+	{
+		for (unsigned int i = 0; i < matCount; ++i)
+		{
+			m_materials[i]->GetShader().Use();
+			light.SetProperties(m_materials[i]->GetShader());
+		}
+	}
+}

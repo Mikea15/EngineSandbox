@@ -11,6 +11,7 @@
 #include <assimp/postprocess.h>
 
 #include "Rendering/Mesh.h"
+#include "Light.h"
 
 class AssetManager;
 class Shader;
@@ -39,6 +40,8 @@ public:
 	unsigned int GetMaterialCount() const { return static_cast<unsigned int>(m_materials.size()); }
 
 	void SetMaterialOverride(std::shared_ptr<Material> material) { m_materialOverride = std::move(material); }
+
+	void ApplyLight(ILight& light);
 
 private:
 	std::vector<std::shared_ptr<Mesh>> m_meshes;

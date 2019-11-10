@@ -17,6 +17,11 @@ void SceneManager::AddEntity(std::shared_ptr<Entity> entity)
 }
 
 
+void SceneManager::AddLightSource(std::shared_ptr<ILight> light)
+{
+	m_lightSources.push_back(light);
+}
+
 void SceneManager::Update(float deltaTime)
 {
 	for (auto entity : m_sceneObjects)
@@ -32,6 +37,11 @@ void SceneManager::Draw(const Camera& camera)
 
 	for (auto& entity : m_sceneObjects)
 	{
+		for (auto& light : m_lightSources) 
+		{
+			entity->ApplyLightingPass(*light);
+		}
+		
 		entity->Draw(view, projection);
 	}
 }
@@ -40,3 +50,4 @@ void SceneManager::RenderUI()
 {
 
 }
+

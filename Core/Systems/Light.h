@@ -3,9 +3,20 @@
 #include "Transform.h"
 #include "Rendering/Shader.h"
 
-struct DirectionalLight
+struct ILight
 {
-	void SetShaderProperties(Shader& shader)
+public:
+	virtual ~ILight() = default;
+
+	virtual void SetProperties(Shader& shader) {};
+};
+
+struct DirectionalLight
+	: public ILight
+{
+	~DirectionalLight() override = default;
+
+	void SetProperties(Shader& shader) override
 	{
 		shader.SetVec3("dirLight.direction", direction);
 
@@ -22,8 +33,10 @@ struct DirectionalLight
 };
 
 struct PointLight
+	: public ILight
 {
-	void SetShaderProperties(Shader& shader)
+	~PointLight() override = default;
+	void SetProperties(Shader& shader) override
 	{
 		shader.SetVec3("pointLights[0].position", position);
 
@@ -48,8 +61,10 @@ struct PointLight
 };
 
 struct SpotLight
+	: public ILight
 {
-	void SetShaderProperties(Shader& shader) 
+	~SpotLight() override = default;
+	void SetProperties(Shader& shader) override
 	{
 		shader.SetVec3("spotLight.position", position);
 		shader.SetVec3("spotLight.direction", direction);
