@@ -51,8 +51,6 @@ protected:
 	Shader m_simpleShader;
 	Shader m_groundShader;
 
-	Material m_defaultMat;
-
 	DirectionalLight m_directionalLight;
 	
 	bool m_updateOnTick = true;

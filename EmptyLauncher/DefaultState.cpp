@@ -72,9 +72,6 @@ void DefaultState::Init(Game* game)
 
 	m_groundShader = m_assetManager->LoadShader("groundShader", "model_loading.vert", "model_loading.frag");
 
-	m_defaultMat.AddTexture(m_assetManager->GetDefaultTexture());
-	m_defaultMat.SetShader(m_groundShader);
-
 	m_model = m_assetManager->LoadModel("Data/Objects/nanosuit/nanosuit.obj");
 	m_model->Initialize();
 	m_model->SetShader(m_simpleShader);
@@ -170,31 +167,28 @@ void DefaultState::Render(float alpha)
 	glm::vec3 cameraPosition = camera.GetPosition();
 
 	{
-		glActiveTexture(GL_TEXTURE0);
 		Transform t;
-		m_defaultMat.SetMVP(t.GetModelMat(), view, projection);
-		//m_defaultMat.BindTextures();
-		m_defaultMat.GetShader().SetVec3("viewPos", cameraPosition);
+		Material defaultMat = m_assetManager->GetDefaultMaterial();
+		defaultMat.SetMVP(t.GetModelMat(), view, projection);
+		defaultMat.BindTextures();
 
-		//glActiveTexture(GL_TEXTURE0);
+		defaultMat.GetShader().SetVec3("viewPos", cameraPosition);
+
 		t.SetPosition(glm::vec3(-5.0f, 0.0f, 0.0f));
-		m_defaultMat.GetShader().SetMat4("model", t.GetModelMat());
+		defaultMat.GetShader().SetMat4("model", t.GetModelMat());
 		Primitives::RenderCube();
 
-		//glActiveTexture(GL_TEXTURE0);
 		t.SetPosition(glm::vec3(0.0f, -1.0f, 0.0f));
-		m_defaultMat.GetShader().SetMat4("model", t.GetModelMat());
+		defaultMat.GetShader().SetMat4("model", t.GetModelMat());
 		Primitives::RenderCube();
 
-		//glActiveTexture(GL_TEXTURE0);
 		t.SetPosition(glm::vec3(5.0f, 0.0f, 0.0f));
-		m_defaultMat.GetShader().SetMat4("model", t.GetModelMat());
+		defaultMat.GetShader().SetMat4("model", t.GetModelMat());
 		Primitives::RenderCube();
 	}
 
 	m_simpleShader.Use();
 	m_simpleShader.SetVec3("viewPos", cameraPosition);
-
 	// Set Directional light info
 	m_directionalLight.SetShaderProperties(m_simpleShader);
 
