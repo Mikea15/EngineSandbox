@@ -13,11 +13,13 @@ set (CMAKE_CXX_STANDARD 17)
 add_subdirectory (Core)
 add_subdirectory (EmptyLauncher)
 add_subdirectory (FrameBuffer)
+add_subdirectory (ShadowMaps)
 #  add_subdirectory (RendererOgl)
 
 # add_dependencies(RendererOgl Core)
 add_dependencies(EmptyLauncher Core)
 add_dependencies(FrameBuffer Core)
+add_dependencies(ShadowMaps Core)
 
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT EmptyLauncher)
 
