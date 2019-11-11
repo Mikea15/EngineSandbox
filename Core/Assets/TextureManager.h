@@ -34,19 +34,6 @@ struct HDRTextureLoadData
 	float* m_dataPtr = nullptr;
 };
 
-struct TextureInfo
-{
-	bool IsValid() const { return m_id != s_InvalidId; }
-
-	unsigned int GetId() const { return m_id; }
-	TextureType GetType() const { return m_textureType; }
-
-	unsigned int m_id = s_InvalidId;
-	TextureType m_textureType = TextureType::DiffuseMap;
-
-	static const int s_InvalidId = -1;
-};
-
 class TextureManager
 {
 public:
@@ -56,14 +43,14 @@ public:
 
 	void LoadHDRTexture(const std::string& path, HDRTextureLoadData& outData, bool flipVertically = true);
 
-	TextureInfo GenerateTexture(TextureLoadData textureData, TextureType type, bool useGammaCorrection);
+	Texture GenerateTexture(TextureLoadData textureData, TextureType type, bool useGammaCorrection);
 
-	TextureInfo GenerateHDRTexture(HDRTextureLoadData textureData, TextureType type);
+	Texture GenerateHDRTexture(HDRTextureLoadData textureData, TextureType type);
 
-	TextureInfo GenerateCubemapTexture(const std::string& cubemapName, std::vector<TextureLoadData>& textureData);
+	Texture GenerateCubemapTexture(const std::string& cubemapName, std::vector<TextureLoadData>& textureData);
 
-	TextureInfo FindTexture(const std::string& path) const;
+	Texture FindTexture(const std::string& path) const;
 	
 private:
-	std::unordered_map<size_t, TextureInfo> m_textureMap;
+	std::unordered_map<size_t, Texture> m_textureMap;
 };

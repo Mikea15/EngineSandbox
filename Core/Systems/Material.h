@@ -33,12 +33,13 @@ public:
 	void SetView(const glm::mat4& view);
 	void SetProjection(const glm::mat4& projection);
 	void SetMVP(const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection);
-	void SetMaterialProperty(const std::string& name, const std::variant<int, float, std::string, bool>& value);
 
 	void BindTextures();
 
-	void AddTexture(TextureInfo texture);
+	void AddTexture(Texture texture);
 	void AddTexturePath(TextureType type, const std::string& path);
+
+	const std::vector<Texture> GetTextures() { return m_textures; }
 
 	std::vector<std::string> GetTexturePaths(TextureType type) { return m_texturePathPerType[type]; }
 	const std::vector<std::string> GetTexturePathsConst(TextureType type) const 
@@ -53,11 +54,9 @@ public:
 
 private:
 	Shader m_shader;
-	std::vector<TextureInfo> m_textures;
+	std::vector<Texture> m_textures;
 
 	std::unordered_map<TextureType, std::vector<std::string>> m_texturePathPerType;
 
-	std::unordered_map<unsigned int, unsigned int> m_materialMapToVectorIndex;
-	std::vector<Property> m_materialProperties;
 };
 

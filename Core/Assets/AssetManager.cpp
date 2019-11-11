@@ -113,7 +113,7 @@ void AssetManager::Update()
 	SimpleTextureAssetJobResult simpleTextureJobResult;
 	if (m_simpleTextureAssetJobResultQueue.TryPop(simpleTextureJobResult))
 	{
-		TextureInfo textureInfo = m_textureManager.GenerateTexture(simpleTextureJobResult.textureLoadData, TextureType::DiffuseMap, m_properties.m_gammaCorrection);
+		Texture textureInfo = m_textureManager.GenerateTexture(simpleTextureJobResult.textureLoadData, TextureType::DiffuseMap, m_properties.m_gammaCorrection);
 
 		// this should update the pointer. must find a better way to return the value
 		// maybe a better approach would be using a callback.
@@ -126,7 +126,7 @@ void AssetManager::Update()
 	{
 		for (const TextureLoadData& textureLoadData : textureAssetJobResult.textureInfos)
 		{
-			TextureInfo texture = m_textureManager.GenerateTexture(textureLoadData, textureAssetJobResult.textureType, m_properties.m_gammaCorrection);
+			Texture texture = m_textureManager.GenerateTexture(textureLoadData, textureAssetJobResult.textureType, m_properties.m_gammaCorrection);
 			textureAssetJobResult.material->AddTexture(texture);
 		}
 	}
@@ -175,7 +175,7 @@ std::shared_ptr<Model> AssetManager::LoadModel(const std::string& path)
 #else
 			for (const std::string& path : texturePaths)
 			{
-				TextureInfo texInfo = LoadTexture(path, textureType);
+				Texture texInfo = LoadTexture(path, textureType);
 				material->AddTexture(texInfo);
 			}
 #endif
@@ -201,7 +201,7 @@ void AssetManager::LoadTexture(Material& material)
 				continue;
 			}
 			
-			TextureInfo texInfo = m_textureManager.GenerateTexture(textureLoadData, type, m_properties.m_gammaCorrection);
+			Texture texInfo = m_textureManager.GenerateTexture(textureLoadData, type, m_properties.m_gammaCorrection);
 			if (!texInfo.IsValid())
 			{
 				continue;
@@ -212,11 +212,11 @@ void AssetManager::LoadTexture(Material& material)
 	}
 }
 
-TextureInfo AssetManager::LoadTexture(const std::string& path, TextureType type)
+Texture AssetManager::LoadTexture(const std::string& path, TextureType type)
 {
 	std::string lowercasePath = Utils::Lowercase(path);
 
-	const TextureInfo texture = m_textureManager.FindTexture(lowercasePath);
+	const Texture texture = m_textureManager.FindTexture(lowercasePath);
 	if (texture.IsValid())
 	{
 		return texture;
@@ -227,7 +227,7 @@ TextureInfo AssetManager::LoadTexture(const std::string& path, TextureType type)
 	if (!textureData.HasData())
 	{
 		std::cerr << "[AssetManager][Error][" << m_threadNames[std::this_thread::get_id()] << "] Texture: " << path << " failed to load.\n";
-		return TextureInfo();
+		return Texture();
 	}
 
 	std::cout << "[AssetManager] Texture: " << path << " loaded.\n";
@@ -247,7 +247,7 @@ void AssetManager::LoadTextureAsync(const std::string& path, unsigned int* outId
 {
 	std::string lowercasePath = Utils::Lowercase(path);
 
-	const TextureInfo texture = m_textureManager.FindTexture(lowercasePath);
+	const Texture texture = m_textureManager.FindTexture(lowercasePath);
 	if (texture.IsValid())
 	{
 		*outId = texture.GetId();
@@ -301,7 +301,7 @@ unsigned int AssetManager::GetHDRTexture(const std::string& path)
 {
 	std::string lowercasePath = Utils::Lowercase(path);
 
-	const TextureInfo texture = m_textureManager.FindTexture(lowercasePath);
+	const Texture texture = m_textureManager.FindTexture(lowercasePath);
 	if (texture.IsValid())
 	{
 		std::cout << "[AssetManager][" << m_threadNames[std::this_thread::get_id()] << "] Texture found\n";

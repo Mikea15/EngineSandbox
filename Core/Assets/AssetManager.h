@@ -69,7 +69,7 @@ public:
 	Shader LoadShader(const std::string& name, const std::string& vertPath, const std::string& fragPath, const std::string& geomFrag = "");
 	
 	// Textures
-	TextureInfo LoadTexture(const std::string& path, TextureType type = TextureType::DiffuseMap);
+	Texture LoadTexture(const std::string& path, TextureType type = TextureType::DiffuseMap);
 	void LoadTextureAsync(const std::string& path, unsigned int* outId);
 
 	// Cubemaps
@@ -77,7 +77,7 @@ public:
 	
 	unsigned int GetHDRTexture(const std::string& path);
 
-	TextureInfo GetDefaultTexture() const { return m_defaultTexture; }
+	Texture GetDefaultTexture() const { return m_defaultTexture; }
 	Material GetDefaultMaterial() const { return m_defaultMaterial; }
 	Shader GetDefaultShader() const { return m_defaultShader; }
 
@@ -96,7 +96,7 @@ private:
 
 	Shader m_defaultShader;
 	Material m_defaultMaterial;
-	TextureInfo m_defaultTexture;
+	Texture m_defaultTexture;
 
 	ThreadSafeQueue<SimpleTextureAssetJob> m_simpleTextureAssetJobQueue;
 	ThreadSafeQueue<SimpleTextureAssetJobResult> m_simpleTextureAssetJobResultQueue;

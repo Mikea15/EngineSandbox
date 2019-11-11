@@ -6,6 +6,8 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
+#include "../Utils.h"
+
 void TextureManager::LoadTexture(const std::string& path, TextureLoadData& outData, bool flipVertically)
 {
 	std::cout << "[TextureManager] Loading " << path << "\n";
@@ -45,12 +47,9 @@ void TextureManager::LoadHDRTexture(const std::string& path, HDRTextureLoadData&
 	}
 }
 
-TextureInfo TextureManager::GenerateTexture(TextureLoadData textureData, TextureType type, bool useGammaCorrection)
+Texture TextureManager::GenerateTexture(TextureLoadData textureData, TextureType type, bool useGammaCorrection)
 {
 	std::cout << "[TextureManager] Generating Texture " << textureData.m_path << "\n";
-
-	TextureInfo texInfo;
-	texInfo.m_textureType = type;
 
 	GLenum internalFormat = 0;
 	GLenum dataFormat = 0;
@@ -72,8 +71,9 @@ TextureInfo TextureManager::GenerateTexture(TextureLoadData textureData, Texture
 		dataFormat = GL_RGBA;
 	}
 
-	glGenTextures(1, &texInfo.m_id);
-	glBindTexture(GL_TEXTURE_2D, texInfo.m_id);
+	unsigned int texId = 0;
+	glGenTextures(1, &texId);
+	glBindTexture(GL_TEXTURE_2D, texId);
 	glTexImage2D(GL_TEXTURE_2D, 0, internalFormat,
 		textureData.m_width,
 		textureData.m_height,
@@ -89,26 +89,26 @@ TextureInfo TextureManager::GenerateTexture(TextureLoadData textureData, Texture
 
 	stbi_image_free(textureData.m_dataPtr);
 
-	if (texInfo.IsValid())
+	Texture texture = Texture(texId, textureData.m_width, textureData.m_height, textureData.m_channels,
+		textureData.m_path, type);
+	if (texture.IsValid())
 	{
-		const size_t pathHash = std::hash<std::string>{}(textureData.m_path);
-		m_textureMap.emplace(pathHash, texInfo);
-		return texInfo;
+		const size_t pathHash = Utils::Hash(texture.GetPath());
+		m_textureMap.emplace(pathHash, texture);
+		return texture;
 	}
 
-	return TextureInfo();
+	return Texture();
 }
 
-TextureInfo TextureManager::GenerateHDRTexture(HDRTextureLoadData textureData, TextureType type)
+Texture TextureManager::GenerateHDRTexture(HDRTextureLoadData textureData, TextureType type)
 {
 	std::cout << "[TextureManager] Generating Texture " << textureData.m_path << "\n";
 
-	TextureInfo texInfo;
-	texInfo.m_textureType = type;
+	unsigned int texId = 0;
+	glGenTextures(1, &texId);
 
-	glGenTextures(1, &texInfo.m_id);
-
-	glBindTexture(GL_TEXTURE_2D, texInfo.m_id);
+	glBindTexture(GL_TEXTURE_2D, texId);
 
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F,
 		textureData.m_width,
@@ -124,22 +124,23 @@ TextureInfo TextureManager::GenerateHDRTexture(HDRTextureLoadData textureData, T
 
 	stbi_image_free(textureData.m_dataPtr);
 
-	if (texInfo.IsValid())
+	Texture texture = Texture(texId, textureData.m_width, textureData.m_height, textureData.m_channels,
+		textureData.m_path, type);
+	if (texture.IsValid())
 	{
-		const size_t pathHash = std::hash<std::string>{}(textureData.m_path);
-		m_textureMap.emplace(pathHash, texInfo);
-		return texInfo;
+		const size_t pathHash = Utils::Hash(texture.GetPath());
+		m_textureMap.emplace(pathHash, texture);
+		return texture;
 	}
 
-	return TextureInfo();
+	return Texture();
 }
 
-TextureInfo TextureManager::GenerateCubemapTexture(const std::string& cubemapName, std::vector<TextureLoadData>& textureData)
+Texture TextureManager::GenerateCubemapTexture(const std::string& cubemapName, std::vector<TextureLoadData>& textureData)
 {
-	TextureInfo texInfo;
-
-	glGenTextures(1, &texInfo.m_id);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, texInfo.m_id);
+	unsigned int texId = 0;
+	glGenTextures(1, &texId);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, texId);
 
 	const unsigned int size = textureData.size();
 	for (unsigned int i = 0; i < size; ++i)
@@ -159,17 +160,19 @@ TextureInfo TextureManager::GenerateCubemapTexture(const std::string& cubemapNam
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
-	if (texInfo.IsValid())
+	Texture texture = Texture(texId, textureData[0].m_width, textureData[0].m_height, textureData[0].m_channels,
+		textureData[0].m_path);
+	if (texture.IsValid())
 	{
-		const size_t pathHash = std::hash<std::string>{}(cubemapName);
-		m_textureMap.emplace(pathHash, texInfo);
-		return texInfo;
+		const size_t pathHash = Utils::Hash(cubemapName);
+		m_textureMap.emplace(pathHash, texture);
+		return texture;
 	}
 
-	return TextureInfo();
+	return Texture();
 }
 
-TextureInfo TextureManager::FindTexture(const std::string& path) const
+Texture TextureManager::FindTexture(const std::string& path) const
 {
 	const size_t pathHash = std::hash<std::string>{}(path);
 	const auto findIt = m_textureMap.find(pathHash);
@@ -177,5 +180,5 @@ TextureInfo TextureManager::FindTexture(const std::string& path) const
 	{
 		return findIt->second;
 	}
-	return TextureInfo();
+	return Texture();
 }

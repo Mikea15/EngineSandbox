@@ -35,30 +35,6 @@ void Material::SetMVP(const glm::mat4& model, const glm::mat4& view, const glm::
 	m_shader.SetMat4("model", model);
 }
 
-void Material::SetMaterialProperty(const std::string& name, const std::variant<int, float, std::string, bool>& value)
-{
-	unsigned int hash = static_cast<unsigned int>(std::hash<std::string>{}(name));
-
-	auto findIt = m_materialMapToVectorIndex.find(hash);
-	if (findIt == m_materialMapToVectorIndex.end())
-	{
-		Property mp;
-		mp.name = name;
-		mp.value = value;
-		unsigned int index = static_cast<unsigned int>(m_materialProperties.size());
-		m_materialProperties.push_back(mp);
-		m_materialMapToVectorIndex.emplace(hash, index);
-	}
-	else
-	{
-		unsigned int index = findIt->second;
-		if (index < static_cast<unsigned int>(m_materialProperties.size()))
-		{
-			m_materialProperties[index].value = value;
-		}
-	}
-}
-
 /*
 	Support for only one texture per texture type
 */
@@ -105,7 +81,7 @@ void Material::BindTextures()
 	}
 }
 
-void Material::AddTexture(TextureInfo texture)
+void Material::AddTexture(Texture texture)
 {
 	m_textures.push_back(texture);
 }
