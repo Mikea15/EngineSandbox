@@ -46,6 +46,15 @@ void SceneManager::Draw(const Camera& camera)
 	}
 }
 
+void SceneManager::Draw(const Camera& camera, Shader& shader)
+{
+
+	for (auto& entity : m_sceneObjects)
+	{
+
+	}
+}
+
 void SceneManager::RenderUI()
 {
 

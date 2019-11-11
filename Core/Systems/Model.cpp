@@ -92,11 +92,12 @@ void Model::Draw(const glm::mat4& model, const glm::mat4& view, const glm::mat4&
 	}
 }
 
-void Model::Draw(Material& material)
+void Model::Draw(const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection, Material& material)
 {
 	const unsigned int meshCount = static_cast<unsigned int>(m_meshes.size());
 	for (unsigned int i = 0; i < meshCount; ++i)
 	{
+		material.SetMVP(model, view, projection);
 		material.BindTextures();
 		m_meshes[i]->Draw();
 	}

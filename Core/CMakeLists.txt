@@ -90,7 +90,8 @@ add_library(
 	IMGUIHandler.cpp
 	IMGUIHandler.h
 	Profiler.cpp
-	Profiler.h 
+	Profiler.h
+	RenderPass.h
 	SceneManager.cpp
 	SceneManager.h
 	SDLHandler.cpp

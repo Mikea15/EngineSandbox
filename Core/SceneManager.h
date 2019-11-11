@@ -22,6 +22,7 @@ public:
 	const std::vector<std::shared_ptr<ILight>>& GetSceneLights() { return m_lightSources; }
 
 	void Update(float deltaTime);
+	void Draw(const Camera& camera, Shader& shader);
 	void Draw(const Camera& camera);
 
 	void RenderUI();

@@ -9,6 +9,24 @@ void Material::SetShader(const Shader& shader)
 	m_shader = shader;
 }
 
+void Material::SetModel(const glm::mat4& model)
+{
+	m_shader.Use();
+	m_shader.SetMat4("model", model);
+}
+
+void Material::SetView(const glm::mat4& view)
+{
+	m_shader.Use();
+	m_shader.SetMat4("view", view);
+}
+
+void Material::SetProjection(const glm::mat4& projection)
+{
+	m_shader.Use();
+	m_shader.SetMat4("projection", projection);
+}
+
 void Material::SetMVP(const glm::mat4& model, const glm::mat4& view, const glm::mat4 & projection)
 {
 	m_shader.Use();

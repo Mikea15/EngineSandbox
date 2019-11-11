@@ -29,7 +29,7 @@ public:
 	void SetShader(const Shader& shader);
 
 	void Draw(const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection);
-	void Draw(Material& material);
+	void Draw(const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection, Material& material);
 
 	void AddMesh(std::shared_ptr<Mesh> mesh);
 	std::vector<std::shared_ptr<Mesh>>& GetMeshes() { return m_meshes; }

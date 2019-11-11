@@ -10,6 +10,8 @@
 
 #include "../Core/Systems/Rendering/TextureBuffer.h"
 
+#include "../Core/RenderPass.h"
+
 #include <glm/glm.hpp>
 
 int main(int argc, char* argv[])
@@ -170,23 +172,23 @@ void renderScene(const Shader& shader)
 	glm::mat4 model = glm::mat4(1.0f);
 	shader.SetMat4("model", model);
 	renderPlane();
-	// cubes
-	model = glm::mat4(1.0f);
-	model = glm::translate(model, glm::vec3(0.0f, 1.5f, 0.0));
-	model = glm::scale(model, glm::vec3(0.5f));
-	shader.SetMat4("model", model);
-	renderCube();
-	model = glm::mat4(1.0f);
-	model = glm::translate(model, glm::vec3(2.0f, 0.0f, 1.0));
-	model = glm::scale(model, glm::vec3(0.5f));
-	shader.SetMat4("model", model);
-	renderCube();
-	model = glm::mat4(1.0f);
-	model = glm::translate(model, glm::vec3(-1.0f, 2.0f, 2.0));
-	model = glm::rotate(model, glm::radians(60.0f), glm::normalize(glm::vec3(1.0, 0.0, 1.0)));
-	model = glm::scale(model, glm::vec3(0.25));
-	shader.SetMat4("model", model);
-	renderCube();
+	//// cubes
+	//model = glm::mat4(1.0f);
+	//model = glm::translate(model, glm::vec3(0.0f, 1.5f, 2.0f));
+	//model = glm::scale(model, glm::vec3(0.5f));
+	//shader.SetMat4("model", model);
+	//renderCube();
+	//model = glm::mat4(1.0f);
+	//model = glm::translate(model, glm::vec3(2.0f, 0.0f, 1.0f));
+	//model = glm::scale(model, glm::vec3(0.5f));
+	//shader.SetMat4("model", model);
+	//renderCube();
+	//model = glm::mat4(1.0f);
+	//model = glm::translate(model, glm::vec3(-1.0f, 0.0f, 2.0f));
+	//model = glm::rotate(model, glm::radians(60.0f), glm::normalize(glm::vec3(1.0, 0.0, 1.0)));
+	//model = glm::scale(model, glm::vec3(0.25));
+	//shader.SetMat4("model", model);
+	//renderCube();
 }
 
 const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
@@ -195,6 +197,7 @@ unsigned int depthMap;
 
 void ShadowMapState::Init(Game* game)
 {
+	m_game = game;
 	m_sdlHandler = game->GetSDLHandler();
 	m_assetManager = game->GetAssetManager();
 	m_sceneCamera = &game->GetSystemComponentManager()->GetComponent<SceneCameraComponent>();
@@ -265,6 +268,8 @@ void ShadowMapState::Init(Game* game)
 	shader = m_assetManager->LoadShader("sm", "screen/shadow_mapping.vert", "screen/shadow_mapping.frag");
 	simpleDepthShader = m_assetManager->LoadShader("smd", "screen/shadow_depth.vert", "screen/shadow_depth.frag");
 	debugDepthQuad = m_assetManager->LoadShader("dq", "screen/debug_quad.vert", "screen/debug_quad.frag");
+
+	depthMaterial.SetShader(simpleDepthShader);
 	
 	shader.Use();
 	shader.SetInt("diffuseTexture", 0);
@@ -272,9 +277,24 @@ void ShadowMapState::Init(Game* game)
 	debugDepthQuad.Use();
 	debugDepthQuad.SetInt("depthMap", 0);
 
+	auto lightShader = m_assetManager->LoadShader("light", "color.vert", "unlit/white.frag");
+	lightShader.Use();
+	light.SetShader(lightShader);
+
 	// lighting info
 	// -------------
 	lightPos = glm::vec3(-2.0f, 4.0f, -1.0f);
+
+	auto model = m_assetManager->LoadModel("Data/Objects/nanosuit/nanosuit.obj");
+	model->Initialize();
+	model->SetShader(shader);
+	// m_model->SetMaterialOverride(std::make_shared<Material>(m_defaultMat));
+
+	std::shared_ptr<Entity> entity = std::make_shared<Entity>();
+	entity->SetModel(*model);
+	entity->GetTransform().SetScale(glm::vec3(0.1f));
+
+	m_sceneManager.AddEntity(entity);
 }
 
 void ShadowMapState::HandleInput(SDL_Event* event)
@@ -308,6 +328,14 @@ void ShadowMapState::HandleInput(SDL_Event* event)
 void ShadowMapState::Update(float deltaTime)
 {
 	m_sceneManager.Update(deltaTime);
+
+	float time = m_game->GetTimeMS();
+	// glm::vec2 pos = glm::vec2( * 2.0f, cos(time) * 2.0f) * 0.5f;
+	lightPos = glm::vec3(sin(time) * 2.0f, 2.0f + sin(time) * 0.5f, cos(time) * 2.0f);
+
+	// Camera& cam = m_sceneCamera->GetCamera();
+	// m_spotLight->position = cam.GetPosition();
+	// m_spotLight->direction = cam.GetForward();
 }
 
 void ShadowMapState::Render(float alpha)
@@ -326,26 +354,29 @@ void ShadowMapState::Render(float alpha)
 	// --------------------------------------------------------------
 	glm::mat4 lightProjection, lightView;
 	glm::mat4 lightSpaceMatrix;
-	float near_plane = 0.01f, far_plane = 10000.0f;
-	lightProjection = glm::perspective(glm::radians(45.0f), (GLfloat)SHADOW_WIDTH / (GLfloat)SHADOW_HEIGHT, near_plane, far_plane); // note that if you use a perspective projection matrix you'll have to change the light position as the current light position isn't enough to reflect the whole scene
-	// lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
-	// lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
-	lightView = glm::lookAt(m_spotLight->position, m_spotLight->position + m_spotLight->direction * 0.1f, glm::vec3(0, 1, 0));
+	float near_plane = -10.0f, far_plane = 10.0f;
+	// lightProjection = glm::perspective(glm::radians(45.0f), (GLfloat)SHADOW_WIDTH / (GLfloat)SHADOW_HEIGHT, near_plane, far_plane); // note that if you use a perspective projection matrix you'll have to change the light position as the current light position isn't enough to reflect the whole scene
+	lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
+	lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
 	lightSpaceMatrix = lightProjection * lightView;
 	// render scene from light's point of view
 	simpleDepthShader.Use();
 	simpleDepthShader.SetMat4("lightSpaceMatrix", lightSpaceMatrix);
 
+	ShadowRenderPass shadowRenderPass;
+
 	glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
 	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-	glClear(GL_DEPTH_BUFFER_BIT);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, m_assetManager->GetDefaultTexture().GetId());
+		glClear(GL_DEPTH_BUFFER_BIT);
 
-	renderScene(simpleDepthShader);
+		shadowRenderPass.Render(cam, m_sceneManager.GetSceneLights(), m_sceneManager.GetSceneObjects(), depthMaterial);
 
-
+		renderScene(simpleDepthShader);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	// reset viewport
+	glViewport(0, 0, m_windowParams.Width, m_windowParams.Height);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// 2. render scene as normal using the generated depth/shadow map  
 	// --------------------------------------------------------------
@@ -357,14 +388,15 @@ void ShadowMapState::Render(float alpha)
 	
 	// set light uniforms
 	shader.SetVec3("viewPos", camPos);
+	shader.SetVec3("lightPos", lightPos);
 
-	shader.SetVec3("spotLight.position", m_spotLight->position);
-	shader.SetVec3("spotLight.direction", m_spotLight->direction);
-	shader.SetFloat("spotLight.constant", m_spotLight->constant);
-	shader.SetFloat("spotLight.linear", m_spotLight->linear);
-	shader.SetFloat("spotLight.quadratic", m_spotLight->quadratic);
-	shader.SetFloat("spotLight.cutOff", glm::cos(glm::radians(m_spotLight->cutOff)));
-	shader.SetFloat("spotLight.outerCutOff", glm::cos(glm::radians(m_spotLight->outerCutOff)));
+	// shader.SetVec3("spotLight.position", m_spotLight->position);
+	// shader.SetVec3("spotLight.direction", m_spotLight->direction);
+	// shader.SetFloat("spotLight.constant", m_spotLight->constant);
+	// shader.SetFloat("spotLight.linear", m_spotLight->linear);
+	// shader.SetFloat("spotLight.quadratic", m_spotLight->quadratic);
+	// shader.SetFloat("spotLight.cutOff", glm::cos(glm::radians(m_spotLight->cutOff)));
+	// shader.SetFloat("spotLight.outerCutOff", glm::cos(glm::radians(m_spotLight->outerCutOff)));
 
 	shader.SetMat4("lightSpaceMatrix", lightSpaceMatrix);
 
@@ -372,7 +404,18 @@ void ShadowMapState::Render(float alpha)
 	glBindTexture(GL_TEXTURE_2D, m_assetManager->GetDefaultTexture().GetId());
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, depthMap);
+	
 	renderScene(shader);
+
+	m_sceneManager.Draw(cam);
+
+	light.GetShader().Use();
+
+	Transform pointLightTransform;
+	pointLightTransform.SetPosition(lightPos);
+	pointLightTransform.SetScale(glm::vec3(0.1f));
+	light.SetMVP(pointLightTransform.GetModelMat(), view, projection);
+	Primitives::RenderCube();
 
 	// render Depth map to quad for visual debugging
 	// ---------------------------------------------
@@ -388,6 +431,17 @@ void ShadowMapState::RenderUI()
 {
 	m_sceneManager.RenderUI();
 	m_sdlHandler->RenderUI();
+
+	ImGui::Begin("Show Buffers");
+
+	const float screenRatio = m_windowParams.Height / static_cast<float>(m_windowParams.Width);
+	const float width = ImGui::GetColumnWidth();
+	const float height = width * screenRatio;
+
+	ImGui::Image((void*)(intptr_t)depthMap, ImVec2(width, height), 
+		ImVec2(0, 1), ImVec2(1, 0)); ImGui::NextColumn();
+
+	ImGui::End();
 
 	ImGui::Begin("Directional Light Settings");
 

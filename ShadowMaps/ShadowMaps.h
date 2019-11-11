@@ -31,6 +31,7 @@ public:
 	void Cleanup() override;
 
 protected:
+	Game* m_game;
 	SDLHandler* m_sdlHandler;
 	WindowParams m_windowParams;
 
@@ -47,6 +48,9 @@ private:
 	Transform m_lightTransform;
 	glm::vec3 lightPos;
 	Shader simpleDepthShader;
+	Material depthMaterial;
 	Shader shader;
 	Shader debugDepthQuad;
+
+	Material light;
 };

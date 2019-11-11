@@ -29,6 +29,9 @@ public:
 	void SetShader(const Shader& shader);
 	Shader& GetShader() { return m_shader; }
 
+	void SetModel(const glm::mat4& model);
+	void SetView(const glm::mat4& view);
+	void SetProjection(const glm::mat4& projection);
 	void SetMVP(const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection);
 	void SetMaterialProperty(const std::string& name, const std::variant<int, float, std::string, bool>& value);
 
