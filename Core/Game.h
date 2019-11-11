@@ -38,8 +38,8 @@ private:
 	bool m_isRunning;
 
 	std::chrono::high_resolution_clock::time_point m_currentTime;
-	float m_deltaTime;
-	float m_time;
+	float m_deltaTime = 0.0f;
+	double m_time = 0.0f;
 
 	State* m_gameState;
 
