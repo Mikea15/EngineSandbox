@@ -20,23 +20,15 @@
 #include "TextureManager.h"
 
 #include "AssimpImporter.h"
-#include "SimpleTextureAssetJob.h"
 
 #include "ThreadSafeQueue.h"
 
-struct TextureAssetJob
+struct TextureLoadJob
 {
-	std::shared_ptr<Material> material;
-	TextureType textureType = TextureType::None;
-	std::vector<std::string> resourcePaths;
-	std::vector<TextureLoadData> texDatas;
-};
-
-struct TextureAssetJobResult
-{
-	std::shared_ptr<Material> material;
-	TextureType textureType = TextureType::None;
-	std::vector<TextureLoadData> textureInfos;
+	std::shared_ptr<Material> materialOwner;
+	std::string texturePath;
+	TextureType textureType = TextureType::DiffuseMap;
+	TextureLoadData loadedData;
 };
 
 class Game;
@@ -70,7 +62,7 @@ public:
 	
 	// Textures
 	Texture LoadTexture(const std::string& path, TextureType type = TextureType::DiffuseMap);
-	void LoadTextureAsync(const std::string& path, unsigned int* outId);
+	void LoadTextureAsync(const std::string& path, Texture& outTexture);
 
 	// Cubemaps
 	unsigned int LoadCubemap(const std::string& cubemapName, const std::vector<std::string>& paths);
@@ -80,9 +72,6 @@ public:
 	Texture GetDefaultTexture() const { return m_defaultTexture; }
 	Material GetDefaultMaterial() const { return m_defaultMaterial; }
 	Shader GetDefaultShader() const { return m_defaultShader; }
-
-private:
-	std::vector<TextureLoadData> LoadTexturesFromAssetJob(TextureAssetJob& job);
 
 private:
 	Properties m_properties;
@@ -98,15 +87,12 @@ private:
 	Material m_defaultMaterial;
 	Texture m_defaultTexture;
 
-	ThreadSafeQueue<SimpleTextureAssetJob> m_simpleTextureAssetJobQueue;
-	ThreadSafeQueue<SimpleTextureAssetJobResult> m_simpleTextureAssetJobResultQueue;
-
-	ThreadSafeQueue<TextureAssetJob> m_textureAssetJobQueue;
-	ThreadSafeQueue<TextureAssetJobResult> m_textureAssetJobResultQueue;
+	ThreadSafeQueue<TextureLoadJob> m_loadingTexturesQueue;
+	ThreadSafeQueue<TextureLoadJob> m_processingTexturesQueue;
 
 	std::vector<std::shared_ptr<Material>> m_materialCache;
 
-	int m_maxThreads = 1;
+	int m_maxThreads = 8;
 	std::vector<std::thread> m_workerThreads;
 	std::unordered_map<std::thread::id, std::string> m_threadNames;
 

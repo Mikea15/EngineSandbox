@@ -10,8 +10,6 @@ add_library(
 	Assets/AssimpImporter.h
 	Assets/ShaderManager.cpp
 	Assets/ShaderManager.h
-	Assets/SimpleTextureAssetJob.cpp
-	Assets/SimpleTextureAssetJob.h
 	Assets/TextureManager.cpp
 	Assets/TextureManager.h
 	Assets/ThreadSafeQueue.h

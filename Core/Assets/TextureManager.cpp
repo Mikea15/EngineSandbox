@@ -142,7 +142,7 @@ Texture TextureManager::GenerateCubemapTexture(const std::string& cubemapName, s
 	glGenTextures(1, &texId);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, texId);
 
-	const unsigned int size = textureData.size();
+	const unsigned int size = static_cast<unsigned int>(textureData.size());
 	for (unsigned int i = 0; i < size; ++i)
 	{
 		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB,

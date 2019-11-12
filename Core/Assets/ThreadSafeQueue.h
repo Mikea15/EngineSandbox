@@ -70,7 +70,7 @@ public:
 		return val;
 	}
 
-	bool Empty() const
+	bool Empty()
 	{
 		std::lock_guard<std::mutex> lock(m_mutex);
 		return m_dataQueue.empty();
@@ -79,7 +79,7 @@ public:
 	unsigned int Size()
 	{
 		std::lock_guard<std::mutex> lock(m_mutex);
-		return m_dataQueue.size();
+		return static_cast<unsigned int>(m_dataQueue.size());
 	}
 
 private:
