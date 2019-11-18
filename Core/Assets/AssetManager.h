@@ -92,7 +92,7 @@ private:
 
 	std::vector<std::shared_ptr<Material>> m_materialCache;
 
-	int m_maxThreads = 8;
+	int m_maxThreads = 1;
 	std::vector<std::thread> m_workerThreads;
 	std::unordered_map<std::thread::id, std::string> m_threadNames;
 

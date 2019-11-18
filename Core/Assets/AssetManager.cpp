@@ -8,14 +8,14 @@
 
 #include "../Utils.h"
 
-#define MULTITHREAD 1
+#define MULTITHREAD 0
 
 const std::string AssetManager::s_assetDirectoryPath = "Data/";
 
 AssetManager::AssetManager()
 	: m_loadingThreadActive(true)
 {
-	m_properties.m_gammaCorrection = true;
+	m_properties.m_gammaCorrection = false;
 	m_properties.m_flipHDROnLoad = true;
 
 	m_supportedTextureTypes = {
