@@ -15,6 +15,7 @@
 #include "../Core/Systems/Light.h"
 
 #include "../Core/Components/System/SceneCameraComponent.h"
+#include "../Core/RenderPass.h"
 
 class ShadowMapState
 	: public State
@@ -53,4 +54,6 @@ private:
 	Shader debugDepthQuad;
 
 	Material light;
+
+	ShadowRenderPass m_shadowRenderPass;
 };

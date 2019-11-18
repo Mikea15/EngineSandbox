@@ -28,12 +28,13 @@ std::shared_ptr<Model> AssimpImporter::LoadModel(const std::string& path)
 	Assimp::Importer importer;
 
 	std::cout << "[Import] Model: " << path << " loading...";
-	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate /* | aiProcess_CalcTangentSpace | aiProcess_GenNormals */);
+	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_CalcTangentSpace /* | aiProcess_GenNormals */);
 
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 	{
-		std::cerr << "[Import] Model: " << path << " failed to load.\n";
+		std::cerr << "failed to load.\n";
 		std::cerr << "[Error] Assimp: " << importer.GetErrorString() << "\n";
+		return std::shared_ptr<Model>();
 	}
 
 	std::cout << " [ok]\n";

@@ -41,8 +41,8 @@ void DefaultState::Init(Game* game)
 	m_simpleShader.SetVec3("lightColor", 1.0f, 1.0f, 1.0f);
 	m_simpleShader.SetFloat("material.shininess", shininess);
 
-	// m_model = m_assetManager->LoadModel("Data/Objects/sponza/sponza_.fbx");
-	m_model = m_assetManager->LoadModel("Data/Objects/sanmiguel/san-miguel-low-poly.obj");
+	m_model = m_assetManager->LoadModel("Data/Objects/sponza/sponza_.fbx");
+	// m_model = m_assetManager->LoadModel("Data/Objects/sanmiguel/san-miguel-low-poly.obj");
 	// m_model = m_assetManager->LoadModel("Data/Objects/nanosuit/nanosuit.obj");
 	m_model->Initialize();
 	m_model->SetShader(m_simpleShader);
