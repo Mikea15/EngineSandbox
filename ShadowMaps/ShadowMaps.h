@@ -1,21 +1,21 @@
 #pragma once
 
-#include "../Core/SDLHandler.h"
-#include "../Core/State.h"
+#include "SDLHandler.h"
+#include "State.h"
 
-#include "../Core/Assets/ShaderManager.h"
-#include "../Core/SceneManager.h"
+#include "Assets/ShaderManager.h"
+#include "SceneManager.h"
 
-#include "../Core/Systems/Entity.h"
-#include "../Core/Systems/Camera/Camera.h"
-#include "../Core/Systems/Rendering/Skybox.h"
-#include "../Core/Systems/Rendering/Primitives.h"
-#include "../Core/Systems/Rendering/Primitives/Quad.h"
-#include "../Core/Systems/Rendering/Terrain.h"
-#include "../Core/Systems/Light.h"
+#include "Systems/Entity.h"
+#include "Systems/Camera/Camera.h"
+#include "Systems/Rendering/Skybox.h"
+#include "Systems/Rendering/Primitives.h"
+#include "Systems/Rendering/Primitives/Quad.h"
+#include "Systems/Rendering/Terrain.h"
+#include "Systems/Light.h"
 
-#include "../Core/Components/System/SceneCameraComponent.h"
-#include "../Core/RenderPass.h"
+#include "Components/System/SceneCameraComponent.h"
+#include "RenderPass.h"
 
 class ShadowMapState
 	: public State
@@ -54,6 +54,8 @@ private:
 	Shader debugDepthQuad;
 
 	Material light;
+
+	bool m_updateDirLightOnUpdate = false;
 
 	ShadowRenderPass m_shadowRenderPass;
 };

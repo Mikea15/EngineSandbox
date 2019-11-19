@@ -9,6 +9,8 @@ message(STATUS "Setting MSVC Flags")
 
 set (CMAKE_CXX_STANDARD 17)
 
+include_directories(Core)
+
 # Include sub-projects.
 add_subdirectory (Core)
 add_subdirectory (EmptyLauncher)

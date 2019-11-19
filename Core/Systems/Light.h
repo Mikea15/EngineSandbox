@@ -28,23 +28,32 @@ struct DirectionalLight
 
 	glm::mat4 GetProjectionView() override
 	{
-		glm::mat4 lightProjection, lightView;
-		glm::mat4 lightSpaceMatrix;
-		float near_plane = GetNearPlane(), far_plane = GetFarPlane();
-		lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
-		lightView = glm::lookAt(glm::vec3(0.0f), direction, glm::vec3(0.0, 1.0, 0.0));
+		glm::mat4 lightProjection = glm::mat4(1.0f), lightView = glm::mat4(1.0f);
+		glm::mat4 lightSpaceMatrix = glm::mat4(1.0f);
+		lightProjection = glm::ortho(
+			-m_orthoSize, m_orthoSize, 
+			-m_orthoSize, m_orthoSize, 
+			m_nearPlane, m_farPlane);
+		lightView = glm::lookAt(
+			glm::vec3(0.0f) - direction,
+			glm::vec3(0.0f) + direction, 
+			glm::vec3(0.0f, 1.0f, 0.0f));
 		lightSpaceMatrix = lightProjection * lightView;
 		return lightSpaceMatrix;
 	}
 
-	float GetNearPlane() const { return 1.0f; }
-	float GetFarPlane() const { return 25.5f; }
+	float GetNearPlane() const { return m_nearPlane; }
+	float GetFarPlane() const { return m_farPlane; }
 
 	glm::vec3 direction;
 
 	glm::vec3 ambient;
 	glm::vec3 diffuse;
 	glm::vec3 specular;
+
+	float m_nearPlane = 0.0f;
+	float m_farPlane = 10.0f;
+	float m_orthoSize = 5.0f;
 };
 
 struct PointLight

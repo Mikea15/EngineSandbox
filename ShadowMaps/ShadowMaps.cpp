@@ -3,14 +3,14 @@
 
 #include "ShadowMaps.h"
 
-#include "../Core/Game.h"
+#include "Game.h"
 
-#include "../Core/Utils.h"
-#include "../Core/Systems/Rendering/Primitives.h"
+#include "Utils.h"
+#include "Systems/Rendering/Primitives.h"
 
-#include "../Core/Systems/Rendering/TextureBuffer.h"
+#include "Systems/Rendering/TextureBuffer.h"
 
-#include "../Core/RenderPass.h"
+#include "RenderPass.h"
 
 #include <glm/glm.hpp>
 
@@ -58,7 +58,7 @@ unsigned int planeVAO = 0;
 unsigned int planeVBO = 0;
 void renderPlane()
 {
-	if (quadVAO == 0)
+	if (planeVAO == 0)
 	{
 		// set up vertex data (and buffer(s)) and configure vertex attributes
 		// ------------------------------------------------------------------
@@ -97,6 +97,23 @@ void renderScene(const Shader& shader)
 	glm::mat4 model = glm::mat4(1.0f);
 	shader.SetMat4("model", model);
 	renderPlane();
+
+	Transform trans;
+	trans.SetPosition(glm::vec3(0.0f, 5.0f, 10.0f));
+	trans.SetScale(glm::vec3(10.0f, 5.0f, 1.0f));
+	shader.SetMat4("model", trans.GetModelMat());
+	Primitives::RenderCube();
+
+	trans.SetPosition(glm::vec3(-10.0f, 5.0f, 0.0f));
+	trans.RotateLocal(glm::vec3(0, 1, 0), 90.0f);
+	shader.SetMat4("model", trans.GetModelMat());
+	Primitives::RenderCube();
+
+	trans.SetPosition(glm::vec3(10.0f, 5.0f, 0.0f));
+	shader.SetMat4("model", trans.GetModelMat());
+	Primitives::RenderCube();
+
+	
 }
 
 void ShadowMapState::Init(Game* game)
@@ -125,7 +142,7 @@ void ShadowMapState::Init(Game* game)
 		pointLight0->quadratic = 0.032f;
 
 		m_directionalLight = std::make_shared<DirectionalLight>();
-		m_directionalLight->direction = glm::vec3(-0.2f, -1.0f, -0.3f);
+		m_directionalLight->direction = glm::vec3(0.0f, 0.0f, 1.0f);
 		m_directionalLight->ambient = glm::vec3(0.05f, 0.05f, 0.05f);
 		m_directionalLight->diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
 		m_directionalLight->specular = glm::vec3(1.0f, 1.0f, 1.0f);
@@ -178,7 +195,7 @@ void ShadowMapState::Init(Game* game)
 	std::shared_ptr<Entity> entity = std::make_shared<Entity>();
 	entity->SetModel(*model);
 	entity->GetTransform().SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
-	entity->GetTransform().SetScale(glm::vec3(0.3f));
+	entity->GetTransform().SetScale(glm::vec3(0.1f));
 
 	m_sceneManager.AddEntity(entity);
 
@@ -187,7 +204,7 @@ void ShadowMapState::Init(Game* game)
 	m_shadowRenderPass.SetShader(simpleDepthShader);
 	m_shadowRenderPass.SetDirLight(m_directionalLight);
 
-	// configure global opengl state
+	// configure global open gl state
 	// -----------------------------
 	glEnable(GL_DEPTH_TEST);
 }
@@ -227,7 +244,9 @@ void ShadowMapState::Update(float deltaTime)
 		cos(time * 2.0f) * 2.0f
 	);
 
-	m_directionalLight->direction = glm::normalize(lightPos - glm::vec3(0.0f));
+	if (m_updateDirLightOnUpdate) {
+		m_directionalLight->direction = glm::normalize(lightPos - glm::vec3(0.0f));
+	}
 }
 
 void ShadowMapState::Render(float alpha)
@@ -249,6 +268,7 @@ void ShadowMapState::Render(float alpha)
 	// --------------------------------------------------------------
 	glViewport(0, 0, m_windowParams.Width, m_windowParams.Height);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	
 	shader.Use();
 	shader.SetMat4("projection", projection);
 	shader.SetMat4("view", view);
@@ -306,10 +326,17 @@ void ShadowMapState::RenderUI()
 	ImGui::Begin("Directional Light Settings");
 
 	DirectionalLight currentDirLightParams = *m_directionalLight;
+	ImGui::Checkbox("Update OnTick", &m_updateDirLightOnUpdate);
 
 	ImGui::Color3("Ambient", currentDirLightParams.ambient);
 	ImGui::Color3("Diffuse", currentDirLightParams.diffuse);
 	ImGui::Color3("Specular", currentDirLightParams.specular);
+
+	ImGui::SliderFloat3("Direction", currentDirLightParams.direction, -1.0f, 1.0f);
+
+	ImGui::SliderFloat("NearPlane", &currentDirLightParams.m_nearPlane, -250.0f, 250.0f);
+	ImGui::SliderFloat("FarPlane", &currentDirLightParams.m_farPlane, -250.0f, 250.0f);
+	ImGui::SliderFloat("OrthoSize", &currentDirLightParams.m_orthoSize, -25.0f, 25.0f);
 
 	*m_directionalLight = currentDirLightParams;
 

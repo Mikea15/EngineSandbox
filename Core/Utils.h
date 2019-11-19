@@ -57,4 +57,11 @@ namespace ImGui
 		ColorEdit3(label, color, flags);
 		outColor = glm::vec3(color[0], color[1], color[2]);
 	}
+
+	static void SliderFloat3(const char* label, glm::vec3& outPos, float min, float max)
+	{
+		float pos[3] = { outPos.x, outPos.y, outPos.z };
+		SliderFloat3(label, pos, min, max);
+		outPos = glm::vec3(pos[0], pos[1], pos[2]);
+	}
 }
