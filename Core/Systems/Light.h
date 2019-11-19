@@ -9,6 +9,7 @@ public:
 	virtual ~ILight() = default;
 
 	virtual void SetProperties(Shader& shader) {};
+	virtual glm::mat4 GetProjectionView() { return glm::mat4(); };
 };
 
 struct DirectionalLight
@@ -25,6 +26,20 @@ struct DirectionalLight
 		shader.SetVec3("dirLight.specular", specular);
 	}
 
+	glm::mat4 GetProjectionView() override
+	{
+		glm::mat4 lightProjection, lightView;
+		glm::mat4 lightSpaceMatrix;
+		float near_plane = GetNearPlane(), far_plane = GetFarPlane();
+		lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
+		lightView = glm::lookAt(glm::vec3(0.0f), direction, glm::vec3(0.0, 1.0, 0.0));
+		lightSpaceMatrix = lightProjection * lightView;
+		return lightSpaceMatrix;
+	}
+
+	float GetNearPlane() const { return 1.0f; }
+	float GetFarPlane() const { return 25.5f; }
+
 	glm::vec3 direction;
 
 	glm::vec3 ambient;
@@ -36,6 +51,7 @@ struct PointLight
 	: public ILight
 {
 	~PointLight() override = default;
+
 	void SetProperties(Shader& shader) override
 	{
 		shader.SetVec3("pointLights[0].position", position);
@@ -47,6 +63,17 @@ struct PointLight
 		shader.SetFloat("pointLights[0].constant", constant);
 		shader.SetFloat("pointLights[0].linear", linear);
 		shader.SetFloat("pointLights[0].quadratic", quadratic);
+	}
+
+	glm::mat4 GetProjectionView() override
+	{
+		glm::mat4 lightProjection, lightView;
+		glm::mat4 lightSpaceMatrix;
+		float near_plane = 1.0f, far_plane = 7.5f;
+		lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
+		lightView = glm::lookAt(position, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
+		lightSpaceMatrix = lightProjection * lightView;
+		return lightSpaceMatrix;
 	}
 
 	glm::vec3 position;
@@ -79,6 +106,17 @@ struct SpotLight
 
 		shader.SetFloat("spotLight.cutOff", glm::cos(glm::radians(cutOff)));
 		shader.SetFloat("spotLight.outerCutOff", glm::cos(glm::radians(outerCutOff)));
+	}
+
+	glm::mat4 GetProjectionView() override
+	{
+		glm::mat4 lightProjection, lightView;
+		glm::mat4 lightSpaceMatrix;
+		float near_plane = 1.0f, far_plane = 7.5f;
+		lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
+		lightView = glm::lookAt(position, direction, glm::vec3(0.0, 1.0, 0.0));
+		lightSpaceMatrix = lightProjection * lightView;
+		return lightSpaceMatrix;
 	}
 
 	glm::vec3 position;

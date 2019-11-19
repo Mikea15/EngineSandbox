@@ -99,8 +99,6 @@ void renderScene(const Shader& shader)
 	renderPlane();
 }
 
-
-
 void ShadowMapState::Init(Game* game)
 {
 	m_game = game;
@@ -149,8 +147,6 @@ void ShadowMapState::Init(Game* game)
 		m_sceneManager.AddLightSource(m_spotLight);
 	}
 
-	
-
 	// shader configuration
 	// --------------------
 	shader = m_assetManager->LoadShader("sm", "screen/shadow_mapping.vert", "screen/shadow_mapping.frag");
@@ -172,7 +168,7 @@ void ShadowMapState::Init(Game* game)
 
 	// lighting info
 	// -------------
-	lightPos = glm::vec3(-2.0f, 4.0f, -1.0f);
+	lightPos = glm::vec3(-2.0f, 6.0f, -1.0f);
 
 	auto model = m_assetManager->LoadModel("Data/Objects/nanosuit/nanosuit.obj");
 	model->Initialize();
@@ -182,13 +178,18 @@ void ShadowMapState::Init(Game* game)
 	std::shared_ptr<Entity> entity = std::make_shared<Entity>();
 	entity->SetModel(*model);
 	entity->GetTransform().SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
-	entity->GetTransform().SetScale(glm::vec3(0.1f));
+	entity->GetTransform().SetScale(glm::vec3(0.3f));
 
 	m_sceneManager.AddEntity(entity);
 
 	m_shadowRenderPass.Initialize();
 	m_shadowRenderPass.SetWindowParams(m_windowParams);
 	m_shadowRenderPass.SetShader(simpleDepthShader);
+	m_shadowRenderPass.SetDirLight(m_directionalLight);
+
+	// configure global opengl state
+	// -----------------------------
+	glEnable(GL_DEPTH_TEST);
 }
 
 void ShadowMapState::HandleInput(SDL_Event* event)
@@ -207,10 +208,6 @@ void ShadowMapState::HandleInput(SDL_Event* event)
 		break;
 		case SDLK_t:
 		{
-			Camera& cam = m_sceneCamera->GetCamera();
-
-			// Update Directional Light direction;
-			m_directionalLight->direction = cam.GetForward();
 		}
 		break;
 		default: break;
@@ -224,12 +221,13 @@ void ShadowMapState::Update(float deltaTime)
 	m_sceneManager.Update(deltaTime);
 
 	float time = m_game->GetTimeMS();
-	// glm::vec2 pos = glm::vec2( * 2.0f, cos(time) * 2.0f) * 0.5f;
-	lightPos = glm::vec3(sin(time * 2.0f) * 1.0f, 2.0f + sin(time) * 0.5f, cos(time * 2.0f) * 1.0f);
+	lightPos = glm::vec3(
+		sin(time * 2.0f) * 2.0f, 
+		2.0f + sin(time) * 0.5f, 
+		cos(time * 2.0f) * 2.0f
+	);
 
-	// Camera& cam = m_sceneCamera->GetCamera();
-	// m_spotLight->position = cam.GetPosition();
-	// m_spotLight->direction = cam.GetForward();
+	m_directionalLight->direction = glm::normalize(lightPos - glm::vec3(0.0f));
 }
 
 void ShadowMapState::Render(float alpha)
@@ -244,22 +242,9 @@ void ShadowMapState::Render(float alpha)
 	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	// 1. render depth of scene to texture (from light's perspective)
-	// --------------------------------------------------------------
-	glm::mat4 lightProjection, lightView;
-	glm::mat4 lightSpaceMatrix;
-	float near_plane = -10.0f, far_plane = 10.0f;
-	// lightProjection = glm::perspective(glm::radians(45.0f), (GLfloat)SHADOW_WIDTH / (GLfloat)SHADOW_HEIGHT, near_plane, far_plane); // note that if you use a perspective projection matrix you'll have to change the light position as the current light position isn't enough to reflect the whole scene
-	lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
-	lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
-	lightSpaceMatrix = lightProjection * lightView;
-	// render scene from light's point of view
-	simpleDepthShader.Use();
-	simpleDepthShader.SetMat4("lightSpaceMatrix", lightSpaceMatrix);
-
+	// 1 Shadow Pass
 	m_shadowRenderPass.Render(cam, m_sceneManager.GetSceneLights(), m_sceneManager.GetSceneObjects(), depthMaterial, renderScene);
 	
-
 	// 2. render scene as normal using the generated depth/shadow map  
 	// --------------------------------------------------------------
 	glViewport(0, 0, m_windowParams.Width, m_windowParams.Height);
@@ -272,14 +257,7 @@ void ShadowMapState::Render(float alpha)
 	shader.SetVec3("viewPos", camPos);
 	shader.SetVec3("lightPos", lightPos);
 
-	// shader.SetVec3("spotLight.position", m_spotLight->position);
-	// shader.SetVec3("spotLight.direction", m_spotLight->direction);
-	// shader.SetFloat("spotLight.constant", m_spotLight->constant);
-	// shader.SetFloat("spotLight.linear", m_spotLight->linear);
-	// shader.SetFloat("spotLight.quadratic", m_spotLight->quadratic);
-	// shader.SetFloat("spotLight.cutOff", glm::cos(glm::radians(m_spotLight->cutOff)));
-	// shader.SetFloat("spotLight.outerCutOff", glm::cos(glm::radians(m_spotLight->outerCutOff)));
-
+	glm::mat4 lightSpaceMatrix = m_directionalLight->GetProjectionView();
 	shader.SetMat4("lightSpaceMatrix", lightSpaceMatrix);
 
 	glActiveTexture(GL_TEXTURE0);
@@ -292,7 +270,6 @@ void ShadowMapState::Render(float alpha)
 	m_sceneManager.Draw(cam);
 
 	light.GetShader().Use();
-
 	Transform pointLightTransform;
 	pointLightTransform.SetPosition(lightPos);
 	pointLightTransform.SetScale(glm::vec3(0.1f));
@@ -302,8 +279,8 @@ void ShadowMapState::Render(float alpha)
 	// render Depth map to quad for visual debugging
 	// ---------------------------------------------
 	debugDepthQuad.Use();
-	debugDepthQuad.SetFloat("near_plane", near_plane);
-	debugDepthQuad.SetFloat("far_plane", far_plane);
+	debugDepthQuad.SetFloat("near_plane", m_directionalLight->GetNearPlane());
+	debugDepthQuad.SetFloat("far_plane", m_directionalLight->GetFarPlane());
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, m_shadowRenderPass.GetDepthMap());
 	// Primitives::RenderQuad();

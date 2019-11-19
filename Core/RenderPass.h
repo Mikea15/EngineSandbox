@@ -16,24 +16,14 @@ public:
 class ShadowRenderPass
 {
 public:
-	void GatherLights(std::vector<std::shared_ptr<ILight>>& lights) 
-	{
-
-	}
-
-	void GatherObjects(std::vector<std::shared_ptr<Entity>>& entities) 
-	{
-		
-	}
-
 	void Initialize()
 	{
 		// configure depth map FBO
 		// -----------------------
-		glGenFramebuffers(1, &depthMapFBO);
+		glGenFramebuffers(1, &m_depthMapFBO);
 		// create depth texture
-		glGenTextures(1, &depthMap);
-		glBindTexture(GL_TEXTURE_2D, depthMap);
+		glGenTextures(1, &m_depthMap);
+		glBindTexture(GL_TEXTURE_2D, m_depthMap);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -42,8 +32,8 @@ public:
 		float borderColor[] = { 1.0, 1.0, 1.0, 1.0 };
 		glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
 		// attach depth texture as FBO's depth buffer
-		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
+		glBindFramebuffer(GL_FRAMEBUFFER, m_depthMapFBO);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_depthMap, 0);
 		glDrawBuffer(GL_NONE);
 		glReadBuffer(GL_NONE);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -59,13 +49,26 @@ public:
 		m_windowParams = params;
 	}
 
+	void SetDirLight(std::shared_ptr<DirectionalLight> light)
+	{
+		m_directionalLight = light;
+	}
+
 	void Render(Camera& camera,
 		const std::vector<std::shared_ptr<ILight>>& lights, 
 		const std::vector<std::shared_ptr<Entity>>& entities,
 		Material& mat, std::function<void(Shader)> renderScene) 
 	{
+		// 1. render depth of scene to texture (from light's perspective)
+		// --------------------------------------------------------------
+		glm::mat4 lightSpaceMatrix = m_directionalLight->GetProjectionView();
+		
+		// render scene from light's point of view
+		m_shader.Use();
+		m_shader.SetMat4("lightSpaceMatrix", lightSpaceMatrix);
+
 		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
-		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+		glBindFramebuffer(GL_FRAMEBUFFER, m_depthMapFBO);
 		glClear(GL_DEPTH_BUFFER_BIT);
 
 		for (auto& entity : entities)
@@ -87,12 +90,13 @@ public:
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 
-	unsigned int GetDepthMap() const { return depthMap; }
+	unsigned int GetDepthMap() const { return m_depthMap; }
 
 	Shader m_shader;
 	WindowParams m_windowParams;
-
+	std::shared_ptr<DirectionalLight> m_directionalLight;
+	glm::vec3 lightPos;
 	const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
-	unsigned int depthMapFBO;
-	unsigned int depthMap;
+	unsigned int m_depthMapFBO;
+	unsigned int m_depthMap;
 };

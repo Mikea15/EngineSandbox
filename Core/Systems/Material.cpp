@@ -48,7 +48,7 @@ void Material::BindTextures()
 		{
 		case TextureType::DiffuseMap:
 			glActiveTexture(GL_TEXTURE0);
-			m_shader.SetInt("material.diffuse", 0);
+			m_shader.SetInt("diffuseTexture", 0);
 			break;
 		case TextureType::NormalMap:
 			glActiveTexture(GL_TEXTURE4);
@@ -72,7 +72,7 @@ void Material::BindTextures()
 			break;
 		case TextureType::SpecularMap:
 			glActiveTexture(GL_TEXTURE1);
-			m_shader.SetInt("material.specular", 1);
+			m_shader.SetInt("specularTexture", 1);
 			break;
 		default: break;
 		}
