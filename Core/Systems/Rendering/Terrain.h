@@ -8,7 +8,7 @@
 
 struct HeightmapParams
 {
-	unsigned int octaves = 2;
+	int octaves = 2;
 	float lacunarity = 0.2f;
 	float persistence = 0.01f;
 
@@ -30,7 +30,7 @@ struct HeightmapParams
 class Terrain
 {
 public:
-	Terrain();
+	Terrain(float tileSize, float width, float length, float height);
 	~Terrain() = default;
 
 	void SetTerrainSize(const glm::vec2& size);
@@ -43,7 +43,7 @@ public:
 	void CalculateNormals();
 	void UpdateHeightMap();
 
-	Mesh GetMesh() { return m_mesh; }
+	Mesh& GetMesh() { return m_mesh; }
 
 	void SetHeightSize(float size) { m_heightSize = size; }
 	float GetHeightSize() { return m_heightSize; }

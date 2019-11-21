@@ -74,6 +74,11 @@ void Skybox::Initialize()
 
 void Skybox::Draw(const Shader& shader)
 {
+	if (m_VAO == 0)
+	{
+		Initialize();
+	}
+
 	shader.SetVec3("TopColor",			m_currentSettings.topColor);
 	shader.SetFloat("TopExponent",		m_currentSettings.topExp);
 	shader.SetVec3("HorizonColor",		m_currentSettings.horizonColor);

@@ -1,9 +1,9 @@
 #include "Terrain.h"
 
-Terrain::Terrain()
-	: m_tileSize(1.0f)
-	, m_planeSize(20.0f, 20.0f)
-	, m_heightSize(1.0f)
+Terrain::Terrain(float tileSize, float width, float length, float height)
+	: m_tileSize(tileSize)
+	, m_planeSize(width, length)
+	, m_heightSize(height)
 {
 	m_heightmapParams = { 2, 1.0f / 24.f, 2.3f };
 }
