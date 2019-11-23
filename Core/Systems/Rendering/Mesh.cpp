@@ -63,9 +63,7 @@ Mesh& Mesh::operator=(const Mesh & assign)
 
 Mesh::~Mesh()
 {
-	glDeleteVertexArrays(1, &m_VAO);
-	glDeleteBuffers(1, &m_VBO);
-	glDeleteBuffers(1, &m_EBO);
+	Cleanup();
 }
 
 void Mesh::SetVertices(const std::vector<VertexInfo>& vertices)
@@ -80,14 +78,18 @@ void Mesh::SetIndices(const std::vector<unsigned int>& indices)
 
 void Mesh::CreateBuffers()
 {
-	// create buffers/arrays
-	glGenVertexArrays(1, &m_VAO);
-	glGenBuffers(1, &m_VBO);
-	glGenBuffers(1, &m_EBO);
+	if (!m_isReady) 
+	{
+		// create buffers/arrays
+		glGenVertexArrays(1, &m_VAO);
+		glGenBuffers(1, &m_VBO);
+		glGenBuffers(1, &m_EBO);
+	}
 
 	glBindVertexArray(m_VAO);
 	// load data into vertex buffers
 	glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+
 	// A great thing about structs is that their memory layout is sequential for all its items.
 	// The effect is that we can simply pass a pointer to the struct and it translates perfectly to a glm::vec3/2 array which
 	// again translates to 3/2 floats which translates to a byte array.
@@ -116,6 +118,13 @@ void Mesh::CreateBuffers()
 	glBindVertexArray(0);
 
 	m_isReady = m_VAO != 0;
+}
+
+void Mesh::Cleanup()
+{
+	glDeleteVertexArrays(1, &m_VAO);
+	glDeleteBuffers(1, &m_VBO);
+	glDeleteBuffers(1, &m_EBO);
 }
 
 void Mesh::Draw(unsigned int instanceCount /*= 1*/) const

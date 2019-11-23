@@ -37,6 +37,8 @@ public:
 	const std::string& GetName() const { return m_name; }
 	
 	void CreateBuffers();
+	void UpdateBuffers(const std::vector<VertexInfo>& vertices, const std::vector<unsigned int>& indices);
+	void Cleanup();
 
 	void Draw(unsigned int instanceCount = 1) const;
 
