@@ -1,6 +1,10 @@
 #pragma once
 
 #include <vector>
+#include <future>
+#include <mutex>
+#include <condition_variable>
+#include <chrono>
 
 #include <glm/gtc/noise.hpp>
 
@@ -9,8 +13,8 @@
 struct HeightmapParams
 {
 	int octaves = 2;
-	float lacunarity = 0.2f;
-	float persistence = 0.01f;
+	float persistence = 0.2f;
+	float lacunarity = 0.086f;
 
 	bool operator!=(const HeightmapParams& a) const 
 	{
@@ -30,6 +34,17 @@ struct HeightmapParams
 class Terrain
 {
 public:
+
+	struct BlockJob
+	{
+		struct Verti { VertexInfo v; int i; };
+		int rowStart = 0;
+		int rowEnd = 0;
+		int colSize = 0;
+		int index = 0;
+		std::vector<Verti> vertinfo;
+	};
+
 	Terrain(float tileSize, float width, float length, float height);
 	~Terrain() = default;
 
@@ -40,7 +55,11 @@ public:
 	HeightmapParams GetHeightMapParams() { return m_heightmapParams; }
 
 	void GenerateMesh();
-	void CalculateNormals();
+
+	void GenerateTerrainBlock(int startRow, int endRow, int column, std::vector<VertexInfo>& vertices);
+	void GenerateTerrainBlock(BlockJob& job, std::vector<VertexInfo>& vertices);
+
+	void CalculateNormals(const std::vector<unsigned int>& indices, std::vector<VertexInfo>& inOutVertices) const;
 	void UpdateHeightMap();
 
 	Mesh& GetMesh() { return m_mesh; }
@@ -49,8 +68,8 @@ public:
 	float GetHeightSize() { return m_heightSize; }
 
 private:
-	glm::vec3 CalculateNormalFromIndices(const std::vector<VertexInfo>& vertices, int a, int b, int c);
-	float GetPerlinNoise(const glm::vec2& pos);
+	glm::vec3 CalculateNormalFromIndices(const std::vector<VertexInfo>& vertices, int a, int b, int c) const;
+	float GetPerlinNoise(const glm::vec2& pos) const;
 
 private:
 	float m_tileSize;
@@ -59,4 +78,7 @@ private:
 	HeightmapParams m_heightmapParams;
 
 	Mesh m_mesh;
+
+	std::mutex m_mutex;
+	std::condition_variable m_conditionVar;
 };

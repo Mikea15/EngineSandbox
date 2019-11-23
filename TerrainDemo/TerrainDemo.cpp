@@ -30,7 +30,7 @@ void TerrainDemoState::Init(Game* game)
 
 	Camera& cam = m_sceneCamera->GetCamera();
 
-	cam.Move(glm::vec3(0.0f, 2.0f, -2.0f));
+	cam.Move(glm::vec3(0.0f, 10.0f, -10.0f));
 	cam.LookAt(glm::vec3(0.0f, 0.0f, 0.0f));
 
 	m_windowParams = game->GetWindowParameters();
@@ -120,14 +120,41 @@ void TerrainDemoState::RenderUI()
 	}
 	ImGui::End();
 
-
 	ImGui::Begin("Terrain Settings");
 
 	ImGui::BeginGroup();
-	ImGui::Text("Terrain Size");
-	glm::vec2 planeSize = m_terrain.GetPlaneSize();
-	ImGui::SliderFloat("Width", &planeSize.x, 1.0f, 256.0f);
-	ImGui::SliderFloat("Length", &planeSize.y, 1.0f, 256.0f);
+
+	if (ImGui::Button("x10"))
+	{
+		m_terrainPosition.SetPosition(glm::vec3(10.0f * -0.5f, 0.0f, 10.0f * -0.5f));
+		m_terrain.SetTerrainSize(glm::vec2(10.0f));
+		m_terrain.GenerateMesh();
+	} ImGui::SameLine();
+
+	if (ImGui::Button("x100"))
+	{
+		m_terrainPosition.SetPosition(glm::vec3(100.0f * -0.5f, 0.0f, 100.0f * -0.5f));
+		m_terrain.SetTerrainSize(glm::vec2(100.0f));
+		m_terrain.GenerateMesh();
+	} ImGui::SameLine();
+
+	if (ImGui::Button("x1000"))
+	{
+		m_terrainPosition.SetPosition(glm::vec3(1000.0f * -0.5f, 0.0f, 1000.0f * -0.5f));
+		m_terrain.SetTerrainSize(glm::vec2(1000.0f));
+		m_terrain.GenerateMesh();
+	}
+
+	ImGui::Separator();
+
+	float terrainSize = m_terrain.GetPlaneSize().x;
+	ImGui::DragFloat("Size", &terrainSize, 1.0f, 1.0f, 8 * 1024.0f, "%.0f");
+	if (terrainSize != m_terrain.GetPlaneSize().x)
+	{
+		m_terrain.SetTerrainSize( glm::vec2(terrainSize) );
+		m_terrainPosition.SetPosition(glm::vec3(terrainSize * -0.5f, 0.0f, terrainSize * -0.5f));
+		m_terrain.GenerateMesh();
+	}
 
 	float heightSize = m_terrain.GetHeightSize();
 	ImGui::SliderFloat("Height", &heightSize, 1.0f, 64.0f);
@@ -137,17 +164,6 @@ void TerrainDemoState::RenderUI()
 		m_terrain.UpdateHeightMap();
 	}
 
-	if (planeSize != m_terrain.GetPlaneSize())
-	{
-		m_terrain.SetTerrainSize(planeSize);
-	}
-
-	if (ImGui::Button("Regenerate Terrain"))
-	{
-		m_terrain.GenerateMesh();
-		m_terrainPosition.SetPosition(glm::vec3(-planeSize.x * 0.5f, 0.0f, -planeSize.y * 0.5f));
-	}
-
 	ImGui::EndGroup();
 
 	ImGui::BeginGroup();
@@ -155,8 +171,8 @@ void TerrainDemoState::RenderUI()
 
 	HeightmapParams currentParams = m_terrain.GetHeightMapParams();
 	ImGui::SliderInt("Octaves", &currentParams.octaves, 1, 10);
-	ImGui::SliderFloat("Lacunarity", &currentParams.lacunarity, 0.0f, 1.0f);
 	ImGui::SliderFloat("Persistence", &currentParams.persistence, 0, 3);
+	ImGui::SliderFloat("Lacunarity", &currentParams.lacunarity, 0.0f, 1.0f);
 	if (currentParams != m_terrain.GetHeightMapParams())
 	{
 		m_terrain.SetHeightMapParams(currentParams);

@@ -34,18 +34,18 @@ add_custom_command(
 				${CMAKE_CURRENT_BINARY_DIR}/Data/Levels)
 message("Done.")
 
-#if( NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/Data/Images )
-#	message("Copying Images")
-#
-#	add_custom_command(
-#			TARGET ${MODULE_NAME} POST_BUILD
-#			COMMAND ${CMAKE_COMMAND} -E copy_directory
-#					${CMAKE_SOURCE_DIR}/Data/Images
-#					${CMAKE_CURRENT_BINARY_DIR}/Data/Images)
-#
-#	message("Done.")
-#endif()
-#
+if( NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/Data/Images )
+	message("Copying Images")
+
+	add_custom_command(
+			TARGET ${MODULE_NAME} POST_BUILD
+			COMMAND ${CMAKE_COMMAND} -E copy_directory
+					${CMAKE_SOURCE_DIR}/Data/Images
+					${CMAKE_CURRENT_BINARY_DIR}/Data/Images)
+
+	message("Done.")
+endif()
+
 #if( NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/Data/Objects )
 #	message("Copying Objects")
 #
