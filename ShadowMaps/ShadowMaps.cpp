@@ -99,21 +99,33 @@ void renderScene(const Shader& shader)
 	renderPlane();
 
 	Transform trans;
-	trans.SetPosition(glm::vec3(0.0f, 5.0f, 10.0f));
-	trans.SetScale(glm::vec3(10.0f, 5.0f, 1.0f));
-	shader.SetMat4("model", trans.GetModelMat());
-	Primitives::RenderCube();
+	trans.SetPosition(glm::vec3(0.0f, 1.0f, 2.0f));
+	shader.SetMat4("model", trans.GetTransform());
+	Primitives::RenderSphere();
 
-	trans.SetPosition(glm::vec3(-10.0f, 5.0f, 0.0f));
-	trans.RotateLocal(glm::vec3(0, 1, 0), 90.0f);
-	shader.SetMat4("model", trans.GetModelMat());
-	Primitives::RenderCube();
+	trans.SetPosition(glm::vec3(-3.0f, 1.0f, 2.0f));
+	shader.SetMat4("model", trans.GetTransform());
+	Primitives::RenderSphere();
 
-	trans.SetPosition(glm::vec3(10.0f, 5.0f, 0.0f));
-	shader.SetMat4("model", trans.GetModelMat());
-	Primitives::RenderCube();
+	trans.SetPosition(glm::vec3(3.0f, 1.0f, 2.0f));
+	shader.SetMat4("model", trans.GetTransform());
+	Primitives::RenderSphere();
 
-	
+	float spacing = 1.2f;
+
+	for (int x = 0; x < 10; ++x)
+	{
+		for (int z = 0; z < 10; ++z)
+		{
+			for (int y = 7; y < 10; ++y)
+			{
+				Transform transform;
+				transform.SetPosition( glm::vec3(0.0f, 0.5f, 0.0f) + glm::vec3(x - 5, y, z - 5) * spacing);
+				shader.SetMat4("model", transform.GetTransform());
+				Primitives::RenderCube();
+			}
+		}
+	}
 }
 
 void ShadowMapState::Init(Game* game)
@@ -124,10 +136,7 @@ void ShadowMapState::Init(Game* game)
 	m_sceneCamera = &game->GetSystemComponentManager()->GetComponent<SceneCameraComponent>();
 
 	Camera& cam = m_sceneCamera->GetCamera();
-
-	cam.Move(glm::vec3(0.0f, 2.0f, -2.0f));
-	cam.LookAt(glm::vec3(0.0f, 0.0f, 0.0f));
-
+	cam.SetPosition(glm::vec3(0.0, 2.0f, 0.0f));
 	m_windowParams = game->GetWindowParameters();
 
 	{
@@ -207,6 +216,7 @@ void ShadowMapState::Init(Game* game)
 	// configure global open gl state
 	// -----------------------------
 	glEnable(GL_DEPTH_TEST);
+
 }
 
 void ShadowMapState::HandleInput(SDL_Event* event)
@@ -225,8 +235,26 @@ void ShadowMapState::HandleInput(SDL_Event* event)
 		break;
 		case SDLK_t:
 		{
+			Camera& cam = m_sceneCamera->GetCamera();
+			m_directionalLight->direction = -cam.GetForward();
 		}
 		break;
+		case SDLK_7:
+			m_directionalLight->direction = glm::normalize(glm::vec3(0.0f, -1.0f, 0.0f));
+			std::cout << "[DirectionalLight] SetDirection : glm::vec3(0.0f, -1.0f, 0.0f) \n";
+			break;
+		case SDLK_8:
+			m_directionalLight->direction = glm::normalize(glm::vec3(0.0f, 0.0f, 1.0f));
+			std::cout << "[DirectionalLight] SetDirection : glm::vec3(0.0f, 0.0f, 1.0f) \n";
+			break;
+		case SDLK_9:
+			m_directionalLight->direction = glm::normalize(glm::vec3(0.0f, 0.0f,-1.0f));
+			std::cout << "[DirectionalLight] SetDirection : glm::vec3(0.0f, 0.0f,-1.0f) \n";
+			break;
+		case SDLK_0:
+			m_directionalLight->direction = glm::normalize(glm::vec3(-1.0f, -1.0f, 0.0f));
+			std::cout << "[DirectionalLight] SetDirection : glm::vec3(-1.0f, -1.0f, 0.0f) \n";
+			break;
 		default: break;
 
 		}
@@ -239,8 +267,8 @@ void ShadowMapState::Update(float deltaTime)
 
 	float time = m_game->GetTimeMS();
 	lightPos = glm::vec3(
-		sin(time * 2.0f) * 2.0f, 
-		2.0f + sin(time) * 0.5f, 
+		sin(time * 2.0f) * 2.0f,
+		2.0f + sin(time) * 0.5f,
 		cos(time * 2.0f) * 2.0f
 	);
 
@@ -255,6 +283,11 @@ void ShadowMapState::Render(float alpha)
 	glm::mat4 projection = cam.GetProjection();
 	glm::mat4 view = cam.GetView();
 	glm::vec3 camPos = cam.GetPosition();
+
+	auto& wShader = m_assetManager->GetWireframeShader();
+	wShader.Use();
+	wShader.SetMat4("projection", projection);
+	wShader.SetMat4("view", view);
 
 	// render
 	// ------
@@ -275,7 +308,7 @@ void ShadowMapState::Render(float alpha)
 	
 	// set light uniforms
 	shader.SetVec3("viewPos", camPos);
-	shader.SetVec3("lightPos", lightPos);
+	shader.SetVec3("lightDir", m_directionalLight->direction);
 
 	glm::mat4 lightSpaceMatrix = m_directionalLight->GetProjectionView();
 	shader.SetMat4("lightSpaceMatrix", lightSpaceMatrix);
@@ -291,10 +324,13 @@ void ShadowMapState::Render(float alpha)
 
 	light.GetShader().Use();
 	Transform pointLightTransform;
+
 	pointLightTransform.SetPosition(lightPos);
 	pointLightTransform.SetScale(glm::vec3(0.1f));
-	light.SetMVP(pointLightTransform.GetModelMat(), view, projection);
+	light.SetMVP(pointLightTransform.GetTransform(), view, projection);
 	Primitives::RenderCube();
+	pointLightTransform.RenderGizmo(wShader);
+	//pointLightTransform.SetScale(glm::vec3(1.0f));
 
 	// render Depth map to quad for visual debugging
 	// ---------------------------------------------
@@ -390,17 +426,6 @@ void ShadowMapState::RenderUI()
 		ImGui::Text("R - Reset Camera Position");
 		ImGui::Text("G - Set Spotlight Pos/Direction");
 		ImGui::Text("T - Set Directional Light Direction");
-
-		if (ImGui::BeginPopupContextWindow())
-		{
-			if (ImGui::MenuItem("Custom", NULL, corner == -1)) corner = -1;
-			if (ImGui::MenuItem("Top-left", NULL, corner == 0)) corner = 0;
-			if (ImGui::MenuItem("Top-right", NULL, corner == 1)) corner = 1;
-			if (ImGui::MenuItem("Bottom-left", NULL, corner == 2)) corner = 2;
-			if (ImGui::MenuItem("Bottom-right", NULL, corner == 3)) corner = 3;
-			if (open && ImGui::MenuItem("Close")) open = false;
-			ImGui::EndPopup();
-		}
 	}
 	ImGui::End();
 }

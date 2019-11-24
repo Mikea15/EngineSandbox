@@ -17,11 +17,90 @@ Transform::Transform(const Transform& copy)
 void Transform::SetPosition(const glm::vec3& position)
 {
 	m_position = position;
+	m_isDirty = true;
+}
+
+void Transform::SetRotation(const glm::vec4& rotation)
+{
+	m_rotation = rotation;
+	m_isDirty = true;
 }
 
 void Transform::SetScale(const glm::vec3& scale)
 {
 	m_scale = scale;
+	m_isDirty = true;
+}
+
+void Transform::SetScale(float scale)
+{
+	m_scale = glm::vec3(scale);
+	m_isDirty = true;
+}
+
+const glm::vec3 Transform::GetLocalPosition()
+{
+	return m_position;
+}
+
+const glm::vec4 Transform::GetLocalRotation()
+{
+	return m_rotation;
+}
+
+const glm::quat Transform::GetOrientation()
+{
+	return m_orientation;
+}
+
+const glm::vec3 Transform::GetLocalScale()
+{
+	return m_scale;
+}
+
+const glm::vec3 Transform::GetWorldPosition()
+{
+	glm::mat4 transform = GetTransform();
+	glm::vec4 pos = transform * glm::vec4(m_position, 1.0f);
+	return pos;
+}
+
+const glm::vec3 Transform::GetWorldScale()
+{
+	glm::mat4 transform = GetTransform();
+	glm::vec3 scale = glm::vec3(transform[0][0], transform[1][1], transform[2][2]);
+	if (scale.x < 0.0f) scale.x *= 1.0f;
+	if (scale.y < 0.0f) scale.y *= 1.0f;
+	if (scale.z < 0.0f) scale.z *= 1.0f;
+	return scale;
+}
+
+const glm::mat4 Transform::GetTransform()
+{
+	if (m_isDirty)
+	{
+		UpdateTransform();
+	}
+	return m_transform;
+}
+
+const glm::mat4 Transform::GetPrevTransform()
+{
+	return m_prevTransform;
+}
+
+void Transform::UpdateTransform()
+{
+	m_prevTransform = m_transform;
+
+	if (m_isDirty)
+	{
+		m_transform = glm::translate(m_position);
+		m_transform = glm::scale(m_transform, m_scale);
+		// m_transform = glm::rotate(m_transform, glm::vec3(m_rotation), m_rotation.a);
+
+		m_isDirty = false;
+	}
 }
 
 void Transform::SetOrientation(const glm::quat& orientation)
@@ -31,7 +110,7 @@ void Transform::SetOrientation(const glm::quat& orientation)
 
 void Transform::Translate(const glm::vec3& deltaPosition)
 {
-	m_position += deltaPosition;
+	SetPosition(m_position + deltaPosition);
 }
 
 void Transform::RotateLocal(const glm::vec3& axis, float degrees)
@@ -41,22 +120,8 @@ void Transform::RotateLocal(const glm::vec3& axis, float degrees)
 	m_orientation = glm::normalize(m_orientation);
 }
 
-void Transform::Scale(float delta)
+void Transform::RenderGizmo(Shader shader)
 {
-	m_scale *= delta;
-}
-
-void Transform::Scale(const glm::vec3& axis, float delta)
-{
-	m_scale += axis * delta;
-}
-
-glm::mat4 Transform::GetModelMat()
-{
-	glm::mat4 model = glm::mat4(1.0f);
-	model = glm::translate(model, m_position);
-	model = model * glm::toMat4(m_orientation);
-	model = glm::scale(model, m_scale);
-	return model;
+	Gizmo::Render(shader, GetTransform(), GetLocalPosition(), GetForward(), GetUp(), GetRight());
 }
 

@@ -39,7 +39,7 @@ void Entity::Update(float deltaTime)
 
 void Entity::Draw(const glm::mat4& view, const glm::mat4& projection)
 {
-	m_model.Draw(m_transform.GetModelMat(), view, projection);
+	m_model.Draw(m_transform.GetTransform(), view, projection);
 }
 
 void Entity::Draw(const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection, Material& material)

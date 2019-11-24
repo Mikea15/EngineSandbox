@@ -11,9 +11,7 @@ void DefaultState::Init(Game* game)
 	m_sceneCamera = &game->GetSystemComponentManager()->GetComponent<SceneCameraComponent>();
 
 	Camera& cam = m_sceneCamera->GetCamera();
-
-	cam.Move(glm::vec3(0.0f, 2.0f, -2.0f));
-	cam.LookAt(glm::vec3(0.0f, 0.0f, 0.0f));
+	cam.SetPosition(glm::vec3(0.0, 2.0f, 0.0f));
 
 	m_windowParams = game->GetWindowParameters();
 	m_tempWindowParams = m_windowParams;
@@ -140,21 +138,21 @@ void DefaultState::Render(float alpha)
 	{
 		Transform t;
 		Material defaultMat = m_assetManager->GetDefaultMaterial();
-		defaultMat.SetMVP(t.GetModelMat(), view, projection);
+		defaultMat.SetMVP(t.GetTransform(), view, projection);
 		defaultMat.BindTextures();
 
 		defaultMat.GetShader().SetVec3("viewPos", cameraPosition);
 
 		t.SetPosition(glm::vec3(-5.0f, 0.0f, 0.0f));
-		defaultMat.GetShader().SetMat4("model", t.GetModelMat());
+		defaultMat.GetShader().SetMat4("model", t.GetTransform());
 		Primitives::RenderCube();
 
 		t.SetPosition(glm::vec3(0.0f, -1.0f, 0.0f));
-		defaultMat.GetShader().SetMat4("model", t.GetModelMat());
+		defaultMat.GetShader().SetMat4("model", t.GetTransform());
 		Primitives::RenderCube();
 
 		t.SetPosition(glm::vec3(5.0f, 0.0f, 0.0f));
-		defaultMat.GetShader().SetMat4("model", t.GetModelMat());
+		defaultMat.GetShader().SetMat4("model", t.GetTransform());
 		Primitives::RenderCube();
 	}
 

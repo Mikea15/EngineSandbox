@@ -77,7 +77,7 @@ public:
 			{
 				entity->ApplyLightingPass(*light);
 			}
-			glm::mat4 model = entity->GetTransform().GetModelMat();
+			glm::mat4 model = entity->GetTransform().GetTransform();
 			entity->Draw(model, camera.GetView(), camera.GetProjection(), mat);
 		}
 

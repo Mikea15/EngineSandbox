@@ -24,8 +24,8 @@ add_library(
 	
 	Systems/Camera/Camera.cpp
 	Systems/Camera/Camera.h
-	Systems/Camera/CameraSnapshot.cpp
-	Systems/Camera/CameraSnapshot.h
+	Systems/Camera/FlyCamera.cpp
+	Systems/Camera/FlyCamera.h
 
 	Systems/Geometry/BoundingBox.cpp
 	Systems/Geometry/BoundingBox.h
@@ -49,6 +49,8 @@ add_library(
 	Systems/Rendering/Primitives/Cube.cpp
 	Systems/Rendering/Primitives/Cube.h
 
+	Systems/Rendering/Gizmo.cpp
+	Systems/Rendering/Gizmo.h
 	Systems/Rendering/IBLSkybox.cpp
 	Systems/Rendering/IBLSkybox.h
 	Systems/Rendering/Mesh.cpp

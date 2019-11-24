@@ -142,7 +142,7 @@ void DeferredRendering::Render(float alpha)
 		for (unsigned int i = 0; i < objectPositions.size(); i++)
 		{
 			ent.GetTransform().SetPosition(objectPositions[i]);
-			shaderGeometryPass.SetMat4("model", ent.GetTransform().GetModelMat());
+			shaderGeometryPass.SetMat4("model", ent.GetTransform().GetTransform());
 			ent.GetModel().Draw(shaderGeometryPass);
 		}
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -200,7 +200,7 @@ void DeferredRendering::Render(float alpha)
 	{
 		lightTransform.SetPosition(lightPositions[i]);
 		lightTransform.SetScale(glm::vec3(0.125f));
-		shaderLightBox.SetMat4("model", lightTransform.GetModelMat());
+		shaderLightBox.SetMat4("model", lightTransform.GetTransform());
 		shaderLightBox.SetVec3("lightColor", lightColors[i]);
 		Primitives::RenderSphere();
 	}

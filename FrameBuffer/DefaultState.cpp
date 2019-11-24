@@ -13,9 +13,7 @@ void DefaultState::Init(Game* game)
 	m_sceneCamera = &game->GetSystemComponentManager()->GetComponent<SceneCameraComponent>();
 
 	Camera& cam = m_sceneCamera->GetCamera();
-
-	cam.Move(glm::vec3(0.0f, 2.0f, -2.0f));
-	cam.LookAt(glm::vec3(0.0f, 0.0f, 0.0f));
+	cam.SetPosition(glm::vec3(0.0, 2.0f, 0.0f));
 
 	m_windowParams = game->GetWindowParameters();
 	m_tempWindowParams = m_windowParams;

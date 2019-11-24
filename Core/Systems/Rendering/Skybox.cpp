@@ -69,7 +69,7 @@ void Skybox::Initialize()
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 
 	transform.SetPosition(glm::vec3(0, 0, 0));
-	transform.Scale(10000.0f);
+	transform.SetScale(10000.0f);
 }
 
 void Skybox::Draw(const Shader& shader)
@@ -92,7 +92,7 @@ void Skybox::Draw(const Shader& shader)
 	shader.SetFloat("SunAzimuth",		m_currentSettings.sunAzimuth);
 	shader.SetFloat("SunAltitude",		m_currentSettings.sunAltitude);
 
-	shader.SetMat4("model", transform.GetModelMat());
+	shader.SetMat4("model", transform.GetTransform());
 
 	glDepthFunc(GL_LEQUAL);
 

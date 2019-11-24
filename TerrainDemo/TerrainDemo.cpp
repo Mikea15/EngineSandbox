@@ -29,12 +29,9 @@ void TerrainDemoState::Init(Game* game)
 	m_sceneCamera = &game->GetSystemComponentManager()->GetComponent<SceneCameraComponent>();
 
 	Camera& cam = m_sceneCamera->GetCamera();
-
-	cam.Move(glm::vec3(0.0f, 10.0f, -10.0f));
-	cam.LookAt(glm::vec3(0.0f, 0.0f, 0.0f));
+	cam.SetPosition(glm::vec3(0.0, 2.0f, 0.0f));
 
 	m_windowParams = game->GetWindowParameters();
-
 
 	// shader configuration
 	// --------------------
@@ -83,7 +80,7 @@ void TerrainDemoState::Render(float alpha)
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, m_assetManager->GetDefaultTexture().GetId());
 
-	m_terrainShader.SetMat4("model", m_terrainPosition.GetModelMat());
+	m_terrainShader.SetMat4("model", m_terrainPosition.GetTransform());
 	m_terrain.GetMesh().Draw();
 
 	// render skybox last. but before transparent objects

@@ -128,7 +128,7 @@ void SSAOState::Render(float alpha)
 		for (unsigned int i = 0; i < objectPositions.size(); i++)
 		{
 			ent.GetTransform().SetPosition(objectPositions[i]);
-			shaderGeometryPass.SetMat4("model", ent.GetTransform().GetModelMat());
+			shaderGeometryPass.SetMat4("model", ent.GetTransform().GetTransform());
 			ent.GetModel().Draw(shaderGeometryPass);
 		}
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);

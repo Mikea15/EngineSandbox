@@ -57,7 +57,7 @@ void InstancingState::Render(float alpha)
 	planetShader.Use();
 	planetShader.SetMat4("projection", projection);
 	planetShader.SetMat4("view", view);
-	planetShader.SetMat4("model", planetEnt.GetTransform().GetModelMat());
+	planetShader.SetMat4("model", planetEnt.GetTransform().GetTransform());
 	planetEnt.GetModel().Draw(planetShader);
 
 	// draw meteorites

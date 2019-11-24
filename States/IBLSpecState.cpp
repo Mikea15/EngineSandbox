@@ -305,45 +305,45 @@ void IBLSpecState::Render(float alpha)
 		
 		t.SetPosition(glm::vec3(0.0f));
 		wireframeShader.SetVec3("Color", glm::vec3(0.0f, 0.0f, 0.0f));
-		wireframeShader.SetMat4("model", t.GetModelMat());
+		wireframeShader.SetMat4("model", t.GetTransform());
 		Primitives::RenderPoint(10);
 
 		// red
 		t.SetPosition(glm::vec3(1.0f, 0.0f, 0.0f));
 		wireframeShader.SetVec3("Color", glm::vec3(1.0f, 0.0f, 0.0f));
-		wireframeShader.SetMat4("model", t.GetModelMat());
+		wireframeShader.SetMat4("model", t.GetTransform());
 		Primitives::RenderPoint(10);
 
 		// green
 		t.SetPosition(glm::vec3(0.0f, 1.0f, 0.0f));
 		wireframeShader.SetVec3("Color", glm::vec3(0.0f, 1.0f, 0.0f));
-		wireframeShader.SetMat4("model", t.GetModelMat());
+		wireframeShader.SetMat4("model", t.GetTransform());
 		Primitives::RenderPoint(10);
 
 		// blue
 		t.SetPosition(glm::vec3(0.0f, 0.0f, 1.0f));
 		wireframeShader.SetVec3("Color", glm::vec3(0.0f, 0.0f, 1.0f));
-		wireframeShader.SetMat4("model", t.GetModelMat());
+		wireframeShader.SetMat4("model", t.GetTransform());
 		Primitives::RenderPoint(10);
 
 
 		t.SetPosition(glm::vec3(0.0f));
-		wireframeShader.SetMat4("model", t.GetModelMat());
+		wireframeShader.SetMat4("model", t.GetTransform());
 		wireframeShader.SetVec3("Color", glm::vec3(0.0f, 1.0f, 0.0f));
 		Primitives::RenderLine(glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
 		t.SetPosition(glm::vec3(0.0f));
-		wireframeShader.SetMat4("model", t.GetModelMat());
+		wireframeShader.SetMat4("model", t.GetTransform());
 		wireframeShader.SetVec3("Color", glm::vec3(1.0f, 0.0f, 0.0f));
 		Primitives::RenderLine(glm::vec3(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 
 		t.SetPosition(glm::vec3(0.0f));
-		wireframeShader.SetMat4("model", t.GetModelMat());
+		wireframeShader.SetMat4("model", t.GetTransform());
 		wireframeShader.SetVec3("Color", glm::vec3(0.0f, 0.0f, 1.0f));
 		Primitives::RenderLine(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 		
 
-		wireframeShader.SetMat4("model", t.GetModelMat());
+		wireframeShader.SetMat4("model", t.GetTransform());
 		glm::vec3 ccP = cc.GetPosition();
 		auto points = cc.GetBoundingFrustum().GetCorners();
 		// near
@@ -383,7 +383,7 @@ void IBLSpecState::Render(float alpha)
 		{
 			Transform t;
 			t.SetPosition(glm::vec3(-5.0, 0.0, 2.0));
-			pbrShader.SetMat4("model", t.GetModelMat());
+			pbrShader.SetMat4("model", t.GetTransform());
 			Primitives::RenderSphere();
 			vertexCountStats += Primitives::sphere.GetVertexCount();
 		}
@@ -393,7 +393,7 @@ void IBLSpecState::Render(float alpha)
 		{
 			Transform t;
 			t.SetPosition(glm::vec3(-3.0, 0.0, 2.0));
-			pbrShader.SetMat4("model", t.GetModelMat());
+			pbrShader.SetMat4("model", t.GetTransform());
 			Primitives::RenderSphere();
 			vertexCountStats += Primitives::sphere.GetVertexCount();
 		}
@@ -403,7 +403,7 @@ void IBLSpecState::Render(float alpha)
 		{
 			Transform t;
 			t.SetPosition(glm::vec3(-1.0, 0.0, 2.0));
-			pbrShader.SetMat4("model", t.GetModelMat());
+			pbrShader.SetMat4("model", t.GetTransform());
 			Primitives::RenderSphere();
 			vertexCountStats += Primitives::sphere.GetVertexCount();
 		}
@@ -413,7 +413,7 @@ void IBLSpecState::Render(float alpha)
 		{
 			Transform t;
 			t.SetPosition(glm::vec3(1.0, 0.0, 2.0));
-			pbrShader.SetMat4("model", t.GetModelMat());
+			pbrShader.SetMat4("model", t.GetTransform());
 			Primitives::RenderSphere();
 			vertexCountStats += Primitives::sphere.GetVertexCount();
 		}
@@ -423,7 +423,7 @@ void IBLSpecState::Render(float alpha)
 		{
 			Transform t;
 			t.SetPosition(glm::vec3(-5.0, 2.0, 2.0));
-			pbrShader.SetMat4("model", t.GetModelMat());
+			pbrShader.SetMat4("model", t.GetTransform());
 			Primitives::RenderSphere();
 			vertexCountStats += Primitives::sphere.GetVertexCount();
 		}
@@ -433,7 +433,7 @@ void IBLSpecState::Render(float alpha)
 		{
 			Transform t;
 			t.SetPosition(glm::vec3(-3.0, 2.0, 2.0));
-			pbrShader.SetMat4("model", t.GetModelMat());
+			pbrShader.SetMat4("model", t.GetTransform());
 			Primitives::RenderSphere();
 			vertexCountStats += Primitives::sphere.GetVertexCount();
 		}
@@ -443,7 +443,7 @@ void IBLSpecState::Render(float alpha)
 		{
 			Transform t;
 			t.SetPosition(glm::vec3(1.0, 2.0, 2.0));
-			pbrShader.SetMat4("model", t.GetModelMat());
+			pbrShader.SetMat4("model", t.GetTransform());
 			Primitives::RenderSphere();
 			vertexCountStats += Primitives::sphere.GetVertexCount();
 		}
@@ -453,7 +453,7 @@ void IBLSpecState::Render(float alpha)
 		{
 			Transform t;
 			t.SetPosition(glm::vec3(1.0, 2.0, 2.0));
-			pbrShader.SetMat4("model", t.GetModelMat());
+			pbrShader.SetMat4("model", t.GetTransform());
 			Primitives::RenderSphere();
 			vertexCountStats += Primitives::sphere.GetVertexCount();
 		}
@@ -468,7 +468,7 @@ void IBLSpecState::Render(float alpha)
 		for (unsigned int i = 0; i < size; ++i)
 		{
 			scratchTransform.SetPosition(positions[i]);
-			pbrShader.SetMat4("model", scratchTransform.GetModelMat());
+			pbrShader.SetMat4("model", scratchTransform.GetTransform());
 
 			visible[i] = cc.GetBoundingFrustum().Contains(BoundingBox(positions[i], 1.0f));
 			if (visible[i] == ContainmentType::Disjoint)
@@ -477,7 +477,7 @@ void IBLSpecState::Render(float alpha)
 				wireframeShader.SetMat4("view", view);
 				wireframeShader.SetMat4("projection", projection);
 				wireframeShader.SetVec3("camPos", cameraPosition);
-				wireframeShader.SetMat4("model", scratchTransform.GetModelMat());
+				wireframeShader.SetMat4("model", scratchTransform.GetTransform());
 				wireframeShader.SetVec3("Color", glm::vec3(0.1f, 0.2f, 0.5f));
 
 				Primitives::RenderSphere(true);
@@ -488,7 +488,7 @@ void IBLSpecState::Render(float alpha)
 				wireframeShader.SetMat4("view", view);
 				wireframeShader.SetMat4("projection", projection);
 				wireframeShader.SetVec3("camPos", cameraPosition);
-				wireframeShader.SetMat4("model", scratchTransform.GetModelMat());
+				wireframeShader.SetMat4("model", scratchTransform.GetTransform());
 				wireframeShader.SetVec3("Color", glm::vec3(1.0f, 1.0f, 1.0f));
 				Primitives::RenderSphere(true);
 			}
@@ -498,7 +498,7 @@ void IBLSpecState::Render(float alpha)
 				pbrShader.SetMat4("view", view);
 				pbrShader.SetMat4("projection", projection);
 				pbrShader.SetVec3("camPos", cameraPosition);
-				pbrShader.SetMat4("model", scratchTransform.GetModelMat());
+				pbrShader.SetMat4("model", scratchTransform.GetTransform());
 				Primitives::RenderSphere(false);
 			}
 		}
@@ -522,7 +522,7 @@ void IBLSpecState::Render(float alpha)
 			wireframeShader.SetMat4("view", view);
 			wireframeShader.SetMat4("projection", projection);
 			wireframeShader.SetVec3("Color", glm::vec3(0.1, 0.8, 0.2));
-			wireframeShader.SetMat4("model", origin.GetModelMat());
+			wireframeShader.SetMat4("model", origin.GetTransform());
 			Primitives::RenderQuad(true);
 			vertexCountStats += Primitives::quad.GetVertexCount();
 		}
@@ -545,7 +545,7 @@ void IBLSpecState::Render(float alpha)
 			wireframeShader.SetMat4("view", view);
 			wireframeShader.SetMat4("projection", projection);
 			wireframeShader.SetVec3("Color", glm::vec3(0.1, 0.8, 0.2));
-			wireframeShader.SetMat4("model", origin.GetModelMat());
+			wireframeShader.SetMat4("model", origin.GetTransform());
 			Primitives::RenderCube(true);
 			vertexCountStats += Primitives::cube.GetVertexCount();
 		}
@@ -600,7 +600,7 @@ void IBLSpecState::Render(float alpha)
 			}
 
 			scratchTransform.SetPosition(positions[i]);
-			wireframeShader.SetMat4("model", scratchTransform.GetModelMat());
+			wireframeShader.SetMat4("model", scratchTransform.GetTransform());
 
 			Primitives::RenderSphere(true);
 			vertexCountStats += Primitives::sphere.GetVertexCount();
