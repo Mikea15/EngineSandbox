@@ -54,15 +54,13 @@ public:
 		m_directionalLight = light;
 	}
 
-	void Render(Camera& camera,
+	void Render(Camera& camera, glm::mat4 lightSpaceMatrix,
 		const std::vector<std::shared_ptr<ILight>>& lights, 
 		const std::vector<std::shared_ptr<Entity>>& entities,
 		Material& mat, std::function<void(Shader)> renderScene) 
 	{
 		// 1. render depth of scene to texture (from light's perspective)
 		// --------------------------------------------------------------
-		glm::mat4 lightSpaceMatrix = m_directionalLight->GetProjectionView();
-		
 		// render scene from light's point of view
 		m_shader.Use();
 		m_shader.SetMat4("lightSpaceMatrix", lightSpaceMatrix);

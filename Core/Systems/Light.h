@@ -34,7 +34,7 @@ struct DirectionalLight
 			m_nearPlane, m_farPlane);
 
 		glm::mat4 lightView = glm::lookAt(
-			-direction * 10.0f,
+			-direction * 15.0f,
 			glm::vec3(0.0f, 0.0f, 0.0f),
 			glm::vec3(0.0f, 1.0f, 0.0f));
 
@@ -50,9 +50,9 @@ struct DirectionalLight
 	glm::vec3 diffuse;
 	glm::vec3 specular;
 
-	float m_nearPlane = 0.0f;
-	float m_farPlane = 10.0f;
-	float m_orthoSize = 5.0f;
+	float m_nearPlane = -1.0f;
+	float m_farPlane = 25.0f;
+	float m_orthoSize = 7.0f;
 };
 
 struct PointLight

@@ -111,7 +111,7 @@ void renderScene(const Shader& shader)
 	shader.SetMat4("model", trans.GetTransform());
 	Primitives::RenderSphere();
 
-	float spacing = 1.2f;
+	float spacing = 2.2f;
 
 	for (int x = 0; x < 10; ++x)
 	{
@@ -236,7 +236,7 @@ void ShadowMapState::HandleInput(SDL_Event* event)
 		case SDLK_t:
 		{
 			Camera& cam = m_sceneCamera->GetCamera();
-			m_directionalLight->direction = -cam.GetForward();
+			m_directionalLight->direction = cam.GetForward();
 		}
 		break;
 		case SDLK_7:
@@ -266,14 +266,14 @@ void ShadowMapState::Update(float deltaTime)
 	m_sceneManager.Update(deltaTime);
 
 	float time = m_game->GetTimeMS();
-	lightPos = glm::vec3(
-		sin(time * 2.0f) * 2.0f,
-		2.0f + sin(time) * 0.5f,
-		cos(time * 2.0f) * 2.0f
-	);
+	 lightPos = glm::vec3(
+	 	sin(time * 2.0f) * 10.0f,
+	 	25.0f + sin(time) * 0.5f,
+	 	cos(time * 2.0f) * 10.0f
+	 );
 
 	if (m_updateDirLightOnUpdate) {
-		m_directionalLight->direction = glm::normalize(lightPos - glm::vec3(0.0f));
+		m_directionalLight->direction = glm::normalize(glm::vec3(0.0f) - lightPos);
 	}
 }
 
@@ -294,8 +294,10 @@ void ShadowMapState::Render(float alpha)
 	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	glm::mat4 lightSpaceMatrix= m_directionalLight->GetProjectionView();
+	
 	// 1 Shadow Pass
-	m_shadowRenderPass.Render(cam, m_sceneManager.GetSceneLights(), m_sceneManager.GetSceneObjects(), depthMaterial, renderScene);
+	m_shadowRenderPass.Render(cam, lightSpaceMatrix, m_sceneManager.GetSceneLights(), m_sceneManager.GetSceneObjects(), depthMaterial, renderScene);
 	
 	// 2. render scene as normal using the generated depth/shadow map  
 	// --------------------------------------------------------------
@@ -308,9 +310,7 @@ void ShadowMapState::Render(float alpha)
 	
 	// set light uniforms
 	shader.SetVec3("viewPos", camPos);
-	shader.SetVec3("lightDir", m_directionalLight->direction);
-
-	glm::mat4 lightSpaceMatrix = m_directionalLight->GetProjectionView();
+	shader.SetVec3("lightPos", lightPos);
 	shader.SetMat4("lightSpaceMatrix", lightSpaceMatrix);
 
 	glActiveTexture(GL_TEXTURE0);
@@ -324,7 +324,6 @@ void ShadowMapState::Render(float alpha)
 
 	light.GetShader().Use();
 	Transform pointLightTransform;
-
 	pointLightTransform.SetPosition(lightPos);
 	pointLightTransform.SetScale(glm::vec3(0.1f));
 	light.SetMVP(pointLightTransform.GetTransform(), view, projection);
