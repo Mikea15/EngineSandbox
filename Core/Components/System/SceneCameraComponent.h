@@ -3,6 +3,7 @@
 #include "../../SystemComponentManager.h"
 
 #include "../../Systems/Camera/Camera.h"
+#include "../../Systems/Camera/FlyCamera.h"
 
 #include "../../WindowParams.h"
 
@@ -23,19 +24,13 @@ public:
 	void RenderUI() override;
 	void Cleanup() override;
 
-	Camera& GetCamera() { return m_camera; }
+	Camera& GetCamera() { return static_cast<Camera>(m_camera); }
 
 private:
 	WindowParams m_windowParams;
 
-	Camera m_camera;
-	CameraSnapshot m_camera1;
-	CameraSnapshot m_camera2;
-	float m_cameraInterpolationTime = 1.0f;
+	FlyCamera m_camera;
 
-	glm::vec3 m_cameraMovement;
-	float m_cameraVelocity = 1.0f;
-	float m_cameraMovementDamping = 0.65f;
 	float m_cameraMovementSpeedBoostMult = 5.0f;
 
 	glm::vec2 m_mousePosition;
@@ -53,6 +48,4 @@ private:
 	float m_inputMoveForward = 0.0f;
 
 	bool m_inputEnableMovementBoost = false;
-	bool m_inputToggleOrthoCamera = false;
-
 };

@@ -7,98 +7,61 @@
 
 
 //must be less than 90 to avoid gimbal lock
-const float Camera::s_maxVerticalAngle = 85.0f;
+const float Camera::s_maxPitchAngle = 85.0f;
 const float Camera::s_minFov = 0.1f;
 const float Camera::s_maxFov = 179.0f;
 
 Camera::Camera()
-	: m_position(0.0f, 0.0f, 1.0f)
-	, m_viewMatrix(1.0f)
-	, m_projectionMatrix(1.0f)
-	, m_forward(0.0f)
-	, m_up(0.0f)
-	, m_right(0.0f)
-	, m_horizontalAngle(180.0f)
-	, m_verticalAngle(0.0f)
+	: m_view(1.0f)
+	, m_projection(1.0f)
+	, m_position(0.0f, 0.0f, 0.0f)
+	, m_forward(0.0f, 0.0f, -1.0f)
+	, m_up(0.0f, 1.0f, 0.0f)
+	, m_right(1.0f, 0.0f, 0.0f)
 {
-	m_frustum = BoundingFrustum(m_viewMatrix);
+	UpdateView();
+	m_frustum = BoundingFrustum(m_view);
+}
+
+Camera::Camera(glm::vec3 pos, glm::vec3 forward, glm::vec3 up)
+	: m_view(1.0f)
+	, m_projection(1.0f)
+	, m_position(pos)
+	, m_forward(forward)
+	, m_up(up)
+	, m_right(1.0f, 0.0f, 0.0f)
+{
+	UpdateView();
+	m_frustum = BoundingFrustum(m_view);
 }
 
 void Camera::Update(float deltaTime)
 {
-	if (m_isInterpolating)
-	{
-		m_interpolationCurrentTime += deltaTime;
-		if (m_interpolationCurrentTime <= m_interpolationTime)
-		{
-			float progress = m_interpolationCurrentTime / m_interpolationTime;
-			CameraSnapshot transition = CameraSnapshotInterpolator::Interpolate(m_CSFrom, m_CSTo, progress);
-
-			m_params.m_fov = transition.fov;
-			m_horizontalAngle = transition.horizontalRotation;
-			m_verticalAngle = transition.verticalRotation;
-			m_position = transition.position;
-		}
-		else
-		{
-			m_isInterpolating = false;
-		}
-	}
-
-	m_forward = glm::vec3(
-		cos(glm::radians(m_verticalAngle)) * sin(glm::radians(m_horizontalAngle)),
-		sin(glm::radians(m_verticalAngle)),
-		cos(glm::radians(m_verticalAngle)) * cos(glm::radians(m_horizontalAngle))
-	);
-
-	m_right = glm::vec3(
-		sin(glm::radians(m_horizontalAngle) - 3.14f * 0.5f),
-		0.0f,
-		cos(glm::radians(m_horizontalAngle) - 3.14f * 0.5f)
-	);
-
-	m_up = glm::cross(m_right, m_forward);
-
-	/*
-	* Possible Solution for Matrix based camera.
-	* https://stackoverflow.com/questions/42263325/3d-camera-has-unintended-roll
-	*/
-	const float hSize = m_params.m_orthoSize * 0.5f;
-	const float wSize = m_params.m_orthoSize * 0.5f * m_params.m_aspectRatio;
-
-	m_viewMatrix = glm::lookAt(m_position, m_position + m_forward, m_up);
-	m_projectionMatrix = glm::perspective( glm::radians(m_params.m_fov), m_params.m_aspectRatio,
-		m_params.m_nearPlane, m_params.m_farPlane
-	);
-	m_orthographicMatrix = glm::ortho(-wSize, wSize, -hSize, hSize, 
-		m_params.m_nearPlane, m_params.m_farPlane);
-
-	m_frustum.UpdateViewProjectionMatrix(m_projectionMatrix * m_viewMatrix);
+	m_frustum.Update(m_projection * m_view);
 }
 
-void Camera::UpdateFov(float delta)
+void Camera::SetPerspective(float fov, float aspect, float near, float far)
 {
-	m_params.m_fov += delta;
-	if (m_params.m_fov < s_minFov)
-	{
-		m_params.m_fov = s_minFov;
-	}
-	else if (m_params.m_fov > s_maxFov)
-	{
-		m_params.m_fov = s_maxFov;
-	}
+	m_params.m_isPerspective = true;
+	m_params.m_fov = fov;
+	m_params.m_aspectRatio = aspect;
+	m_params.m_nearPlane = near;
+	m_params.m_farPlane = far;
+
+	m_projection = glm::perspective(fov, aspect, near, far);
 }
 
-void Camera::UpdateLookAt(const glm::vec2& mouseMovement)
+void Camera::SetOrthographics(float left, float right, float top, float bottom, float near, float far)
 {
-	m_horizontalAngle -= mouseMovement.x;
-	m_verticalAngle -= mouseMovement.y;
-	NormalizeAngles();
+	m_params.m_isPerspective = false;
+	m_params.m_nearPlane = near;
+	m_params.m_farPlane = far;
+	m_projection = glm::ortho(left, right, bottom, top, near, far);
 }
 
-void Camera::Move(const glm::vec3& movement)
+void Camera::UpdateView()
 {
-	m_position += movement;
+	m_view = glm::lookAt(m_position, m_position + m_forward, m_up);
 }
 
 void Camera::SetFov(float fov)
@@ -148,40 +111,6 @@ bool Camera::IsInFieldOfView(const glm::vec3& position) const
 	return false;
 }
 
-void Camera::ToggleOrthographicCamera()
-{
-	m_params.m_isOrtho = !m_params.m_isOrtho;
-}
-
-void Camera::LookAt(const glm::vec3& position)
-{
-	glm::vec3 direction = glm::normalize(position - m_position);
-	m_horizontalAngle = -glm::radians(atan2f(-direction.x, -direction.z));
-	m_verticalAngle = glm::radians(asinf(-direction.y));
-	NormalizeAngles();
-}
-
-void Camera::NormalizeAngles()
-{
-	while (m_horizontalAngle < 0.0f)
-	{
-		m_horizontalAngle += 360.0f;
-	}
-
-	while (m_horizontalAngle > 360.0f)
-	{
-		m_horizontalAngle -= 360.0f;
-	}
-
-	if (m_verticalAngle > s_maxVerticalAngle)
-	{
-		m_verticalAngle = s_maxVerticalAngle;
-	}
-	else if (m_verticalAngle < -s_maxVerticalAngle)
-	{
-		m_verticalAngle = -s_maxVerticalAngle;
-	}
-}
 
 void Camera::SetParams(const Params & params)
 {
@@ -189,23 +118,4 @@ void Camera::SetParams(const Params & params)
 	{
 		m_params = params;
 	}
-}
-
-CameraSnapshot Camera::SaveCameraSnapshot()
-{
-	CameraSnapshot now;
-	now.fov = m_params.m_fov;
-	now.horizontalRotation = m_horizontalAngle;
-	now.verticalRotation = m_verticalAngle;
-	now.position = m_position;
-	return now;
-}
-
-void Camera::InterpolateTo(CameraSnapshot b, float time)
-{
-	m_CSFrom = SaveCameraSnapshot();
-	m_CSTo = b;
-	m_interpolationTime = time;
-	m_interpolationCurrentTime = 0.0f;
-	m_isInterpolating = true;
 }

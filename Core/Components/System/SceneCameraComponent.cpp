@@ -7,10 +7,13 @@ CLASS_DEFINITION(SystemComponent, SceneCameraComponent)
 
 SceneCameraComponent::SceneCameraComponent()
 	: m_mouseSensitivity(10.0f)
-	, m_cameraMovement(0.0f)
 {
-	m_camera.SetPosition(glm::vec3(0.0f, 0.0f, -3.0f));
-	m_camera.LookAt(glm::vec3(0.0f));
+	m_camera = FlyCamera(glm::vec3(0.0f, 2.0f, -3.0f), glm::vec3(0, 0, -1), glm::vec3(0, 1, 0));
+
+	m_camera.SetPerspective(glm::radians(70.0f),
+		m_windowParams.Width / static_cast<float>(m_windowParams.Height),
+		0.1f, 1000.0f);
+
 	m_mousePosition = glm::vec2(m_windowParams.Width * 0.5f, m_windowParams.Height * 0.5f);
 }
 
@@ -42,36 +45,13 @@ void SceneCameraComponent::HandleInput(SDL_Event* event)
 
 	if (event->type == SDL_KEYDOWN)
 	{
-		switch (event->key.keysym.sym) {
-		case SDLK_f:
-			m_camera.LookAt(glm::vec3(0.0f));
-			break;
-		case SDLK_c: 
-			m_camera.ToggleOrthographicCamera();
-			break;
+		switch (event->key.keysym.sym)
+		{
 		case SDLK_r:
 			m_camera.SetPosition(glm::vec3(0.0f));
 			break;
 		default: break;
 		}
-	}
-
-	if (event->type == SDL_KEYDOWN &&
-		event->key.keysym.sym == SDLK_k) {
-		m_camera1 = m_camera.SaveCameraSnapshot();
-	}
-	if (event->type == SDL_KEYDOWN &&
-		event->key.keysym.sym == SDLK_l) {
-		m_camera2 = m_camera.SaveCameraSnapshot();
-	}
-
-	if (event->type == SDL_KEYDOWN &&
-		event->key.keysym.sym == SDLK_i) {
-		m_camera.InterpolateTo(m_camera1, m_cameraInterpolationTime);
-	}
-	if (event->type == SDL_KEYDOWN &&
-		event->key.keysym.sym == SDLK_o) {
-		m_camera.InterpolateTo(m_camera2, m_cameraInterpolationTime);
 	}
 
 	if (event->type == SDL_KEYUP && event->key.keysym.sym == SDLK_w) m_inputMoveForward = 0;
@@ -90,94 +70,43 @@ void SceneCameraComponent::HandleInput(SDL_Event* event)
 
 void SceneCameraComponent::PreUpdate(float frameTime)
 {
-	
+
 }
 
 void SceneCameraComponent::Update(float deltaTime)
 {
 	int x, y;
 	SDL_GetRelativeMouseState(&x, &y);
-	m_mousePosition = glm::vec2(x, y);
+	m_mousePosition = glm::vec2(x, -y);
 
-	// get mouse input
-	glm::vec2 mouseMovement = m_mousePosition * m_mouseSensitivity * deltaTime;
-	
-	// get camera movement input
-	glm::vec3 inputDir = m_camera.GetForward() * m_inputMoveForward;
-	inputDir += m_camera.GetRight() * m_inputMoveRight;
-	inputDir += m_camera.GetUp() * m_inputMoveUp;
-	
-	const float velocity = m_cameraVelocity * (m_inputEnableMovementBoost ? m_cameraMovementSpeedBoostMult : 1.0f);
-	m_cameraMovement += inputDir * velocity * deltaTime;
-	m_cameraMovement *= m_cameraMovementDamping;
-	
 	if (m_fovInputChange != 0)
 	{
 		m_fovChange = m_fovInputChange * m_fovVelocity * m_fovSensitivity * deltaTime;
 		m_fovInputChange = 0;
 	}
 	m_fovChange *= m_fovDamping;
+	m_camera.InputScroll(m_fovChange);
 
+	// get camera movement input
+	glm::vec3 inputDir(m_inputMoveRight, m_inputMoveUp, m_inputMoveForward);
+	m_camera.InputKey(deltaTime, inputDir, m_inputEnableMovementBoost);
+	
 	if (m_inputGrabMouse)
 	{
-		m_camera.UpdateLookAt(mouseMovement);
+		m_camera.InputMouse(m_mousePosition);
 	}
-	m_camera.Move(m_cameraMovement);
-	m_camera.UpdateFov(m_fovChange);
+
 	m_camera.Update(deltaTime);
 }
 
 void SceneCameraComponent::Render(float alpha)
 {
-	
+
 }
 
 void SceneCameraComponent::RenderUI()
 {
-	ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_None;
-	if (ImGui::BeginTabBar("Scene Camera", tab_bar_flags))
-	{
-		if (ImGui::BeginTabItem("Params"))
-		{
-			Camera::Params currentParams = m_camera.GetParams();
 
-			ImGui::Text("Camera Speed");
-			if (ImGui::Button("1.0")) { m_cameraVelocity = 1.0f; } ImGui::SameLine();
-			if (ImGui::Button("10.0")) { m_cameraVelocity = 10.0f; } ImGui::SameLine();
-			if (ImGui::Button("100.0")) { m_cameraVelocity = 100.0f; }
-
-			ImGui::SliderFloat("Camera Velocity", &m_cameraVelocity, 0.0f, 100.0f);
-			ImGui::SliderFloat("Camera Damping", &m_cameraMovementDamping, 0.0f, 1.0f);
-
-			ImGui::SliderFloat("Fov Velocity", &m_fovVelocity, 0.0f, 100.0f);
-			ImGui::SliderFloat("Fov Sensitivity", &m_fovSensitivity, 0.0f, 1.0f);
-			ImGui::SliderFloat("Fov Damping", &m_fovDamping, 0.0f, 1.0f);
-
-			ImGui::SliderFloat("Near Plane", &currentParams.m_nearPlane, 0.01f, currentParams.m_farPlane);
-			ImGui::SliderFloat("Far Plane", &currentParams.m_farPlane, currentParams.m_nearPlane, 1000.0f);
-			ImGui::SliderFloat("FoV", &currentParams.m_fov, 0.1f, 179.0f);
-
-			m_camera.SetParams(currentParams);
-
-			ImGui::EndTabItem();
-		}
-
-		if (ImGui::BeginTabItem("Interpolation"))
-		{
-			if (ImGui::Button("Set Camera 1 ( K ) - Go To Camera 1 ( I )"))
-			{
-				m_camera.InterpolateTo(m_camera1, m_cameraInterpolationTime);
-			}
-			if (ImGui::Button("Set Camera 2 ( L ) - Go To Camera 2 ( O )"))
-			{
-				m_camera.InterpolateTo(m_camera2, m_cameraInterpolationTime);
-			}
-			ImGui::SliderFloat("Time", &m_cameraInterpolationTime, 0.0f, 10.0f);
-			ImGui::EndTabItem();
-		}
-
-		ImGui::EndTabBar();
-	}
 }
 
 void SceneCameraComponent::Cleanup()

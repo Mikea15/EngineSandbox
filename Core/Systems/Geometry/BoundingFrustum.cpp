@@ -6,18 +6,20 @@
 #include "Plane.h"
 #include "BoundingBox.h"
 
+#include "../Camera/Camera.h"
+
 BoundingFrustum::BoundingFrustum()
 {}
 
 BoundingFrustum::BoundingFrustum(const glm::mat4& viewProjection)
 {
-	UpdateViewProjectionMatrix(viewProjection);
+	Update(viewProjection);
 }
 
 BoundingFrustum::~BoundingFrustum()
 {}
 
-void BoundingFrustum::UpdateViewProjectionMatrix(const glm::mat4& viewProjection)
+void BoundingFrustum::Update(const glm::mat4& viewProjection)
 {
 	viewProj = viewProjection;
 	CreatePlanes();

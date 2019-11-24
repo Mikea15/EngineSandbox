@@ -6,12 +6,12 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/compatibility.hpp>
 
 #include <vector>
 
 #include "../Geometry/BoundingFrustum.h"
 
-#include "CameraSnapshot.h"
 #include "../Transform.h"
 
 class Camera
@@ -20,20 +20,18 @@ public:
 	struct Params
 	{
 		float m_fov = 70.0f;
+		float m_aspectRatio = 16.0f / 9.0f;
 		float m_nearPlane = 0.01f;
 		float m_farPlane = 1000.0f;
-		float m_aspectRatio = 16.0f / 9.0f;
-		float m_orthoSize = 5.0f;
 
-		bool m_isOrtho = false;
+		bool m_isPerspective = false;
 
 		bool operator==(const Params& rhs) {
 			if (m_fov != rhs.m_fov) return false;
+			if (m_aspectRatio != rhs.m_aspectRatio) return false;
 			if (m_nearPlane != rhs.m_nearPlane) return false;
 			if (m_farPlane != rhs.m_farPlane) return false;
-			if (m_aspectRatio != rhs.m_aspectRatio) return false;
-			if (m_orthoSize != rhs.m_orthoSize) return false;
-			if (m_isOrtho != rhs.m_isOrtho) return false;
+			if (m_isPerspective != rhs.m_isPerspective) return false;
 			return true;
 		}
 
@@ -43,13 +41,15 @@ public:
 	};
 
 	Camera();
+	Camera(glm::vec3 pos, glm::vec3 forward = glm::vec3(0, 0, -1), glm::vec3 up = glm::vec3(0, 1, 0));
 	~Camera() = default;
 
 	void Update(float deltaTime);
-	void UpdateFov(float delta);
-	void UpdateLookAt(const glm::vec2& mouseMovement);
 
-	void Move(const glm::vec3& movement);
+	void SetPerspective(float fov, float aspect, float near, float far);
+	void SetOrthographics(float left, float right, float top, float bottom, float near, float far);
+
+	void UpdateView();
 
 	const glm::vec3& GetPosition() const { return m_position; }
 	void SetPosition(const glm::vec3& position) { m_position = position; }
@@ -66,57 +66,37 @@ public:
 
 	bool IsInFieldOfView(const glm::vec3& position) const;
 
-	const glm::mat4& GetView() const { return m_viewMatrix; }
-	const glm::mat4& GetProjection() const { return m_projectionMatrix; }
-	const glm::mat4& GetViewProjection() const { return m_projectionMatrix * m_viewMatrix; }
-	const glm::mat4& OrthographicMatrix() const { return m_orthographicMatrix; }
+	const glm::mat4& GetView() const { return m_view; }
+	const glm::mat4& GetProjection() const { return m_projection; }
+	const glm::mat4& GetViewProjection() const { return m_projection * m_view; }
 
 	const glm::vec3& GetUp() const { return m_up; }
 	const glm::vec3& GetForward() const { return m_forward; }
 	const glm::vec3& GetRight() const { return m_right; }
 
-	void ToggleOrthographicCamera();
-	bool IsOrthographic() const { return m_params.m_isOrtho; }
+	bool IsOrthographic() const { return m_params.m_isPerspective; }
 
-	void LookAt(const glm::vec3& position);
-	
-	void NormalizeAngles();
-		
+
 	const BoundingFrustum& GetBoundingFrustum() const { return m_frustum; }
 
 	const Params& GetParams() const { return m_params; }
 	void SetParams(const Params& params);
 
-	CameraSnapshot SaveCameraSnapshot();
-	void InterpolateTo(CameraSnapshot b, float time);
+protected:
+	glm::mat4 m_view;
+	glm::mat4 m_projection;
 
-private:
-	glm::mat4 m_viewMatrix;
-	glm::mat4 m_projectionMatrix;
-	glm::mat4 m_orthographicMatrix;
-
+	glm::vec3 m_position;
 	glm::vec3 m_forward;
 	glm::vec3 m_up;
 	glm::vec3 m_right;
-
-	glm::vec3 m_position;
-
-	float m_horizontalAngle;
-	float m_verticalAngle;
 
 	Params m_params;
 
 	BoundingFrustum m_frustum;
 
-	CameraSnapshot m_CSFrom;
-	CameraSnapshot m_CSTo;
-	float m_interpolationTime;
-	float m_interpolationCurrentTime;
-	bool m_isInterpolating = false;
-
-private:
 	static const float s_minFov;
 	static const float s_maxFov;
-	static const float s_maxVerticalAngle;
+	static const float s_maxPitchAngle;
 };
 
