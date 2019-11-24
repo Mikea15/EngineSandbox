@@ -72,6 +72,7 @@ public:
 	Texture GetDefaultTexture() const { return m_defaultTexture; }
 	Material GetDefaultMaterial() const { return m_defaultMaterial; }
 	Shader GetDefaultShader() const { return m_defaultShader; }
+	Shader GetWireframeShader() const { return m_wireframeShader; }
 
 private:
 	Properties m_properties;
@@ -84,6 +85,7 @@ private:
 	std::unordered_map<size_t, std::shared_ptr<Model>> m_modelsMap;
 
 	Shader m_defaultShader;
+	Shader m_wireframeShader;
 	Material m_defaultMaterial;
 	Texture m_defaultTexture;
 

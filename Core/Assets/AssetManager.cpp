@@ -58,6 +58,7 @@ AssetManager::~AssetManager()
 void AssetManager::Initialize()
 {
 	m_defaultShader = LoadShader("groundShader", "model_loading.vert", "model_loading.frag");
+	m_wireframeShader = LoadShader("wireframe", "color.vert", "color.frag");
 	m_defaultTexture = LoadTexture("Data/Images/default.jpg");
 
 	m_defaultMaterial.AddTexture(m_defaultTexture);
