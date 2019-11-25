@@ -14,11 +14,6 @@ float LinearizeDepth(float depth)
 	return (2 * near * far) / (far + near - z * (far - near));
 }
 
-in VS_OUT
-{
-	vec2 TexCoords;
-} fs_in;
-
 void main()
 {    
 	// float depth = LinearizeDepth(gl_FragCoord.z) / far; // divide by far for demonstration

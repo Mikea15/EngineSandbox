@@ -69,6 +69,7 @@ public:
 	
 	unsigned int GetHDRTexture(const std::string& path);
 
+
 	Texture GetDefaultTexture() const { return m_defaultTexture; }
 	Material GetDefaultMaterial() const { return m_defaultMaterial; }
 	Shader GetDefaultShader() const { return m_defaultShader; }
@@ -83,6 +84,8 @@ private:
 	std::vector<TextureType> m_supportedTextureTypes;
 
 	std::unordered_map<size_t, std::shared_ptr<Model>> m_modelsMap;
+
+	std::unordered_map<size_t, Shader> m_shaders;
 
 	Shader m_defaultShader;
 	Shader m_wireframeShader;

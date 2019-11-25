@@ -6,42 +6,39 @@
 
 const unsigned int Shader::s_InvalidId = UINT_MAX;
 
-Shader::Shader(const std::string& vertPath, const std::string& fragPath, const std::string& geomPath)
+Shader::Shader(const std::string& name, const std::string& vertexSource, const std::string& fragmentSource, const std::string& geometrySource)
 	: m_id(s_InvalidId)
-	, m_vertexPath(vertPath)
-	, m_fragmentPath(fragPath)
-	, m_geometryPath(geomPath)
+	, m_name(name)
 {
-	if (vertPath.empty() || fragPath.empty())
-	{
-		std::cerr << "[Shader][Error] Vertex path and/or fragment path missing\n";
-		return;
-	}
+	Load(vertexSource, fragmentSource, geometrySource);
+}
 
-	std::string fileContent = LoadShaderContent(vertPath);
-	const char* vertexCodeC = fileContent.c_str();
-
+void Shader::Load(const std::string& vertexSource, const std::string& fragmentSource, const std::string& geometrySource)
+{
 	unsigned int vertexShaderId = glCreateShader(GL_VERTEX_SHADER);
+	unsigned int fragmentShaderId = glCreateShader(GL_FRAGMENT_SHADER);
+
+	const char* vertexCodeC = vertexSource.c_str();
+	const char* fragmentCode = fragmentSource.c_str();
+
 	glShaderSource(vertexShaderId, 1, &vertexCodeC, NULL);
+	glShaderSource(fragmentShaderId, 1, &fragmentCode, NULL);
+
 	glCompileShader(vertexShaderId);
 	CheckCompileErrors(vertexShaderId, "VERTEX");
 
-	fileContent = LoadShaderContent(fragPath);
-	const char* fragmentCode = fileContent.c_str();
-
-	unsigned int fragmentShaderId = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragmentShaderId, 1, &fragmentCode, NULL);
 	glCompileShader(fragmentShaderId);
 	CheckCompileErrors(fragmentShaderId, "FRAGMENT");
 
 	unsigned int geometryShaderId = UINT_MAX;
-	if (!geomPath.empty())
+	if (!geometrySource.empty())
 	{
-		fileContent = LoadShaderContent(geomPath);
-		const char* fragmentCode = fileContent.c_str();
+		const char* fragmentCode = geometrySource.c_str();
 
 		geometryShaderId = glCreateShader(GL_GEOMETRY_SHADER);
+
 		glShaderSource(geometryShaderId, 1, &fragmentCode, NULL);
+
 		glCompileShader(geometryShaderId);
 		CheckCompileErrors(geometryShaderId, "GEOMETRY");
 	}
@@ -53,12 +50,14 @@ Shader::Shader(const std::string& vertPath, const std::string& fragPath, const s
 	{
 		glAttachShader(m_id, geometryShaderId);
 	}
+
 	glLinkProgram(m_id);
 	CheckCompileErrors(m_id, "PROGRAM");
 
 	glDeleteShader(vertexShaderId);
 	glDeleteShader(fragmentShaderId);
-	if (geometryShaderId != UINT_MAX) {
+	if (geometryShaderId != UINT_MAX) 
+	{
 		glDeleteShader(geometryShaderId);
 	}
 }
@@ -129,27 +128,6 @@ void Shader::SetMat4(const std::string &name, const glm::mat4 &mat) const
 	glUniformMatrix4fv(glGetUniformLocation(m_id, name.c_str()), 1, GL_FALSE, &mat[0][0]);
 }
 
-std::string Shader::LoadShaderContent(const std::string& filePath) const
-{
-	std::string shaderContent;
-	try
-	{
-		std::ifstream fileStream;
-		fileStream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-
-		std::stringstream fileContent;
-		fileStream.open(filePath.c_str());
-		fileContent << fileStream.rdbuf();
-		fileStream.close();
-		shaderContent = fileContent.str();
-	}
-	catch (std::ifstream::failure error)
-	{
-		std::cerr << "[Shader] [Error] Shader File: " << filePath << " : " << error.what() << "\n";
-	}
-	return shaderContent;
-}
-
 void Shader::CheckCompileErrors(GLuint shader, const std::string& type) const
 {
 	GLint success;
@@ -160,7 +138,7 @@ void Shader::CheckCompileErrors(GLuint shader, const std::string& type) const
 		if (!success)
 		{
 			glGetShaderInfoLog(shader, 1024, NULL, errorText);
-			std::cerr << "[Shader] [Program] [" << type << "] " << errorText;
+			std::cerr << "[Shader][Program]["<< m_name <<"][" << type << "] " << errorText;
 		}
 	}
 	else
@@ -169,7 +147,7 @@ void Shader::CheckCompileErrors(GLuint shader, const std::string& type) const
 		if (!success)
 		{
 			glGetProgramInfoLog(shader, 1024, NULL, errorText);
-			std::cerr << "[Shader] [Linker] [" << type << "] " << errorText;
+			std::cerr << "[Shader][Linker][" << m_name << "][" << type << "] " << errorText;
 		}
 	}
 }

@@ -11,10 +11,9 @@ class ShaderManager
 public:
 	Shader LoadShader(const std::string& name, const std::string& vertex,
 		const std::string& fragment, const std::string& geometry = "");
-	bool FindShader(const std::string& name, Shader& outShader) const;
+
+	std::string ReadShader(std::ifstream& file, const std::string& name, const std::string& path);
 
 private:
-	std::unordered_map<std::string, Shader> m_shaderMap;
-
 	static const std::string s_shaderDirectory;
 };

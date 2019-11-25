@@ -1,45 +1,78 @@
 #include "ShaderManager.h"
 
+#include <string>
+#include <fstream>
+
 const std::string ShaderManager::s_shaderDirectory = "Data/Shaders/";
 
 Shader ShaderManager::LoadShader(const std::string& name, const std::string& vertex,
 	const std::string& fragment, const std::string& geometry)
 {
-	Shader shader;
-
-	if (name.empty() || vertex.empty() || fragment.empty())
-	{
-		std::cerr << "[ShaderManager] Wanna load a shader maybe?\n";
-		return shader;
-	}
-
-	if (FindShader(name, shader))
-	{
-		return shader;
-	}
-
 	const std::string vertexPath = s_shaderDirectory + vertex;
 	const std::string fragmentPath = s_shaderDirectory + fragment;
-	const std::string geometryPath = s_shaderDirectory + geometry;
+	
+	std::ifstream vertFile, fragFile, geomFile;
 
-	shader = Shader(vertexPath, fragmentPath, !geometry.empty() ? geometryPath : "" );
+	vertFile.open(vertexPath);
+	fragFile.open(fragmentPath);
 
-	auto result = m_shaderMap.emplace(name, shader);
-	if (result.second)
+	if (!vertFile.is_open() || !fragFile.is_open())
 	{
-		return result.first->second;
+		std::cerr << "[ShaderManager] Can't open shader files\n";
+		return Shader();
 	}
 
-	return Shader();
+	std::string vertDirectory = vertexPath.substr(0, vertexPath.find_last_not_of("/\\"));
+	std::string fragDirectory = fragmentPath.substr(0, fragmentPath.find_last_not_of("/\\"));
+
+	std::string vertSource = ReadShader(vertFile, name, vertexPath);
+	std::string fragSource = ReadShader(fragFile, name, fragmentPath);
+
+	std::string geomSource = "";
+	if (!geometry.empty()) 
+	{
+		const std::string geometryPath = s_shaderDirectory + geometry;
+		geomFile.open(geometryPath);
+		if (geomFile.is_open()) 
+		{
+			geomSource = ReadShader(geomFile, name, geometryPath);
+		}
+		geomFile.close();
+	}
+
+	vertFile.close();
+	fragFile.close();
+
+	return Shader(name, vertSource, fragSource, geomSource);
 }
 
-bool ShaderManager::FindShader(const std::string& name, Shader& outShader) const
+std::string ShaderManager::ReadShader(std::ifstream& file, const std::string& name, const std::string& path)
 {
-	const auto& findIt = m_shaderMap.find(name);
-	if (findIt != m_shaderMap.end())
+	const std::string directory = path.substr(0, path.find_last_of("/\\"));
+	std::string line;
+	std::string source;
+
+	while (std::getline(file, line))
 	{
-		outShader = findIt->second;
-		return true;
+		if (line.substr(0, 8) == "#include")
+		{
+			const size_t firstQuotePos = line.find_first_of('"');
+			const size_t lastQuotePos = line.find_last_of('"');
+
+			const std::string includeFilePath = line.substr(firstQuotePos + 1, lastQuotePos-firstQuotePos-1);
+			const std::string includePath = directory + "/" + includeFilePath;
+			std::ifstream includeFile(includePath);
+
+			if (includeFile.is_open())
+			{
+				source += ReadShader(includeFile, name, includePath);
+			}
+			includeFile.clear();
+		}
+		else
+		{
+			source += line + "\n";
+		}
 	}
-	return false;
+	return source;
 }

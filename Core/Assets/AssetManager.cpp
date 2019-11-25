@@ -196,7 +196,20 @@ Shader AssetManager::LoadShader(const std::string& name, const std::string& vert
 	std::string lowercase = Utils::Lowercase(name);
 	size_t nameHash = Utils::Hash(lowercase);
 
-	return m_shaderManager.LoadShader(name, vertPath, fragPath, geomFrag);
+	auto findIt = m_shaders.find(nameHash);
+	if (findIt != m_shaders.end())
+	{
+		return findIt->second;
+	}
+
+	Shader shader = m_shaderManager.LoadShader(name, vertPath, fragPath, geomFrag);
+	if (shader.IsValid()) 
+	{
+		m_shaders[nameHash] = shader;
+		return m_shaders[nameHash];
+	}
+
+	return Shader();
 }
 
 void AssetManager::LoadTextureAsync(const std::string& path, Texture& outTexture)
