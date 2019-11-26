@@ -26,7 +26,7 @@ public:
 	~Model();
 
 	void Initialize();
-	void SetShader(const Shader& shader);
+	void SetShader(std::shared_ptr<Shader> shader);
 
 	void Draw(const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection);
 	void Draw(const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection, Material& material);

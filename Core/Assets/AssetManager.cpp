@@ -10,7 +10,7 @@
 
 #define MULTITHREAD 0
 
-const std::string AssetManager::s_assetDirectoryPath = "Data/";
+const std::string AssetManager::s_assetDirectoryPath = "../../../../data/";
 
 AssetManager::AssetManager()
 	: m_loadingThreadActive(true)
@@ -57,9 +57,9 @@ AssetManager::~AssetManager()
 
 void AssetManager::Initialize()
 {
-	m_defaultShader = LoadShader("groundShader", "model_loading.vert", "model_loading.frag");
+	m_defaultShader = LoadShader("default", "model_loading.vert", "model_loading.frag");
 	m_wireframeShader = LoadShader("wireframe", "color.vert", "color.frag");
-	m_defaultTexture = LoadTexture("Data/Images/default.jpg");
+	m_defaultTexture = LoadTexture(s_assetDirectoryPath + "images/default.jpg");
 
 	m_defaultMaterial.AddTexture(m_defaultTexture);
 	m_defaultMaterial.SetShader(m_defaultShader);
@@ -75,7 +75,6 @@ void AssetManager::LoaderThread()
 			if (m_loadingTexturesQueue.TryPop(assetJob))
 			{
 				m_textureManager.LoadTexture(assetJob.texturePath, assetJob.loadedData);
-
 				m_processingTexturesQueue.Push(assetJob);
 			}
 		}
@@ -108,7 +107,8 @@ void AssetManager::Update()
 
 std::shared_ptr<Model> AssetManager::LoadModel(const std::string& path)
 {
-	std::string lowercasePath = Utils::Lowercase(path);
+	std::string filePath = s_assetDirectoryPath + path;
+	std::string lowercasePath = Utils::Lowercase(filePath);
 	size_t pathHash = Utils::Hash(lowercasePath);
 
 	std::shared_ptr<Model> model = m_assimpImporter.LoadModel(lowercasePath);
@@ -170,7 +170,8 @@ void AssetManager::LoadTexture(Material& material)
 
 Texture AssetManager::LoadTexture(const std::string& path, TextureType type)
 {
-	std::string lowercasePath = Utils::Lowercase(path);
+	std::string filePath = path;
+	std::string lowercasePath = Utils::Lowercase(filePath);
 
 	const Texture texture = m_textureManager.FindTexture(lowercasePath);
 	if (texture.IsValid())
@@ -182,16 +183,13 @@ Texture AssetManager::LoadTexture(const std::string& path, TextureType type)
 	m_textureManager.LoadTexture(lowercasePath, textureData);
 	if (!textureData.HasData())
 	{
-		std::cerr << "[AssetManager][Error] Texture: " << path << " failed to load.\n";
 		return Texture();
 	}
-
-	std::cout << "[AssetManager] Texture: " << path << " loaded.\n";
 	
 	return m_textureManager.GenerateTexture(textureData, type, m_properties.m_gammaCorrection);
 }
 
-Shader AssetManager::LoadShader(const std::string& name, const std::string& vertPath, const std::string& fragPath, const std::string& geomFrag)
+std::shared_ptr<Shader> AssetManager::LoadShader(const std::string& name, const std::string& vertPath, const std::string& fragPath, const std::string& geomFrag)
 {
 	std::string lowercase = Utils::Lowercase(name);
 	size_t nameHash = Utils::Hash(lowercase);
@@ -202,14 +200,14 @@ Shader AssetManager::LoadShader(const std::string& name, const std::string& vert
 		return findIt->second;
 	}
 
-	Shader shader = m_shaderManager.LoadShader(name, vertPath, fragPath, geomFrag);
-	if (shader.IsValid()) 
+	auto shader = m_shaderManager.LoadShader(name, vertPath, fragPath, geomFrag);
+	if (shader->IsValid())
 	{
 		m_shaders[nameHash] = shader;
 		return m_shaders[nameHash];
 	}
 
-	return Shader();
+	return nullptr;
 }
 
 void AssetManager::LoadTextureAsync(const std::string& path, Texture& outTexture)

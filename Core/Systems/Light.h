@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+
 #include "Transform.h"
 #include "Rendering/Shader.h"
 
@@ -8,7 +10,7 @@ struct ILight
 public:
 	virtual ~ILight() = default;
 
-	virtual void SetProperties(Shader& shader) {};
+	virtual void SetProperties(std::shared_ptr<Shader> shader) {};
 	virtual glm::mat4 GetProjectionView() { return glm::mat4(); };
 };
 
@@ -17,13 +19,12 @@ struct DirectionalLight
 {
 	~DirectionalLight() override = default;
 
-	void SetProperties(Shader& shader) override
+	void SetProperties(std::shared_ptr<Shader> shader) override
 	{
-		shader.SetVec3("dirLight.direction", direction);
-
-		shader.SetVec3("dirLight.ambient", ambient);
-		shader.SetVec3("dirLight.diffuse", diffuse);
-		shader.SetVec3("dirLight.specular", specular);
+		shader->SetVec3("dirLight.direction", direction);
+		shader->SetVec3("dirLight.ambient", ambient);
+		shader->SetVec3("dirLight.diffuse", diffuse);
+		shader->SetVec3("dirLight.specular", specular);
 	}
 
 	glm::mat4 GetProjectionView() override
@@ -60,17 +61,15 @@ struct PointLight
 {
 	~PointLight() override = default;
 
-	void SetProperties(Shader& shader) override
+	void SetProperties(std::shared_ptr<Shader> shader) override
 	{
-		shader.SetVec3("pointLights[0].position", position);
-
-		shader.SetVec3("pointLights[0].ambient", ambient);
-		shader.SetVec3("pointLights[0].diffuse", diffuse);
-		shader.SetVec3("pointLights[0].specular", specular);
-
-		shader.SetFloat("pointLights[0].constant", constant);
-		shader.SetFloat("pointLights[0].linear", linear);
-		shader.SetFloat("pointLights[0].quadratic", quadratic);
+		shader->SetVec3("pointLights[0].position", position);
+		shader->SetVec3("pointLights[0].ambient", ambient);
+		shader->SetVec3("pointLights[0].diffuse", diffuse);
+		shader->SetVec3("pointLights[0].specular", specular);
+		shader->SetFloat("pointLights[0].constant", constant);
+		shader->SetFloat("pointLights[0].linear", linear);
+		shader->SetFloat("pointLights[0].quadratic", quadratic);
 	}
 
 	glm::mat4 GetProjectionView() override
@@ -99,21 +98,18 @@ struct SpotLight
 	: public ILight
 {
 	~SpotLight() override = default;
-	void SetProperties(Shader& shader) override
+	void SetProperties(std::shared_ptr<Shader> shader) override
 	{
-		shader.SetVec3("spotLight.position", position);
-		shader.SetVec3("spotLight.direction", direction);
-
-		shader.SetVec3("spotLight.ambient", ambient);
-		shader.SetVec3("spotLight.diffuse", diffuse);
-		shader.SetVec3("spotLight.specular", specular);
-
-		shader.SetFloat("spotLight.constant", constant);
-		shader.SetFloat("spotLight.linear", linear);
-		shader.SetFloat("spotLight.quadratic", quadratic);
-
-		shader.SetFloat("spotLight.cutOff", glm::cos(glm::radians(cutOff)));
-		shader.SetFloat("spotLight.outerCutOff", glm::cos(glm::radians(outerCutOff)));
+		shader->SetVec3("spotLight.position", position);
+		shader->SetVec3("spotLight.direction", direction);
+		shader->SetVec3("spotLight.ambient", ambient);
+		shader->SetVec3("spotLight.diffuse", diffuse);
+		shader->SetVec3("spotLight.specular", specular);
+		shader->SetFloat("spotLight.constant", constant);
+		shader->SetFloat("spotLight.linear", linear);
+		shader->SetFloat("spotLight.quadratic", quadratic);
+		shader->SetFloat("spotLight.cutOff", glm::cos(glm::radians(cutOff)));
+		shader->SetFloat("spotLight.outerCutOff", glm::cos(glm::radians(outerCutOff)));
 	}
 
 	glm::mat4 GetProjectionView() override

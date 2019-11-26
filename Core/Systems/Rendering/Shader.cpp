@@ -9,17 +9,20 @@ const unsigned int Shader::s_InvalidId = UINT_MAX;
 Shader::Shader(const std::string& name, const std::string& vertexSource, const std::string& fragmentSource, const std::string& geometrySource)
 	: m_id(s_InvalidId)
 	, m_name(name)
+	, m_vertexCode(vertexSource)
+	, m_fragmentCode(fragmentSource)
+	, m_geometryCode(geometrySource)
 {
-	Load(vertexSource, fragmentSource, geometrySource);
+	CompileShader();
 }
 
-void Shader::Load(const std::string& vertexSource, const std::string& fragmentSource, const std::string& geometrySource)
+void Shader::CompileShader()
 {
 	unsigned int vertexShaderId = glCreateShader(GL_VERTEX_SHADER);
 	unsigned int fragmentShaderId = glCreateShader(GL_FRAGMENT_SHADER);
 
-	const char* vertexCodeC = vertexSource.c_str();
-	const char* fragmentCode = fragmentSource.c_str();
+	const char* vertexCodeC = m_vertexCode.c_str();
+	const char* fragmentCode = m_fragmentCode.c_str();
 
 	glShaderSource(vertexShaderId, 1, &vertexCodeC, NULL);
 	glShaderSource(fragmentShaderId, 1, &fragmentCode, NULL);
@@ -31,9 +34,9 @@ void Shader::Load(const std::string& vertexSource, const std::string& fragmentSo
 	CheckCompileErrors(fragmentShaderId, "FRAGMENT");
 
 	unsigned int geometryShaderId = UINT_MAX;
-	if (!geometrySource.empty())
+	if (!m_geometryCode.empty())
 	{
-		const char* fragmentCode = geometrySource.c_str();
+		const char* fragmentCode = m_geometryCode.c_str();
 
 		geometryShaderId = glCreateShader(GL_GEOMETRY_SHADER);
 
@@ -43,9 +46,16 @@ void Shader::Load(const std::string& vertexSource, const std::string& fragmentSo
 		CheckCompileErrors(geometryShaderId, "GEOMETRY");
 	}
 
+	// If not yet created, create, otherwise (recompile) use same id.
+	if (IsValid())
+	{
+		glDeleteProgram(m_id);
+	}
+
 	m_id = glCreateProgram();
 	glAttachShader(m_id, vertexShaderId);
 	glAttachShader(m_id, fragmentShaderId);
+
 	if (geometryShaderId != UINT_MAX)
 	{
 		glAttachShader(m_id, geometryShaderId);
@@ -56,7 +66,7 @@ void Shader::Load(const std::string& vertexSource, const std::string& fragmentSo
 
 	glDeleteShader(vertexShaderId);
 	glDeleteShader(fragmentShaderId);
-	if (geometryShaderId != UINT_MAX) 
+	if (geometryShaderId != UINT_MAX)
 	{
 		glDeleteShader(geometryShaderId);
 	}

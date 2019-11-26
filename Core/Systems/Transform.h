@@ -41,9 +41,9 @@ public:
 	void Translate(const glm::vec3& deltaPosition);
 	void RotateLocal(const glm::vec3& axis, float degrees);
 
-	const glm::vec3& GetUp() { return m_orientation * glm::vec3(0, 1, 0); }
-	const glm::vec3& GetRight() { return m_orientation * glm::vec3(1, 0, 0); }
-	const glm::vec3& GetForward() { return m_orientation * glm::vec3(0, 0, 1); }
+	glm::vec3 GetUp() { return m_orientation * glm::vec3(0, 1, 0); }
+	glm::vec3 GetRight() { return m_orientation * glm::vec3(1, 0, 0); }
+	glm::vec3 GetForward() { return m_orientation * glm::vec3(0, 0, 1); }
 
 	void RenderGizmo(Shader shader);
 

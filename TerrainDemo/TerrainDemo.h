@@ -40,10 +40,10 @@ protected:
 	SceneManager m_sceneManager;
 
 private:
-	Shader m_terrainShader;
+	std::shared_ptr<Shader> m_terrainShader;
 	Terrain m_terrain = Terrain(1, 50, 50, 15);
 	Transform m_terrainPosition;
 
-	Shader m_skyboxShader;
+	std::shared_ptr<Shader> m_skyboxShader;
 	Skybox m_skybox;
 };

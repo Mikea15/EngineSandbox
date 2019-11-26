@@ -1,6 +1,6 @@
 #include "FpsCounterSystemComponent.h"
 
-#include "../../Game.h"
+#include "Game.h"
 
 CLASS_DEFINITION(SystemComponent, FpsCounterSystemComponent)
 

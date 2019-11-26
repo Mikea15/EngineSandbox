@@ -3,9 +3,9 @@
 #include <string>
 #include <fstream>
 
-const std::string ShaderManager::s_shaderDirectory = "Data/Shaders/";
+const std::string ShaderManager::s_shaderDirectory = "../../../../data/Shaders/";
 
-Shader ShaderManager::LoadShader(const std::string& name, const std::string& vertex,
+std::shared_ptr<Shader> ShaderManager::LoadShader(const std::string& name, const std::string& vertex,
 	const std::string& fragment, const std::string& geometry)
 {
 	const std::string vertexPath = s_shaderDirectory + vertex;
@@ -19,7 +19,7 @@ Shader ShaderManager::LoadShader(const std::string& name, const std::string& ver
 	if (!vertFile.is_open() || !fragFile.is_open())
 	{
 		std::cerr << "[ShaderManager] Can't open shader files\n";
-		return Shader();
+		return {};
 	}
 
 	std::string vertDirectory = vertexPath.substr(0, vertexPath.find_last_not_of("/\\"));
@@ -43,7 +43,7 @@ Shader ShaderManager::LoadShader(const std::string& name, const std::string& ver
 	vertFile.close();
 	fragFile.close();
 
-	return Shader(name, vertSource, fragSource, geomSource);
+	return std::make_shared<Shader>(name, vertSource, fragSource, geomSource);
 }
 
 std::string ShaderManager::ReadShader(std::ifstream& file, const std::string& name, const std::string& path)

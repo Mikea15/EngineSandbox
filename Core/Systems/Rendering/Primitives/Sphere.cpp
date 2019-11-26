@@ -37,7 +37,7 @@ void Sphere::Init()
 	}
 
 	bool oddRow = false;
-	for (unsigned int y = 0; y < yDiv; ++y)
+	for (int y = 0; y < yDiv; ++y)
 	{
 		if (!oddRow) // even rows: y == 0, y == 2; and so on
 		{

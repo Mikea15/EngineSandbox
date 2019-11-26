@@ -9,7 +9,7 @@
 class ShaderManager
 {
 public:
-	Shader LoadShader(const std::string& name, const std::string& vertex,
+	std::shared_ptr<Shader> LoadShader(const std::string& name, const std::string& vertex,
 		const std::string& fragment, const std::string& geometry = "");
 
 	std::string ReadShader(std::ifstream& file, const std::string& name, const std::string& path);

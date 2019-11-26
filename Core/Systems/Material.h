@@ -26,8 +26,8 @@ public:
 	Material();
 	~Material() = default;
 
-	void SetShader(const Shader& shader);
-	Shader& GetShader() { return m_shader; }
+	void SetShader(std::shared_ptr<Shader> shader);
+	std::shared_ptr<Shader> GetShader() { return m_shader; }
 
 	void SetModel(const glm::mat4& model);
 	void SetView(const glm::mat4& view);
@@ -53,7 +53,7 @@ public:
 	}
 
 private:
-	Shader m_shader;
+	std::shared_ptr<Shader> m_shader;
 	std::vector<Texture> m_textures;
 
 	std::unordered_map<TextureType, std::vector<std::string>> m_texturePathPerType;

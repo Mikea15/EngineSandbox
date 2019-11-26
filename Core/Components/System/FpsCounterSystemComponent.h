@@ -9,7 +9,7 @@ class FpsCounterSystemComponent
 
 public:
 	FpsCounterSystemComponent();
-	~FpsCounterSystemComponent();
+	~FpsCounterSystemComponent() override;
 
 	void Initialize(Game* game) override;
 	void HandleInput(SDL_Event* event) override;

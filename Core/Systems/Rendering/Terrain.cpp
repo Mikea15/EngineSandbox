@@ -342,7 +342,7 @@ float Terrain::GetPerlinNoise(const glm::vec2& pos) const
 	float amplitude = 1.0f;
 	float maxVal = 0.0f;
 
-	for (unsigned int i = 0; i < m_heightmapParams.octaves; ++i)
+	for (int i = 0; i < m_heightmapParams.octaves; ++i)
 	{
 		total += glm::perlin(pos * frequency) * amplitude;
 		maxVal += amplitude;

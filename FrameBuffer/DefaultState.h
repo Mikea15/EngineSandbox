@@ -39,19 +39,19 @@ protected:
 	AssetManager* m_assetManager;
 	SceneManager m_sceneManager;
 	
-	Shader skyboxShader;
+	std::shared_ptr<Shader> skyboxShader;
 	Skybox m_skybox;
 
 	std::shared_ptr<Model> m_model;
-	Shader m_simpleShader;
-	Shader m_groundShader;
+	std::shared_ptr<Shader> m_simpleShader;
+	std::shared_ptr<Shader> m_groundShader;
 
 	bool m_updateOnTick = true;
 	std::shared_ptr<SpotLight> m_spotLight;
 	std::shared_ptr<DirectionalLight> m_directionalLight;
 	std::vector<PointLight> m_pointLights;
 
-	Shader m_screenShader;
+	std::shared_ptr<Shader> m_screenShader;
 	Material m_defaultMat;
 
 	// materialShininess

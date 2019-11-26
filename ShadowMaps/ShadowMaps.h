@@ -47,11 +47,11 @@ protected:
 
 private:
 	Transform m_lightTransform;
-	glm::vec3 lightPos;
-	Shader simpleDepthShader;
-	Material depthMaterial;
-	Shader shader;
-	Shader debugDepthQuad;
+	glm::vec3 m_lightPos;
+	Material m_depthMaterial;
+	std::shared_ptr<Shader> m_simpleDepthShader;
+	std::shared_ptr<Shader> m_shadowMappingShader;
+	std::shared_ptr<Shader> m_debugDepthShader;
 
 	Material light;
 

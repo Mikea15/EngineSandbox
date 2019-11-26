@@ -175,30 +175,30 @@ void ShadowMapState::Init(Game* game)
 
 	// shader configuration
 	// --------------------
-	shader = m_assetManager->LoadShader("sm", "screen/shadow_mapping.vert", "screen/shadow_mapping.frag");
-	simpleDepthShader = m_assetManager->LoadShader("smd", "screen/shadow_depth.vert", "screen/shadow_depth.frag");
-	debugDepthQuad = m_assetManager->LoadShader("dq", "screen/debug_quad.vert", "screen/debug_quad.frag");
+	m_shadowMappingShader = m_assetManager->LoadShader("sm", "screen/shadow_mapping.vert", "screen/shadow_mapping.frag");
+	m_simpleDepthShader = m_assetManager->LoadShader("smd", "screen/shadow_depth.vert", "screen/shadow_depth.frag");
+	m_debugDepthShader = m_assetManager->LoadShader("dq", "screen/debug_quad.vert", "screen/debug_quad.frag");
 
-	depthMaterial.SetShader(simpleDepthShader);
+	m_depthMaterial.SetShader(m_simpleDepthShader);
 	
-	shader.Use();
-	shader.SetInt("diffuseTexture", 0);
-	shader.SetInt("shadowMap", 1);
+	m_shadowMappingShader->Use();
+	m_shadowMappingShader->SetInt("diffuseTexture", 0);
+	m_shadowMappingShader->SetInt("shadowMap", 1);
 
-	debugDepthQuad.Use();
-	debugDepthQuad.SetInt("depthMap", 0);
+	m_debugDepthShader->Use();
+	m_debugDepthShader->SetInt("depthMap", 0);
 
 	auto lightShader = m_assetManager->LoadShader("light", "color.vert", "unlit/white.frag");
-	lightShader.Use();
+	lightShader->Use();
 	light.SetShader(lightShader);
 
 	// lighting info
 	// -------------
-	lightPos = glm::vec3(-2.0f, 6.0f, -1.0f);
+	m_lightPos = glm::vec3(-2.0f, 6.0f, -1.0f);
 
-	auto model = m_assetManager->LoadModel("Data/Objects/nanosuit/nanosuit.obj");
+	auto model = m_assetManager->LoadModel("objects/nanosuit/nanosuit.obj");
 	model->Initialize();
-	model->SetShader(shader);
+	model->SetShader(m_shadowMappingShader);
 	// model->SetMaterialOverride(std::make_shared<Material>(m_assetManager->GetDefaultMaterial()));
 
 	std::shared_ptr<Entity> entity = std::make_shared<Entity>();
@@ -210,7 +210,7 @@ void ShadowMapState::Init(Game* game)
 
 	m_shadowRenderPass.Initialize();
 	m_shadowRenderPass.SetWindowParams(m_windowParams);
-	m_shadowRenderPass.SetShader(simpleDepthShader);
+	m_shadowRenderPass.SetShader(m_simpleDepthShader);
 	m_shadowRenderPass.SetDirLight(m_directionalLight);
 
 	// configure global open gl state
@@ -266,14 +266,14 @@ void ShadowMapState::Update(float deltaTime)
 	m_sceneManager.Update(deltaTime);
 
 	float time = m_game->GetTimeMS();
-	 lightPos = glm::vec3(
+	 m_lightPos = glm::vec3(
 	 	sin(time * 2.0f) * 10.0f,
 	 	25.0f + sin(time) * 0.5f,
 	 	cos(time * 2.0f) * 10.0f
 	 );
 
 	if (m_updateDirLightOnUpdate) {
-		m_directionalLight->direction = glm::normalize(glm::vec3(0.0f) - lightPos);
+		m_directionalLight->direction = glm::normalize(glm::vec3(0.0f) - m_lightPos);
 	}
 }
 
@@ -284,10 +284,10 @@ void ShadowMapState::Render(float alpha)
 	glm::mat4 view = cam.GetView();
 	glm::vec3 camPos = cam.GetPosition();
 
-	auto& wShader = m_assetManager->GetWireframeShader();
-	wShader.Use();
-	wShader.SetMat4("projection", projection);
-	wShader.SetMat4("view", view);
+	auto wShader = m_assetManager->GetWireframeShader();
+	wShader->Use();
+	wShader->SetMat4("projection", projection);
+	wShader->SetMat4("view", view);
 
 	// render
 	// ------
@@ -297,45 +297,45 @@ void ShadowMapState::Render(float alpha)
 	glm::mat4 lightSpaceMatrix= m_directionalLight->GetProjectionView();
 	
 	// 1 Shadow Pass
-	m_shadowRenderPass.Render(cam, lightSpaceMatrix, m_sceneManager.GetSceneLights(), m_sceneManager.GetSceneObjects(), depthMaterial, renderScene);
+	m_shadowRenderPass.Render(cam, lightSpaceMatrix, m_sceneManager.GetSceneLights(), m_sceneManager.GetSceneObjects(), m_depthMaterial, renderScene);
 	
 	// 2. render scene as normal using the generated depth/shadow map  
 	// --------------------------------------------------------------
 	glViewport(0, 0, m_windowParams.Width, m_windowParams.Height);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
-	shader.Use();
-	shader.SetMat4("projection", projection);
-	shader.SetMat4("view", view);
+	m_shadowMappingShader->Use();
+	m_shadowMappingShader->SetMat4("projection", projection);
+	m_shadowMappingShader->SetMat4("view", view);
 	
 	// set light uniforms
-	shader.SetVec3("viewPos", camPos);
-	shader.SetVec3("lightPos", lightPos);
-	shader.SetMat4("lightSpaceMatrix", lightSpaceMatrix);
+	m_shadowMappingShader->SetVec3("viewPos", camPos);
+	m_shadowMappingShader->SetVec3("lightPos", m_lightPos);
+	m_shadowMappingShader->SetMat4("lightSpaceMatrix", lightSpaceMatrix);
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, m_assetManager->GetDefaultTexture().GetId());
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, m_shadowRenderPass.GetDepthMap());
 	
-	renderScene(shader);
+	renderScene(*m_shadowMappingShader);
 
 	m_sceneManager.Draw(cam);
 
-	light.GetShader().Use();
+	light.GetShader()->Use();
 	Transform pointLightTransform;
-	pointLightTransform.SetPosition(lightPos);
+	pointLightTransform.SetPosition(m_lightPos);
 	pointLightTransform.SetScale(glm::vec3(0.1f));
 	light.SetMVP(pointLightTransform.GetTransform(), view, projection);
 	Primitives::RenderCube();
-	pointLightTransform.RenderGizmo(wShader);
+	pointLightTransform.RenderGizmo(*wShader);
 	//pointLightTransform.SetScale(glm::vec3(1.0f));
 
 	// render Depth map to quad for visual debugging
 	// ---------------------------------------------
-	debugDepthQuad.Use();
-	debugDepthQuad.SetFloat("near_plane", m_directionalLight->GetNearPlane());
-	debugDepthQuad.SetFloat("far_plane", m_directionalLight->GetFarPlane());
+	m_debugDepthShader->Use();
+	m_debugDepthShader->SetFloat("near_plane", m_directionalLight->GetNearPlane());
+	m_debugDepthShader->SetFloat("far_plane", m_directionalLight->GetFarPlane());
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, m_shadowRenderPass.GetDepthMap());
 	// Primitives::RenderQuad();

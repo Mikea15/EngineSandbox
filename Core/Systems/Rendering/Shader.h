@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 #include <gl/glew.h>
 #include <glm/glm.hpp>
@@ -15,7 +16,10 @@ public:
 	{}
 
 	Shader(const std::string& name, const std::string& vertexSource, const std::string& fragmentSource, const std::string& geometrySource);
-	void Load(const std::string& vertexSource, const std::string& fragmentSource, const std::string& geometrySource);
+	void CompileShader();
+
+	void AddVertexDependency(Shader* shader) { m_vertexDependencies.push_back(shader); }
+	void AddFragmentDependency(Shader* shader) { m_fragmentDependencies.push_back(shader); }
 
 	bool IsValid() const { return m_id != s_InvalidId; }
 	void Use();
@@ -37,16 +41,29 @@ public:
 	void SetMat3(const std::string& name, const glm::mat3& mat) const;
 	void SetMat4(const std::string& name, const glm::mat4& mat) const;
 
+	const std::string& GetName() const { return m_name; }
+	const std::string& GetVertexCode() const { return m_vertexCode; }
+	const std::string& GetFragmentCode() const { return m_fragmentCode; }
+	const std::string& GetGeometryCode() const { return m_geometryCode; }
+
+	void SetVertexCode(const std::string& code) { m_vertexCode = code; }
+	void SetFragmentCode(const std::string& code) { m_fragmentCode = code; }
+	void SetGeometryCode(const std::string& code) { m_geometryCode = code; }
+
 private:
 	void CheckCompileErrors(GLuint shader, const std::string& type) const;
 
-private:
+public:
 	unsigned int m_id;
 
 	std::string m_name;
-	std::string m_vertexPath;
-	std::string m_fragmentPath;
-	std::string m_geometryPath;
+
+	std::vector<Shader*> m_vertexDependencies;
+	std::vector<Shader*> m_fragmentDependencies;
+
+	std::string m_vertexCode;
+	std::string m_fragmentCode;
+	std::string m_geometryCode;
 
 	static const unsigned int s_InvalidId;
 };

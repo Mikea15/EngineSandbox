@@ -74,21 +74,21 @@ void TerrainDemoState::Render(float alpha)
 	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	m_terrainShader.Use();
-	m_terrainShader.SetMat4("projection", projection);
-	m_terrainShader.SetMat4("view", view);
+	m_terrainShader->Use();
+	m_terrainShader->SetMat4("projection", projection);
+	m_terrainShader->SetMat4("view", view);
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, m_assetManager->GetDefaultTexture().GetId());
 
-	m_terrainShader.SetMat4("model", m_terrainPosition.GetTransform());
+	m_terrainShader->SetMat4("model", m_terrainPosition.GetTransform());
 	m_terrain.GetMesh().Draw();
 
 	// render skybox last. but before transparent objects
-	m_skyboxShader.Use();
-	m_skyboxShader.SetMat4("projection", projection);
-	m_skyboxShader.SetMat4("view", view);
-	m_skybox.Draw(m_skyboxShader);
+	m_skyboxShader->Use();
+	m_skyboxShader->SetMat4("projection", projection);
+	m_skyboxShader->SetMat4("view", view);
+	m_skybox.Draw(*m_skyboxShader);
 }
 
 void TerrainDemoState::RenderUI()

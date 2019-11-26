@@ -10,7 +10,7 @@
 
 void TextureManager::LoadTexture(const std::string& path, TextureLoadData& outData, bool flipVertically)
 {
-	std::cout << "[TextureManager] Loading " << path << "\n";
+	std::cout << "[TextureManager] Loading " << path << " ";
 
 	stbi_set_flip_vertically_on_load(flipVertically);
 	// stbi_hdr_to_ldr_gamma(2.2f);
@@ -26,7 +26,14 @@ void TextureManager::LoadTexture(const std::string& path, TextureLoadData& outDa
 		outData.m_width = width;
 		outData.m_channels = channels;
 		outData.m_dataPtr = data;
+
+		std::cout << "[ok]\n";
 	}
+	else
+	{
+		std::cout << "[fail]\n";
+	}
+
 }
 
 void TextureManager::LoadHDRTexture(const std::string& path, HDRTextureLoadData& outData, bool flipVertically)

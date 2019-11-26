@@ -14,6 +14,8 @@ add_library(
 	Assets/TextureManager.h
 	Assets/ThreadSafeQueue.h
 
+	Components/System/EditorShaderSystemComponent.cpp
+	Components/System/EditorShaderSystemComponent.h
 	Components/System/FpsCounterSystemComponent.cpp
 	Components/System/FpsCounterSystemComponent.h
 	Components/System/SceneCameraComponent.cpp
@@ -21,6 +23,8 @@ add_library(
 
 	Imgui/imgui_impl_opengl3.cpp
 	Imgui/imgui_impl_sdl.cpp
+	Imgui/imgui_stdlib.cpp
+	Imgui/imgui_stdlib.h
 	
 	Systems/Camera/Camera.cpp
 	Systems/Camera/Camera.h

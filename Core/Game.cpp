@@ -8,7 +8,7 @@
 
 #include "Components/System/FpsCounterSystemComponent.h"
 
-const char* Game::s_configFileName = "Data/Levels/config.json";
+const char* Game::s_configFileName = "../../../../data/config.json";
 
 Game::Game()
 	: m_isRunning(true)
@@ -21,6 +21,7 @@ Game::Game()
 	m_systemComponentManager = std::make_unique<SystemComponentManager>();
 	m_systemComponentManager->AddComponent<SceneCameraComponent>();
 	m_systemComponentManager->AddComponent<FpsCounterSystemComponent>();
+	m_systemComponentManager->AddComponent<EditorShaderSystemComponent>();
 
 	m_assetManager = std::make_unique<AssetManager>();
 }

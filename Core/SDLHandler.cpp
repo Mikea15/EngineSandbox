@@ -60,6 +60,8 @@ bool SDLHandler::Init()
 
 void SDLHandler::HandleEvents(SDL_Event* event)
 {
+	m_uiHandler.HandleInput(event);
+
 	if (event->window.event == SDL_WINDOWEVENT_RESIZED)
 	{
 		m_params->Width = static_cast<int>(event->window.data1);

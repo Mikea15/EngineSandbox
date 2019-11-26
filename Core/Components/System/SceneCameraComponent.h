@@ -14,7 +14,7 @@ class SceneCameraComponent
 
 public:
 	SceneCameraComponent();
-	~SceneCameraComponent();
+	~SceneCameraComponent() override;
 
 	void Initialize(Game* game) override;
 	void HandleInput(SDL_Event* event) override;

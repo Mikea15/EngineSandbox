@@ -34,12 +34,12 @@ void DefaultState::Init(Game* game)
 	skyboxShader = m_assetManager->LoadShader("gradientSkybox", "skybox/skybox.vert", "skybox/horizon_sun.frag");
 	m_simpleShader = m_assetManager->LoadShader("lighting", "lit/basic.vert", "lit/basic.frag");
 	
-	m_simpleShader.Use();
-	m_simpleShader.SetVec3("objectColor", 1.0f, 0.5f, 0.31f);
-	m_simpleShader.SetVec3("lightColor", 1.0f, 1.0f, 1.0f);
-	m_simpleShader.SetFloat("material.shininess", shininess);
+	m_simpleShader->Use();
+	m_simpleShader->SetVec3("objectColor", 1.0f, 0.5f, 0.31f);
+	m_simpleShader->SetVec3("lightColor", 1.0f, 1.0f, 1.0f);
+	m_simpleShader->SetFloat("material.shininess", shininess);
 
-	m_model = m_assetManager->LoadModel("Data/Objects/sponza/sponza_.fbx");
+	m_model = m_assetManager->LoadModel("/objects/sponza/sponza_.fbx");
 	// m_model = m_assetManager->LoadModel("Data/Objects/sanmiguel/san-miguel-low-poly.obj");
 	// m_model = m_assetManager->LoadModel("Data/Objects/nanosuit/nanosuit.obj");
 	m_model->Initialize();
@@ -47,8 +47,8 @@ void DefaultState::Init(Game* game)
 	// m_model->SetMaterialOverride(std::make_shared<Material>(m_defaultMat));
 
 	m_screenShader = m_assetManager->LoadShader("screen", "screen/screen_texture.vert", "screen/screen_texture.frag");
-	m_screenShader.Use();
-	m_screenShader.SetInt("screenTexture", 0);
+	m_screenShader->Use();
+	m_screenShader->SetInt("screenTexture", 0);
 
 	std::shared_ptr<Entity> entity = std::make_shared<Entity>();
 	entity->SetModel(*m_model);
@@ -133,8 +133,8 @@ void DefaultState::Update(float deltaTime)
 		m_spotLight->position = cam.GetPosition();
 		m_spotLight->direction = cam.GetForward();
 
-		m_simpleShader.Use();
-		m_simpleShader.SetVec3("viewPos", cam.GetForward());
+		m_simpleShader->Use();
+		m_simpleShader->SetVec3("viewPos", cam.GetForward());
 		// m_directionalLight->direction = cam.GetForward();
 	}
 }
@@ -157,10 +157,10 @@ void DefaultState::Render(float alpha)
 	m_sceneManager.Draw(camera);
 
 	// render skybox last. but before transparent objects
-	skyboxShader.Use();
-	skyboxShader.SetMat4("projection", camera.GetProjection());
-	skyboxShader.SetMat4("view", camera.GetView());
-	m_skybox.Draw(skyboxShader);
+	skyboxShader->Use();
+	skyboxShader->SetMat4("projection", camera.GetProjection());
+	skyboxShader->SetMat4("view", camera.GetView());
+	m_skybox.Draw(*skyboxShader);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glDisable(GL_DEPTH_TEST);
@@ -169,7 +169,7 @@ void DefaultState::Render(float alpha)
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	glBindTexture(GL_TEXTURE_2D, m_textureColorId);	// use the color attachment texture as the texture of the quad plane
-	m_screenShader.Use();
+	m_screenShader->Use();
 	Primitives::RenderQuad();
 }
 
@@ -223,8 +223,8 @@ void DefaultState::RenderUI()
 	ImGui::Begin("Simple Material Settings");
 	ImGui::SliderFloat("Shininess", &shininess, 0.0f, 64.0f);
 
-	m_simpleShader.Use();
-	m_simpleShader.SetFloat("material.shininess", shininess);
+	m_simpleShader->Use();
+	m_simpleShader->SetFloat("material.shininess", shininess);
 	ImGui::End();
 
 	const float DISTANCE = 10.0f;
