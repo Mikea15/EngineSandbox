@@ -53,7 +53,7 @@ private:
 	std::shared_ptr<Shader> m_shadowMappingShader;
 	std::shared_ptr<Shader> m_debugDepthShader;
 
-	Material light;
+	Material m_lightMaterial;
 
 	bool m_updateDirLightOnUpdate = false;
 

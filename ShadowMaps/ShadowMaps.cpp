@@ -188,9 +188,7 @@ void ShadowMapState::Init(Game* game)
 	m_debugDepthShader->Use();
 	m_debugDepthShader->SetInt("depthMap", 0);
 
-	auto lightShader = m_assetManager->LoadShader("light", "color.vert", "unlit/white.frag");
-	lightShader->Use();
-	light.SetShader(lightShader);
+	m_lightMaterial.SetShader( m_assetManager->LoadShader("light", "color.vert", "unlit/white.frag") );
 
 	// lighting info
 	// -------------
@@ -322,11 +320,17 @@ void ShadowMapState::Render(float alpha)
 
 	m_sceneManager.Draw(cam);
 
-	light.GetShader()->Use();
+	m_lightMaterial.GetShader()->Use();
 	Transform pointLightTransform;
+	
+	// Render default cube at origin
+	pointLightTransform.SetPosition(glm::vec3(0.0f, 0.5f, 0.0f));
+	m_lightMaterial.SetMVP(pointLightTransform.GetTransform(), view, projection);
+	Primitives::RenderCube();
+
 	pointLightTransform.SetPosition(m_lightPos);
 	pointLightTransform.SetScale(glm::vec3(0.1f));
-	light.SetMVP(pointLightTransform.GetTransform(), view, projection);
+	m_lightMaterial.SetMVP(pointLightTransform.GetTransform(), view, projection);
 	Primitives::RenderCube();
 	pointLightTransform.RenderGizmo(*wShader);
 	//pointLightTransform.SetScale(glm::vec3(1.0f));

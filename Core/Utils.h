@@ -21,6 +21,13 @@ namespace Utils
 		return lowercase;
 	}
 
+	static std::string NormalizePath(const std::string& in)
+	{
+		std::string result = in;
+		std::replace(result.begin(), result.end(), '\\', '/');
+		return result;
+	}
+
 	static size_t Hash(const std::string& text)
 	{
 		return std::hash<std::string>{}(text);
