@@ -21,10 +21,14 @@ add_library(
 	Components/System/SceneCameraComponent.cpp
 	Components/System/SceneCameraComponent.h
 
-	Imgui/imgui_impl_opengl3.cpp
-	Imgui/imgui_impl_sdl.cpp
-	Imgui/imgui_stdlib.cpp
-	Imgui/imgui_stdlib.h
+	Editor/TextDocument.h
+
+	External/TextEditor.cpp
+	External/TextEditor.h
+	External/Imgui/imgui_impl_opengl3.cpp
+	External/Imgui/imgui_impl_sdl.cpp
+	External/Imgui/imgui_stdlib.cpp
+	External/Imgui/imgui_stdlib.h
 	
 	Systems/Camera/Camera.cpp
 	Systems/Camera/Camera.h

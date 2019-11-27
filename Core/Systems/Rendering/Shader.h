@@ -16,10 +16,7 @@ public:
 	{}
 
 	Shader(const std::string& name, const std::string& vertexSource, const std::string& fragmentSource, const std::string& geometrySource);
-	void CompileShader();
-
-	void AddVertexDependency(Shader* shader) { m_vertexDependencies.push_back(shader); }
-	void AddFragmentDependency(Shader* shader) { m_fragmentDependencies.push_back(shader); }
+	void CompileShader(const std::string& vertexSource, const std::string& fragmentSource, const std::string& geometrySource, bool recompile = false);
 
 	bool IsValid() const { return m_id != s_InvalidId; }
 	void Use();

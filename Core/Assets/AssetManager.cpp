@@ -10,7 +10,10 @@
 
 #define MULTITHREAD 0
 
-const std::string AssetManager::s_assetDirectoryPath = "../../../../data/";
+const std::string AssetManager::s_mainAssetDirectory = "../../../../data/";
+const std::string AssetManager::s_assetShaderDir = "Shaders/";
+const std::string AssetManager::s_assetModelDir = "Objects/";
+const std::string AssetManager::s_assetImagesDir = "Images/";
 
 AssetManager::AssetManager()
 	: m_loadingThreadActive(true)
@@ -59,7 +62,7 @@ void AssetManager::Initialize()
 {
 	m_defaultShader = LoadShader("default", "model_loading.vert", "model_loading.frag");
 	m_wireframeShader = LoadShader("wireframe", "color.vert", "color.frag");
-	m_defaultTexture = LoadTexture(s_assetDirectoryPath + "images/default.jpg");
+	m_defaultTexture = LoadTexture(s_mainAssetDirectory + s_assetImagesDir + "/default.jpg");
 
 	m_defaultMaterial.AddTexture(m_defaultTexture);
 	m_defaultMaterial.SetShader(m_defaultShader);
@@ -107,7 +110,7 @@ void AssetManager::Update()
 
 std::shared_ptr<Model> AssetManager::LoadModel(const std::string& path)
 {
-	std::string filePath = s_assetDirectoryPath + path;
+	std::string filePath = s_mainAssetDirectory + path;
 	std::string lowercasePath = Utils::Lowercase(filePath);
 	size_t pathHash = Utils::Hash(lowercasePath);
 
@@ -200,7 +203,13 @@ std::shared_ptr<Shader> AssetManager::LoadShader(const std::string& name, const 
 		return findIt->second;
 	}
 
-	auto shader = m_shaderManager.LoadShader(name, vertPath, fragPath, geomFrag);
+	const std::string shaderPath = s_mainAssetDirectory + s_assetShaderDir;
+
+	auto shader = m_shaderManager.LoadShader(name, 
+		shaderPath + vertPath, 
+		shaderPath + fragPath, 
+		geomFrag.empty() ? "": shaderPath + geomFrag);
+
 	if (shader->IsValid())
 	{
 		m_shaders[nameHash] = shader;

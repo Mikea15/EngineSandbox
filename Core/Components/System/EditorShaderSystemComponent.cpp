@@ -40,6 +40,114 @@ void EditorShaderSystemComponent::Render(float alpha)
 
 void EditorShaderSystemComponent::RenderUI()
 {
+	ImGui::Begin("Shader Editor", nullptr, ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_MenuBar);
+	ImGui::SetWindowSize(ImVec2(800, 600), ImGuiCond_FirstUseEver);
+	if (ImGui::BeginMenuBar())
+	{
+		if (ImGui::BeginMenu("File"))
+		{
+			if (ImGui::BeginMenu("Open", !m_docs.empty()))
+			{
+				const int size = m_docs.size();
+				for (int i = 0; i < size; i++)
+				{
+					ShaderDoc* doc = m_docs[i];
+					if (!doc->Open)
+					{
+						if (ImGui::MenuItem(doc->GetName()))
+						{
+							if (m_openDoc) 
+							{
+								m_openDoc->DoForceClose();
+								m_openDoc = nullptr;
+							}
+
+							m_openDoc = doc;
+							m_openDoc->DoOpen();
+						}
+					}
+				}
+				ImGui::EndMenu();
+			}
+
+			if (ImGui::MenuItem("Load Shaders")) 
+			{
+				LoadShaders();
+			}
+
+			if (ImGui::MenuItem("Save"))
+			{
+				m_openDoc->DoSave();
+			}
+
+			if (ImGui::MenuItem("Close Active File"))
+			{
+				m_openDoc->DoForceClose();
+				m_openDoc = nullptr;
+			}
+
+			if (ImGui::MenuItem("Quit", "Alt-F4")) 
+			{
+				// break;
+			}
+			ImGui::EndMenu();
+		}
+
+		if ( m_openDoc && ImGui::BeginMenu("Edit"))
+		{
+			auto& editor = m_openDoc->GetEditor();
+			bool ro = editor.IsReadOnly();
+			if (ImGui::MenuItem("Read-only mode", nullptr, &ro))
+				editor.SetReadOnly(ro);
+			ImGui::Separator();
+
+			if (ImGui::MenuItem("Undo", "ALT-Backspace", nullptr, !ro && editor.CanUndo()))
+				editor.Undo();
+			if (ImGui::MenuItem("Redo", "Ctrl-Y", nullptr, !ro && editor.CanRedo()))
+				editor.Redo();
+
+			ImGui::Separator();
+
+			if (ImGui::MenuItem("Copy", "Ctrl-C", nullptr, editor.HasSelection()))
+				editor.Copy();
+			if (ImGui::MenuItem("Cut", "Ctrl-X", nullptr, !ro && editor.HasSelection()))
+				editor.Cut();
+			if (ImGui::MenuItem("Delete", "Del", nullptr, !ro && editor.HasSelection()))
+				editor.Delete();
+			if (ImGui::MenuItem("Paste", "Ctrl-V", nullptr, !ro && ImGui::GetClipboardText() != nullptr))
+				editor.Paste();
+
+			ImGui::Separator();
+
+			if (ImGui::MenuItem("Select all", nullptr, nullptr))
+				editor.SetSelection(TextEditor::Coordinates(), TextEditor::Coordinates(editor.GetTotalLines(), 0));
+
+			ImGui::EndMenu();
+		}
+
+		if (m_openDoc && ImGui::BeginMenu("View"))
+		{
+			auto& editor = m_openDoc->GetEditor();
+			if (ImGui::MenuItem("Dark palette"))
+				editor.SetPalette(TextEditor::GetDarkPalette());
+			if (ImGui::MenuItem("Light palette"))
+				editor.SetPalette(TextEditor::GetLightPalette());
+			if (ImGui::MenuItem("Retro blue palette"))
+				editor.SetPalette(TextEditor::GetRetroBluePalette());
+			ImGui::EndMenu();
+		}
+
+		ImGui::EndMenuBar();
+	}
+
+	if (m_openDoc != nullptr && m_openDoc->Open) 
+	{
+		m_openDoc->DisplayEditor();
+	}
+
+	ImGui::End();
+
+	/*
 	// Options
 	static bool opt_reorderable = true;
 	static ImGuiTabBarFlags opt_fitting_flags = ImGuiTabBarFlags_FittingPolicyDefault_;
@@ -49,66 +157,6 @@ void EditorShaderSystemComponent::RenderUI()
 		ImGui::End();
 		return;
 	}
-
-	// Menu
-	if (ImGui::BeginMenuBar())
-	{
-		if (ImGui::BeginMenu("File"))
-		{
-			int open_count = 0;
-			for (int doc_n = 0; doc_n < m_docs.size(); doc_n++) 
-			{
-				open_count += m_docs[doc_n]->Open ? 1 : 0;
-			}
-
-			if (ImGui::MenuItem("Load Shader List"))
-			{
-				LoadShaders();
-			}
-
-			if (ImGui::BeginMenu("Open", open_count < m_docs.size()))
-			{
-				for (int doc_n = 0; doc_n < m_docs.size(); doc_n++)
-				{
-					ShaderDoc* doc = m_docs[doc_n];
-					if (!doc->Open) 
-					{
-						if (ImGui::MenuItem(doc->GetName()))
-						{
-							doc->DoOpen();
-						}
-					}
-				}
-				ImGui::EndMenu();
-			}
-
-			if (ImGui::MenuItem("Close All Documents", NULL, false, open_count > 0)) 
-			{
-				for (int doc_n = 0; doc_n < m_docs.size(); doc_n++)
-				{
-					m_docs[doc_n]->DoQueueClose();
-				}
-			}
-			if (ImGui::MenuItem("Exit", "Alt+F4")) {}
-			ImGui::EndMenu();
-		}
-		ImGui::EndMenuBar();
-	}
-
-	// [Debug] List documents with one checkbox for each
-	for (int doc_n = 0; doc_n < m_docs.size(); doc_n++)
-	{
-		ShaderDoc* doc = m_docs[doc_n];
-		if (doc_n > 0)
-			ImGui::SameLine();
-		ImGui::PushID(doc);
-		if (ImGui::Checkbox(doc->GetName(), &doc->Open))
-			if (!doc->Open)
-				doc->DoForceClose();
-		ImGui::PopID();
-	}
-
-	ImGui::Separator();
 
 	// Submit Tab Bar and Tabs
 	{
@@ -142,7 +190,7 @@ void EditorShaderSystemComponent::RenderUI()
 				ShaderDoc::DisplayContextMenu(doc);
 				if (visible)
 				{
-					ShaderDoc::DisplayContents(doc);
+					ShaderDoc::DisplayContents(doc, m_editor);
 					ImGui::EndTabItem();
 				}
 			}
@@ -151,6 +199,7 @@ void EditorShaderSystemComponent::RenderUI()
 		}
 	}
 
+	
 	// Update closing queue
 	static ImVector<ShaderDoc*> close_queue;
 	if (close_queue.empty())
@@ -229,6 +278,7 @@ void EditorShaderSystemComponent::RenderUI()
 	}
 
 	ImGui::End();
+	*/
 }
 
 void EditorShaderSystemComponent::Cleanup()
@@ -238,9 +288,18 @@ void EditorShaderSystemComponent::Cleanup()
 
 void EditorShaderSystemComponent::LoadShaders()
 {
-	for (std::pair<size_t, std::shared_ptr<Shader>> shaderPair : m_gamePtr->GetAssetManager()->GetShaders())
+	m_docs.clear();
+
+	auto shaderManager = m_gamePtr->GetAssetManager()->GetShaderManager();
+	std::vector<ShaderInfo>& shaderRefs = shaderManager->GetShaderInfo();
+
+	static std::function<void(ShaderInfo*)> OnSave = [&](ShaderInfo* si) -> void {
+		shaderManager->ReloadShader(*si);
+	};
+
+	for( int i = 0; i < shaderRefs.size(); ++i )
 	{
-		m_docs.push_back(new ShaderDoc(shaderPair.second, true));
+		m_docs.push_back(new ShaderDoc(&shaderRefs[i], false, OnSave));
 	}
 }
 

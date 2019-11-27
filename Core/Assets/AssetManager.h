@@ -58,7 +58,7 @@ public:
 	void LoadTexture(Material& material);
 
 	// Shaders
-	std::shared_ptr<Shader> LoadShader(const std::string& name, const std::string& vertPath, const std::string& fragPath, const std::string& geomFrag = "");
+	std::shared_ptr<Shader> LoadShader(const std::string& name, const std::string& vertPath, const std::string& fragPath, const std::string& geomPath = "");
 	
 	// Textures
 	Texture LoadTexture(const std::string& path, TextureType type = TextureType::DiffuseMap);
@@ -74,7 +74,7 @@ public:
 	std::shared_ptr<Shader> GetDefaultShader() const { return m_defaultShader; }
 	std::shared_ptr<Shader> GetWireframeShader() const { return m_wireframeShader; }
 
-	std::unordered_map<size_t, std::shared_ptr<Shader>> GetShaders() { return m_shaders; }
+	ShaderManager* GetShaderManager() { return &m_shaderManager; }
 
 private:
 	Properties m_properties;
@@ -106,6 +106,9 @@ private:
 	std::mutex m_outputMutex;
 
 	// ---
-	static const std::string s_assetDirectoryPath;
+	static const std::string s_mainAssetDirectory;
+	static const std::string s_assetShaderDir;
+	static const std::string s_assetModelDir;
+	static const std::string s_assetImagesDir;
 };
 
