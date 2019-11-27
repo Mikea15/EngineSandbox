@@ -74,7 +74,7 @@ int Game::Execute()
 
 		accumulator += frameTime;
 
-		m_assetManager->Update();
+		m_assetManager->Update(frameTime);
 
 		m_systemComponentManager->PreUpdate(frameTime);
 

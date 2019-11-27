@@ -17,6 +17,7 @@ const std::string AssetManager::s_assetImagesDir = "Images/";
 
 AssetManager::AssetManager()
 	: m_loadingThreadActive(true)
+	, m_fileWatcher(s_mainAssetDirectory, 3.0f)
 {
 	m_properties.m_gammaCorrection = false;
 	m_properties.m_flipHDROnLoad = true;
@@ -30,6 +31,16 @@ AssetManager::AssetManager()
 		TextureType::HeightMap,
 		TextureType::AOMap,
 	};
+
+	m_fileWatcher.RegisterFileType(FileType::Shader_Vert, ".vert", [&](const std::string& filepath) {
+		m_shaderManager.ReloadShaderPath(filepath);
+		});
+	m_fileWatcher.RegisterFileType(FileType::Shader_Frag, ".frag", [&](const std::string& filepath) {
+		m_shaderManager.ReloadShaderPath(filepath);
+		});
+	m_fileWatcher.RegisterFileType(FileType::Shader_Geom, ".geom", [&](const std::string& filepath) {
+		m_shaderManager.ReloadShaderPath(filepath);
+		});
 
 #if MULTITHREAD
 	for (int i = 0; i < m_maxThreads; ++i)
@@ -93,8 +104,11 @@ void AssetManager::LoaderThread()
 	}
 }
 
-void AssetManager::Update()
+void AssetManager::Update(float frameTime)
 {
+	// update filewatcher
+	m_fileWatcher.Update(frameTime);
+
 	if (!m_processingTexturesQueue.Empty())
 	{
 		TextureLoadJob assetJob;

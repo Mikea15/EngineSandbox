@@ -11,17 +11,16 @@
 #include <future>
 
 #include "ShaderManager.h"
-
-#include "../Systems/Material.h"
-#include "../Systems/Model.h"
-#include "../Systems/Rendering/Shader.h"
-#include "../Systems/Rendering/Texture.h"
-
+#include "FileWatcher.h"
 #include "TextureManager.h"
-
 #include "AssimpImporter.h"
-
 #include "ThreadSafeQueue.h"
+
+#include "Systems/Material.h"
+#include "Systems/Model.h"
+#include "Systems/Rendering/Shader.h"
+#include "Systems/Rendering/Texture.h"
+
 
 struct TextureLoadJob
 {
@@ -49,7 +48,7 @@ public:
 
 	void LoaderThread( );
 
-	void Update();
+	void Update(float frameTime);
 
 	// Models
 	std::shared_ptr<Model> LoadModel(const std::string& path);
@@ -104,6 +103,8 @@ private:
 	std::atomic<bool> m_loadingThreadActive;
 
 	std::mutex m_outputMutex;
+
+	FileWatcher m_fileWatcher;
 
 	// ---
 	static const std::string s_mainAssetDirectory;
