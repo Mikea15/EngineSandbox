@@ -39,7 +39,7 @@ public:
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
-	void SetShader(std::shared_ptr<Shader> shader)
+	void SetShader(Shader shader)
 	{
 		m_shader = shader;
 	}
@@ -62,8 +62,8 @@ public:
 		// 1. render depth of scene to texture (from light's perspective)
 		// --------------------------------------------------------------
 		// render scene from light's point of view
-		m_shader->Use();
-		m_shader->SetMat4("lightSpaceMatrix", lightSpaceMatrix);
+		m_shader.Use();
+		m_shader.SetMat4("lightSpaceMatrix", lightSpaceMatrix);
 
 		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
 		glBindFramebuffer(GL_FRAMEBUFFER, m_depthMapFBO);
@@ -80,7 +80,7 @@ public:
 		}
 
 		// TEMP: extra scene
-		renderScene(*m_shader);
+		renderScene(m_shader);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 		// reset viewport
@@ -90,7 +90,7 @@ public:
 
 	unsigned int GetDepthMap() const { return m_depthMap; }
 
-	std::shared_ptr<Shader> m_shader;
+	Shader m_shader;
 	WindowParams m_windowParams;
 	std::shared_ptr<DirectionalLight> m_directionalLight;
 	glm::vec3 lightPos;

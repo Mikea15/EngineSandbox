@@ -74,6 +74,7 @@ add_library(
 
 	Systems/Entity.cpp
 	Systems/Entity.h
+	Systems/FileIO.h
 	Systems/Light.cpp
 	Systems/Light.h
 	Systems/Material.cpp

@@ -49,11 +49,11 @@ private:
 	Transform m_lightTransform;
 	glm::vec3 m_lightPos;
 	Material m_depthMaterial;
-	std::shared_ptr<Shader> m_simpleDepthShader;
-	std::shared_ptr<Shader> m_shadowMappingShader;
-	std::shared_ptr<Shader> m_debugDepthShader;
+	Shader m_simpleDepthShader;
+	Shader m_shadowMappingShader;
+	Shader m_debugDepthShader;
 
-	Material m_lightMaterial;
+	std::shared_ptr<Material> m_lightMaterial;
 
 	bool m_updateDirLightOnUpdate = false;
 

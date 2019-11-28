@@ -56,8 +56,10 @@ public:
 	// Materials
 	void LoadTexture(Material& material);
 
+	void RegisterMaterial(std::shared_ptr<Material> material);
+
 	// Shaders
-	std::shared_ptr<Shader> LoadShader(const std::string& name, const std::string& vertPath, const std::string& fragPath, const std::string& geomPath = "");
+	Shader LoadShader(const std::string& vertPath, const std::string& fragPath);
 	
 	// Textures
 	Texture LoadTexture(const std::string& path, TextureType type = TextureType::DiffuseMap);
@@ -69,11 +71,13 @@ public:
 	unsigned int GetHDRTexture(const std::string& path);
 
 	Texture GetDefaultTexture() const { return m_defaultTexture; }
-	Material GetDefaultMaterial() const { return m_defaultMaterial; }
-	std::shared_ptr<Shader> GetDefaultShader() const { return m_defaultShader; }
-	std::shared_ptr<Shader> GetWireframeShader() const { return m_wireframeShader; }
+	Material GetDefaultMaterial() const { return *m_defaultMaterial; }
+	Shader GetDefaultShader() const { return m_defaultShader; }
+	Shader GetWireframeShader() const { return m_wireframeShader; }
 
 	ShaderManager* GetShaderManager() { return &m_shaderManager; }
+
+	void OnShaderFileUpdated(const std::string& filepath);
 
 private:
 	Properties m_properties;
@@ -85,9 +89,9 @@ private:
 
 	std::unordered_map<size_t, std::shared_ptr<Model>> m_modelsMap;
 
-	std::shared_ptr<Shader> m_defaultShader;
-	std::shared_ptr<Shader> m_wireframeShader;
-	Material m_defaultMaterial;
+	Shader m_defaultShader;
+	Shader m_wireframeShader;
+	std::shared_ptr<Material> m_defaultMaterial;
 	Texture m_defaultTexture;
 
 	ThreadSafeQueue<TextureLoadJob> m_loadingTexturesQueue;

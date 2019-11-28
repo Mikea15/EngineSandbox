@@ -3,21 +3,38 @@
 #include <iostream>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 
-#include "../Systems/Rendering/Shader.h"
+#include "Systems/Rendering/Shader.h"
 
 class ShaderManager
 {
 public:
-	std::shared_ptr<Shader> LoadShader(const std::string& name, const std::string& vertexFilePath, const std::string& fragmentFilePath, const std::string& geometryFilePath = "", bool reload = false);
+	GLuint CreateProgram(const std::string& vertexCode, const std::string& fragmentCode);
+	Shader LoadShader(const std::string& rootDir, const std::string& vertexFilePath, const std::string& fragmentFilePath);
 
-	
-	std::string ReadShader(std::ifstream& file, const std::string& name, const std::string& path);
+	Shader NotifyShaderFileChanged(const Shader& oldShader);
 
-	std::vector<std::shared_ptr<Shader>>& GetShaders() { return m_loadedShaders; }
+	std::vector<Shader>& GetShaders() { return m_shaders; }
 
-	void ReloadShaderPath(const std::string& filepath);
+	void FindAndDisplayShaderError(GLuint shaderId, const std::string& name);
+	void FindAndDisplayProgramError(GLuint shaderId, const std::string& name);
+
+	std::vector<Shader> GetShaderFromPathDependency(const std::string& filePath);
 
 private:
-	std::vector<std::shared_ptr<Shader>> m_loadedShaders;
+	Shader GetShader(unsigned int i) const;
+
+private:
+
+	struct ShaderFiles {
+		std::string rootDir;
+		std::string vertexFile;
+		std::string fragmentFile;
+	};
+
+	std::vector<Shader> m_shaders;
+	std::unordered_map<unsigned int, ShaderFiles> m_shaderOriginalFiles;
+	std::unordered_map<std::string, std::unordered_set<unsigned int>> m_dependentVertexShaders;
+	std::unordered_map<std::string, std::unordered_set<unsigned int>> m_dependentFragmentShaders;
 };

@@ -1,96 +1,180 @@
 #include "ShaderManager.h"
 
-#include <string>
-#include <fstream>
+#include "Systems/FileIO.h"
 
-std::shared_ptr<Shader> ShaderManager::LoadShader(const std::string& name, const std::string& vertexFilePath, const std::string& fragmentFilePath, const std::string& geometryFilePath, bool reload)
+GLuint ShaderManager::CreateProgram(const std::string& vertexCode, const std::string& fragmentCode)
 {
-	std::ifstream vertFile, fragFile, geomFile;
-	vertFile.open(vertexFilePath);
-	fragFile.open(fragmentFilePath);
+	const char* vertexCodeC = vertexCode.c_str();
+	const char* fragmentCodeC = fragmentCode.c_str();
 
-	if (!vertFile.is_open() || !fragFile.is_open())
-	{
-		std::cerr << "[ShaderManager] Can't open shader files\n";
-		return {};
-	}
+	GLuint vertexShaderId = glCreateShader(GL_VERTEX_SHADER);
+	glShaderSource(vertexShaderId, 1, &vertexCodeC, 0);
+	glCompileShader(vertexShaderId);
+	FindAndDisplayShaderError(vertexShaderId, "VertexShader");
 
-	std::string vertSource = ReadShader(vertFile, name, vertexFilePath);
-	std::string fragSource = ReadShader(fragFile, name, fragmentFilePath);
+	GLuint fragmentShaderId = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(fragmentShaderId, 1, &fragmentCodeC, 0);
+	glCompileShader(fragmentShaderId);
+	FindAndDisplayShaderError(fragmentShaderId, "FragmentShader");
 
-	std::string geomSource = "";
-	if (!geometryFilePath.empty())
-	{
-		geomFile.open(geometryFilePath);
-		if (geomFile.is_open())
-		{
-			geomSource = ReadShader(geomFile, name, geometryFilePath);
-		}
-		geomFile.close();
-	}
+	GLuint programId = glCreateProgram();
+	glAttachShader(programId, vertexShaderId);
+	glAttachShader(programId, fragmentShaderId);
+	glLinkProgram(programId);
+	glValidateProgram(programId);
+	FindAndDisplayProgramError(programId, "Program");
 
-	vertFile.close();
-	fragFile.close();
-
-	std::cout << "[ShaderManager] Compiling shader: " << name << " ... ";
-	auto shader = std::make_shared<Shader>(name, vertSource, fragSource, geomSource, vertexFilePath, fragmentFilePath, geometryFilePath);
-	if (shader != nullptr) 
-	{
-		std::cout << "[ok]\n";
-		if (!reload) 
-		{
-			m_loadedShaders.push_back(shader);
-		}
-		return shader;
-	}
-	std::cout << "[fail]\n";
-	return {};
+	return programId;
 }
 
-std::string ShaderManager::ReadShader(std::ifstream& file, const std::string& name, const std::string& path)
+Shader ShaderManager::LoadShader(const std::string& rootDir, const std::string& vertexFilePath, const std::string& fragmentFilePath)
 {
-	const std::string directory = path.substr(0, path.find_last_of("/\\"));
-	std::string line;
-	std::string source;
+	std::vector<std::string> vertexDependencies;
+	std::string vertexCodeString = FileIO::ReadTextFile(rootDir, vertexFilePath, true,
+		[&vertexDependencies, &rootDir] (std::string foundPath) {
+			vertexDependencies.push_back(rootDir + foundPath);
+		}
+	);
 
-	while (std::getline(file, line))
+	std::vector<std::string> fragmentDependencies;
+	std::string fragmentCodeString = FileIO::ReadTextFile(rootDir, fragmentFilePath, true,
+		[&fragmentDependencies, &rootDir](std::string foundPath) {
+			fragmentDependencies.push_back(rootDir + foundPath);
+		}
+	);
+
+	std::cout << "[ShaderManager] Creating new shader | v: " << vertexFilePath << " | f: " << fragmentFilePath << "\n";
+
+	GLuint programId = CreateProgram(vertexCodeString, fragmentCodeString);
+	Shader shader(programId);
+
+	unsigned int index = m_shaders.size();
+	m_shaders.push_back(shader);
+
+	ShaderFiles files = { rootDir, vertexFilePath, fragmentFilePath };
+	m_shaderOriginalFiles.emplace(index, files);
+
+	for (const std::string& vertexDependency : vertexDependencies)
 	{
-		if (line.substr(0, 8) == "#include")
+		m_dependentVertexShaders[vertexDependency].emplace(index);
+	}
+
+	for (const std::string& fragmentDependency : fragmentDependencies)
+	{
+		m_dependentFragmentShaders[fragmentDependency].emplace(index);
+	}
+	return programId;
+}
+
+Shader ShaderManager::NotifyShaderFileChanged(const Shader& oldShader)
+{
+	unsigned int index = 0;
+	for (; index < m_shaders.size(); ++index)
+	{
+		if (m_shaders[index] == oldShader)
 		{
-			const size_t firstQuotePos = line.find_first_of('"');
-			const size_t lastQuotePos = line.find_last_of('"');
+			break;
+		}
+	}
 
-			const std::string includeFilePath = line.substr(firstQuotePos + 1, lastQuotePos-firstQuotePos-1);
-			const std::string includePath = directory + "/" + includeFilePath;
-			std::ifstream includeFile(includePath);
+	if (index < m_shaders.size())
+	{
+		auto it = m_shaderOriginalFiles.find(index);
+		if (it != m_shaderOriginalFiles.end())
+		{
+			Shader newShader = LoadShader(it->second.rootDir, it->second.vertexFile, it->second.fragmentFile);
+			
+			// Update internal data structures
+			m_shaders[index] = newShader;
 
-			if (includeFile.is_open())
+			std::cout << "[ShaderManager] Reloading Shader | v: " << it->second.vertexFile << " f: " << it->second.fragmentFile << "\n";
+
+			return newShader;
+		}
+	}
+
+	return Shader();
+}
+
+void ShaderManager::FindAndDisplayShaderError(GLuint shaderId, const std::string& name)
+{
+	GLint success;
+	GLchar errorText[4096];
+	glGetShaderiv(shaderId, GL_COMPILE_STATUS, &success);
+	if (!success)
+	{
+		glGetShaderInfoLog(shaderId, 4096, NULL, errorText);
+		std::cerr << "[Shader][Error][" << name << "]\n" << errorText << "\n";
+	}
+}
+
+void ShaderManager::FindAndDisplayProgramError(GLuint shaderId, const std::string& name)
+{
+	GLint success;
+	GLchar errorText[4096];
+	glGetProgramiv(shaderId, GL_LINK_STATUS, &success);
+	if (!success)
+	{
+		glGetProgramInfoLog(shaderId, 4096, NULL, errorText);
+		std::cerr << "[Shader][Linker][" << name << "]\n" << errorText << "\n";
+	}
+}
+
+std::vector<Shader> ShaderManager::GetShaderFromPathDependency(const std::string& filePath)
+{
+	std::vector<Shader> shadersAffected;
+	for (auto dependency : m_shaderOriginalFiles)
+	{
+		const std::string vertFile = dependency.second.rootDir + dependency.second.vertexFile;
+		const std::string fragFile = dependency.second.rootDir + dependency.second.fragmentFile;
+
+		if (filePath == vertFile || filePath == fragFile)
+		{
+			Shader shader = GetShader(dependency.first);
+			if (shader.IsValid())
 			{
-				source += ReadShader(includeFile, name, includePath);
+				shadersAffected.push_back(shader);
 			}
-			includeFile.clear();
-		}
-		else
-		{
-			source += line + "\n";
 		}
 	}
-	return source;
+
+	for (const std::pair<std::string, std::unordered_set<unsigned int>>& dependency : m_dependentVertexShaders)
+	{
+		if (dependency.first == filePath)
+		{
+			for (unsigned int index : dependency.second) 
+			{
+				Shader shader = GetShader(index);
+				if (shader.IsValid()) 
+				{
+					shadersAffected.push_back(shader);
+				}
+			}
+		}
+	}
+
+	for (const std::pair<std::string, std::unordered_set<unsigned int>>& dependency : m_dependentFragmentShaders)
+	{
+		if (dependency.first == filePath)
+		{
+			for (unsigned int index : dependency.second)
+			{
+				Shader shader = GetShader(index);
+				if (shader.IsValid())
+				{
+					shadersAffected.push_back(shader);
+				}
+			}
+		}
+	}
+	return shadersAffected;
 }
 
-void ShaderManager::ReloadShaderPath(const std::string& filepath)
+Shader ShaderManager::GetShader(unsigned int i) const
 {
-	for (auto& shaderPtr : m_loadedShaders)
+	if (i > m_shaders.size() || i < 0)
 	{
-		bool needsReload = shaderPtr->GetFragmentPath() == filepath
-			|| shaderPtr->GetVertexPath() == filepath
-			|| shaderPtr->GetGeometryPath() == filepath;
-
-		if (!needsReload) 
-		{
-			continue;
-		}
-		shaderPtr = LoadShader(shaderPtr->GetName(), shaderPtr->GetVertexPath(), shaderPtr->GetFragmentPath(), shaderPtr->GetGeometryPath(), true);
-		break;
+		return Shader();
 	}
+	return m_shaders[i];
 }

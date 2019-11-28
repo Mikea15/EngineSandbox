@@ -1,24 +1,25 @@
 #pragma once
 
-#include <string>
-#include <vector>
-
 #include <gl/glew.h>
 #include <glm/glm.hpp>
 
-#define INVALID_SHADER_ID 0xFFFFFFFF
+#include <string>
 
 class Shader
 {
 public:
-	Shader()
-		: m_id(s_InvalidId)
+	Shader() = default;
+	Shader(GLuint programId)
+		: m_id(programId)
 	{}
 
-	Shader(const std::string& name, const std::string& vertexSource, const std::string& fragmentSource, const std::string& geometrySource,
-		const std::string& vertexPath, const std::string& fragPath, const std::string& geomPath);
+	bool operator==(const Shader& rhs) const {
+		return m_id == rhs.m_id;
+	}
 
-	void CompileShader(const std::string& vertexSource, const std::string& fragmentSource, const std::string& geometrySource, bool recompile = false);
+	bool operator!=(const Shader& rhs) const {
+		return m_id != rhs.m_id;
+	}
 
 	bool IsValid() const { return m_id != s_InvalidId; }
 	void Use();
@@ -40,35 +41,8 @@ public:
 	void SetMat3(const std::string& name, const glm::mat3& mat) const;
 	void SetMat4(const std::string& name, const glm::mat4& mat) const;
 
-	const std::string& GetName() const { return m_name; }
-	const std::string& GetVertexCode() const { return m_vertexCode; }
-	const std::string& GetFragmentCode() const { return m_fragmentCode; }
-	const std::string& GetGeometryCode() const { return m_geometryCode; }
-
-	const std::string& GetVertexPath() const { return m_vertFilePath; }
-	const std::string& GetFragmentPath() const { return m_fragFilePath; }
-	const std::string& GetGeometryPath() const { return m_geomFilePath; }
-
-	void SetVertexCode(const std::string& code) { m_vertexCode = code; }
-	void SetFragmentCode(const std::string& code) { m_fragmentCode = code; }
-	void SetGeometryCode(const std::string& code) { m_geometryCode = code; }
-
 private:
-	void CheckCompileErrors(GLuint shader, const std::string& type) const;
-
-public:
-	unsigned int m_id;
-
-	std::vector<Shader*> m_vertexDependencies;
-	std::vector<Shader*> m_fragmentDependencies;
-
-	std::string m_name{};
-	std::string m_vertexCode{};
-	std::string m_fragmentCode{};
-	std::string m_geometryCode{};
-	std::string m_vertFilePath{};
-	std::string m_fragFilePath{};
-	std::string m_geomFilePath{};
+	GLuint m_id = s_InvalidId;
 
 	static const unsigned int s_InvalidId;
 };

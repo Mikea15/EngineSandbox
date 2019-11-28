@@ -1,14 +1,14 @@
 
 #include "Game.h"
 
+#include "Systems/FileIO.h"
+
 #include <cmath>
 #include <algorithm>
-#include <sstream>
-#include <fstream>
 
 #include "Components/System/FpsCounterSystemComponent.h"
 
-const char* Game::s_configFileName = "../../../../data/config.json";
+std::string Game::s_configFileName = "../../../../data/config.json";
 
 Game::Game()
 	: m_isRunning(true)
@@ -153,21 +153,10 @@ void Game::CleanupSystems()
 
 void Game::LoadConfig()
 {
-	std::stringstream stream;
-	std::fstream file(s_configFileName, std::fstream::in);
-	if (file.is_open())
+	std::string config = FileIO::ReadTextFile(s_configFileName);
+	if (!config.empty())
 	{
-		while (!file.eof())
-		{
-			std::string buffer;
-			std::getline(file, buffer);
-			stream << buffer;
-		}
-	}
-
-	if (!stream.str().empty())
-	{
-		json jsonParams = json::parse(stream.str());
+		json jsonParams = json::parse(config);
 		if (!jsonParams.is_null()) {
 			m_winParams = jsonParams;
 		}
@@ -176,9 +165,6 @@ void Game::LoadConfig()
 
 void Game::SaveConfig()
 {
-	std::ofstream file;
-	file.open(s_configFileName, std::fstream::out);
-
-	file << static_cast<json>(m_winParams).dump(4);
-	file.close();
+	std::string config = static_cast<json>(m_winParams).dump(4);
+	FileIO::SaveTextFile(s_configFileName, config);
 }

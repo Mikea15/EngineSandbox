@@ -1,12 +1,11 @@
 #include "AssetManager.h"
 
-
 #include <string>
 #include <chrono>
 #include <thread>
 #include <future>
 
-#include "../Utils.h"
+#include "Utils.h"
 
 #define MULTITHREAD 0
 
@@ -17,7 +16,7 @@ const std::string AssetManager::s_assetImagesDir = "Images/";
 
 AssetManager::AssetManager()
 	: m_loadingThreadActive(true)
-	, m_fileWatcher(s_mainAssetDirectory, 3.0f)
+	, m_fileWatcher(s_mainAssetDirectory, 2.0f)
 {
 	m_properties.m_gammaCorrection = false;
 	m_properties.m_flipHDROnLoad = true;
@@ -33,14 +32,14 @@ AssetManager::AssetManager()
 	};
 
 	m_fileWatcher.RegisterFileType(FileType::Shader_Vert, ".vert", [&](const std::string& filepath) {
-		m_shaderManager.ReloadShaderPath(filepath);
-		});
+		OnShaderFileUpdated(filepath);
+	});
 	m_fileWatcher.RegisterFileType(FileType::Shader_Frag, ".frag", [&](const std::string& filepath) {
-		m_shaderManager.ReloadShaderPath(filepath);
-		});
+		OnShaderFileUpdated(filepath);
+	});
 	m_fileWatcher.RegisterFileType(FileType::Shader_Geom, ".geom", [&](const std::string& filepath) {
-		m_shaderManager.ReloadShaderPath(filepath);
-		});
+		OnShaderFileUpdated(filepath);
+	});
 
 #if MULTITHREAD
 	for (int i = 0; i < m_maxThreads; ++i)
@@ -71,12 +70,14 @@ AssetManager::~AssetManager()
 
 void AssetManager::Initialize()
 {
-	m_defaultShader = LoadShader("default", "model_loading.vert", "model_loading.frag");
-	m_wireframeShader = LoadShader("wireframe", "color.vert", "color.frag");
-	m_defaultTexture = LoadTexture(s_mainAssetDirectory + s_assetImagesDir + "/default.jpg");
+	m_defaultShader = LoadShader("model_loading.vert", "model_loading.frag");
+	m_wireframeShader = LoadShader("color.vert", "color.frag");
+	m_defaultTexture = LoadTexture(s_mainAssetDirectory + s_assetImagesDir + "default.jpg");
 
-	m_defaultMaterial.AddTexture(m_defaultTexture);
-	m_defaultMaterial.SetShader(m_defaultShader);
+	m_defaultMaterial = std::make_shared<Material>();
+	m_defaultMaterial->AddTexture(m_defaultTexture);
+	m_defaultMaterial->SetShader(m_defaultShader);
+	RegisterMaterial(m_defaultMaterial);
 }
 
 void AssetManager::LoaderThread()
@@ -206,17 +207,15 @@ Texture AssetManager::LoadTexture(const std::string& path, TextureType type)
 	return m_textureManager.GenerateTexture(textureData, type, m_properties.m_gammaCorrection);
 }
 
-std::shared_ptr<Shader> AssetManager::LoadShader(const std::string& name, const std::string& vertPath, const std::string& fragPath, const std::string& geomFrag)
+void AssetManager::RegisterMaterial(std::shared_ptr<Material> material)
 {
-	std::string lowercase = Utils::Lowercase(name);
-	size_t nameHash = Utils::Hash(lowercase);
+	m_materialCache.push_back(material);
+}
 
+Shader AssetManager::LoadShader(const std::string& vertPath, const std::string& fragPath)
+{
 	const std::string shaderPath = s_mainAssetDirectory + s_assetShaderDir;
-
-	return m_shaderManager.LoadShader(name,
-			shaderPath + vertPath,
-			shaderPath + fragPath,
-			geomFrag.empty() ? "" : shaderPath + geomFrag);
+	return m_shaderManager.LoadShader(shaderPath, vertPath, fragPath);
 }
 
 void AssetManager::LoadTextureAsync(const std::string& path, Texture& outTexture)
@@ -291,6 +290,31 @@ unsigned int AssetManager::GetHDRTexture(const std::string& path)
 	}
 
 	return m_textureManager.GenerateHDRTexture(textureData, TextureType::DiffuseMap).GetId();
+}
+
+void AssetManager::OnShaderFileUpdated(const std::string& filepath)
+{
+	std::vector<Shader> shadersToUpdate = m_shaderManager.GetShaderFromPathDependency(filepath);
+	for (Shader shader : shadersToUpdate) 
+	{
+		// find materials that use this shader.
+		std::vector<std::shared_ptr<Material>> dependentMaterials;
+		for (std::shared_ptr<Material> mat : m_materialCache)
+		{
+			if (mat->GetShader() == shader)
+			{
+				dependentMaterials.push_back(mat);
+			}
+		}
+
+		Shader updatedShader = m_shaderManager.NotifyShaderFileChanged(shader);
+		
+		// update materials with new shader.
+		for (std::shared_ptr<Material> mat : dependentMaterials)
+		{
+			mat->SetShader(updatedShader);
+		}
+	}
 }
 
 

@@ -1,7 +1,7 @@
 #include "SSAO.h"
 
 
-#include "../../Assets/ShaderManager.h"
+#include "Assets/ShaderManager.h"
 
 int SSAO::s_MaxKernelSamples = 256;
 
@@ -19,7 +19,7 @@ void SSAO::LoadShaders(ShaderManager& shaderManager, unsigned int width, unsigne
 	m_screenWidth = width;
 	m_screenHeight = height;
 
-	shaderSSAO = *shaderManager.LoadShader("ssao", "screen/ssao.vert", "screen/ssao.frag");
+	shaderSSAO = shaderManager.LoadShader("../../../../data/shaders/", "screen/ssao.vert", "screen/ssao.frag");
 	shaderSSAO.Use();
 	shaderSSAO.SetInt("gPosition", 0);
 	shaderSSAO.SetInt("gNormal", 1);
@@ -27,7 +27,7 @@ void SSAO::LoadShaders(ShaderManager& shaderManager, unsigned int width, unsigne
 	shaderSSAO.SetInt("screenWidth", m_screenWidth);
 	shaderSSAO.SetInt("screenHeight", m_screenHeight);
 
-	shaderSSAOBlur = *shaderManager.LoadShader("ssaoBlur", "screen/ssao.vert", "screen/ssao_blur.frag");
+	shaderSSAOBlur = shaderManager.LoadShader("../../../../data/shaders/", "screen/ssao.vert", "screen/ssao_blur.frag");
 	
 	shaderSSAOBlur.Use();
 	shaderSSAOBlur.SetInt("ssaoInput", 0);

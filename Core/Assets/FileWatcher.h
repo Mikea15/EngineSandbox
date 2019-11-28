@@ -19,14 +19,6 @@
 #include "AssetManager.h"
 #include "Utils.h"
 
-// Temp
-struct FileEventHandlers
-{
-	std::function<void(void)> OnStatusChanged;
-	std::function<void(void)> OnFileModified;
-	std::function<void(void)> OnFileSaved;
-}; 
-
 enum class FileType : int
 {
 	None = 0,

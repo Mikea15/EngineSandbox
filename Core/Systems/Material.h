@@ -6,28 +6,16 @@
 #include "Rendering/Shader.h"
 #include "Rendering/Texture.h"
 
-#include "../Assets/TextureManager.h"
+#include "Assets/TextureManager.h"
 
 class Material
 {
 public:
-	struct IntermediateData
-	{
-		TextureType type;
-		std::vector<std::string> data;
-	};
-
-	struct Property
-	{
-		std::string name;
-		std::variant<int, float, std::string, bool> value;
-	};
-
 	Material();
 	~Material() = default;
 
-	void SetShader(std::shared_ptr<Shader> shader);
-	std::shared_ptr<Shader> GetShader() { return m_shader; }
+	void SetShader(Shader shader);
+	Shader GetShader() { return m_shader; }
 
 	void SetModel(const glm::mat4& model);
 	void SetView(const glm::mat4& view);
@@ -53,7 +41,7 @@ public:
 	}
 
 private:
-	std::shared_ptr<Shader> m_shader;
+	Shader m_shader;
 	std::vector<Texture> m_textures;
 
 	std::unordered_map<TextureType, std::vector<std::string>> m_texturePathPerType;

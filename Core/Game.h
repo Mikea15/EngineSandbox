@@ -50,6 +50,6 @@ private:
 
 	std::unique_ptr<SystemComponentManager> m_systemComponentManager;
 
-	static const char* s_configFileName;
+	static std::string s_configFileName;
 };
 

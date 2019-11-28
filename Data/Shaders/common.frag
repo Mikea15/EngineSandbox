@@ -1,8 +1,9 @@
 
-in VS_OUT
-{
-	vec2 TexCoords;
-} fs_in;
+
+uniform float time;
+
+uniform vec2 TexCoords;
+uniform vec2 uvScale;
 
 struct Material {
     sampler2D diffuse;
