@@ -15,7 +15,9 @@ public:
 		: m_id(s_InvalidId)
 	{}
 
-	Shader(const std::string& name, const std::string& vertexSource, const std::string& fragmentSource, const std::string& geometrySource);
+	Shader(const std::string& name, const std::string& vertexSource, const std::string& fragmentSource, const std::string& geometrySource,
+		const std::string& vertexPath, const std::string& fragPath, const std::string& geomPath);
+
 	void CompileShader(const std::string& vertexSource, const std::string& fragmentSource, const std::string& geometrySource, bool recompile = false);
 
 	bool IsValid() const { return m_id != s_InvalidId; }
@@ -43,6 +45,10 @@ public:
 	const std::string& GetFragmentCode() const { return m_fragmentCode; }
 	const std::string& GetGeometryCode() const { return m_geometryCode; }
 
+	const std::string& GetVertexPath() const { return m_vertFilePath; }
+	const std::string& GetFragmentPath() const { return m_fragFilePath; }
+	const std::string& GetGeometryPath() const { return m_geomFilePath; }
+
 	void SetVertexCode(const std::string& code) { m_vertexCode = code; }
 	void SetFragmentCode(const std::string& code) { m_fragmentCode = code; }
 	void SetGeometryCode(const std::string& code) { m_geometryCode = code; }
@@ -53,14 +59,16 @@ private:
 public:
 	unsigned int m_id;
 
-	std::string m_name;
-
 	std::vector<Shader*> m_vertexDependencies;
 	std::vector<Shader*> m_fragmentDependencies;
 
-	std::string m_vertexCode;
-	std::string m_fragmentCode;
-	std::string m_geometryCode;
+	std::string m_name{};
+	std::string m_vertexCode{};
+	std::string m_fragmentCode{};
+	std::string m_geometryCode{};
+	std::string m_vertFilePath{};
+	std::string m_fragFilePath{};
+	std::string m_geomFilePath{};
 
 	static const unsigned int s_InvalidId;
 };

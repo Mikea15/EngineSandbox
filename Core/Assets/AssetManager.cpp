@@ -211,26 +211,12 @@ std::shared_ptr<Shader> AssetManager::LoadShader(const std::string& name, const 
 	std::string lowercase = Utils::Lowercase(name);
 	size_t nameHash = Utils::Hash(lowercase);
 
-	auto findIt = m_shaders.find(nameHash);
-	if (findIt != m_shaders.end())
-	{
-		return findIt->second;
-	}
-
 	const std::string shaderPath = s_mainAssetDirectory + s_assetShaderDir;
 
-	auto shader = m_shaderManager.LoadShader(name, 
-		shaderPath + vertPath, 
-		shaderPath + fragPath, 
-		geomFrag.empty() ? "": shaderPath + geomFrag);
-
-	if (shader->IsValid())
-	{
-		m_shaders[nameHash] = shader;
-		return m_shaders[nameHash];
-	}
-
-	return nullptr;
+	return m_shaderManager.LoadShader(name,
+			shaderPath + vertPath,
+			shaderPath + fragPath,
+			geomFrag.empty() ? "" : shaderPath + geomFrag);
 }
 
 void AssetManager::LoadTextureAsync(const std::string& path, Texture& outTexture)

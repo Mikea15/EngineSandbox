@@ -9,7 +9,6 @@
 #include "Assets/AssetManager.h"
 #include "SystemComponentManager.h"
 #include "Components/System/SceneCameraComponent.h"
-#include "Components/System/EditorShaderSystemComponent.h"
 
 
 class Game

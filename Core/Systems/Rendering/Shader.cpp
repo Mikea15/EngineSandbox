@@ -6,9 +6,14 @@
 
 const unsigned int Shader::s_InvalidId = UINT_MAX;
 
-Shader::Shader(const std::string& name, const std::string& vertexSource, const std::string& fragmentSource, const std::string& geometrySource)
+Shader::Shader(const std::string& name, const std::string& vertexSource, 
+	const std::string& fragmentSource, const std::string& geometrySource,
+	const std::string& vertexPath, const std::string& fragPath, const std::string& geomPath)
 	: m_id(s_InvalidId)
 	, m_name(name)
+	, m_vertFilePath(vertexPath)
+	, m_fragFilePath(fragPath)
+	, m_geomFilePath(geomPath)
 {
 	CompileShader(vertexSource, fragmentSource, geometrySource);
 }

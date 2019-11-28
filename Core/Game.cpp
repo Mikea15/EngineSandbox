@@ -21,7 +21,6 @@ Game::Game()
 	m_systemComponentManager = std::make_unique<SystemComponentManager>();
 	m_systemComponentManager->AddComponent<SceneCameraComponent>();
 	m_systemComponentManager->AddComponent<FpsCounterSystemComponent>();
-	m_systemComponentManager->AddComponent<EditorShaderSystemComponent>();
 
 	m_assetManager = std::make_unique<AssetManager>();
 }

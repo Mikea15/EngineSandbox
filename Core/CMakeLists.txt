@@ -14,17 +14,11 @@ add_library(
 	Assets/TextureManager.h
 	Assets/ThreadSafeQueue.h
 
-	Components/System/EditorShaderSystemComponent.cpp
-	Components/System/EditorShaderSystemComponent.h
 	Components/System/FpsCounterSystemComponent.cpp
 	Components/System/FpsCounterSystemComponent.h
 	Components/System/SceneCameraComponent.cpp
 	Components/System/SceneCameraComponent.h
 
-	Editor/TextDocument.h
-
-	External/TextEditor.cpp
-	External/TextEditor.h
 	External/Imgui/imgui_impl_opengl3.cpp
 	External/Imgui/imgui_impl_sdl.cpp
 	External/Imgui/imgui_stdlib.cpp

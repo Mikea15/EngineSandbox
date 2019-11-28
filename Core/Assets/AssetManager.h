@@ -84,7 +84,6 @@ private:
 	std::vector<TextureType> m_supportedTextureTypes;
 
 	std::unordered_map<size_t, std::shared_ptr<Model>> m_modelsMap;
-	std::unordered_map<size_t, std::shared_ptr<Shader>> m_shaders;
 
 	std::shared_ptr<Shader> m_defaultShader;
 	std::shared_ptr<Shader> m_wireframeShader;

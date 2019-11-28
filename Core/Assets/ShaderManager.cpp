@@ -3,31 +3,11 @@
 #include <string>
 #include <fstream>
 
-std::shared_ptr<Shader> ShaderManager::LoadShader(const std::string& name, const std::string& vertexFilePath,
-	const std::string& fragmentFilePath, const std::string& geometryFilePath)
-{
-	ShaderInfo si;
-	si.m_name = name;
-	si.m_vertFilePath = vertexFilePath;
-	si.m_fragFilePath = fragmentFilePath;
-	si.m_hasGeometryFilePath = !geometryFilePath.empty();
-	if (si.m_hasGeometryFilePath) 
-	{
-		si.m_geomFilePath = geometryFilePath;
-	}
-	
-	si.m_shader = LoadShader(si);
-
-	m_loadedShaders.push_back(si);
-
-	return si.m_shader;
-}
-
-std::shared_ptr<Shader> ShaderManager::LoadShader(ShaderInfo& si, bool recompileShader)
+std::shared_ptr<Shader> ShaderManager::LoadShader(const std::string& name, const std::string& vertexFilePath, const std::string& fragmentFilePath, const std::string& geometryFilePath, bool reload)
 {
 	std::ifstream vertFile, fragFile, geomFile;
-	vertFile.open(si.m_vertFilePath);
-	fragFile.open(si.m_fragFilePath);
+	vertFile.open(vertexFilePath);
+	fragFile.open(fragmentFilePath);
 
 	if (!vertFile.is_open() || !fragFile.is_open())
 	{
@@ -35,16 +15,16 @@ std::shared_ptr<Shader> ShaderManager::LoadShader(ShaderInfo& si, bool recompile
 		return {};
 	}
 
-	std::string vertSource = ReadShader(vertFile, si.m_name, si.m_vertFilePath);
-	std::string fragSource = ReadShader(fragFile, si.m_name, si.m_fragFilePath);
+	std::string vertSource = ReadShader(vertFile, name, vertexFilePath);
+	std::string fragSource = ReadShader(fragFile, name, fragmentFilePath);
 
 	std::string geomSource = "";
-	if (!si.m_hasGeometryFilePath)
+	if (!geometryFilePath.empty())
 	{
-		geomFile.open(si.m_geomFilePath);
+		geomFile.open(geometryFilePath);
 		if (geomFile.is_open())
 		{
-			geomSource = ReadShader(geomFile, si.m_name, si.m_geomFilePath);
+			geomSource = ReadShader(geomFile, name, geometryFilePath);
 		}
 		geomFile.close();
 	}
@@ -52,17 +32,19 @@ std::shared_ptr<Shader> ShaderManager::LoadShader(ShaderInfo& si, bool recompile
 	vertFile.close();
 	fragFile.close();
 
-	auto newShader = std::make_shared<Shader>(si.m_name, vertSource, fragSource, geomSource);
-	
-	if (recompileShader)
+	std::cout << "[ShaderManager] Compiling shader: " << name << " ... ";
+	auto shader = std::make_shared<Shader>(name, vertSource, fragSource, geomSource, vertexFilePath, fragmentFilePath, geometryFilePath);
+	if (shader != nullptr) 
 	{
-		si.m_shader->CompileShader(newShader->GetVertexCode(), newShader->GetFragmentCode(), newShader->GetGeometryCode(), recompileShader);
+		std::cout << "[ok]\n";
+		if (!reload) 
+		{
+			m_loadedShaders.push_back(shader);
+		}
+		return shader;
 	}
-	else
-	{
-		si.m_shader = newShader;
-	}
-	return si.m_shader;
+	std::cout << "[fail]\n";
+	return {};
 }
 
 std::string ShaderManager::ReadShader(std::ifstream& file, const std::string& name, const std::string& path)
@@ -96,8 +78,19 @@ std::string ShaderManager::ReadShader(std::ifstream& file, const std::string& na
 	return source;
 }
 
-void ShaderManager::ReloadShader(ShaderInfo& si)
+void ShaderManager::ReloadShaderPath(const std::string& filepath)
 {
-	const bool recompileShader = true;
-	si.m_shader = LoadShader(si, recompileShader);
+	for (auto& shaderPtr : m_loadedShaders)
+	{
+		bool needsReload = shaderPtr->GetFragmentPath() == filepath
+			|| shaderPtr->GetVertexPath() == filepath
+			|| shaderPtr->GetGeometryPath() == filepath;
+
+		if (!needsReload) 
+		{
+			continue;
+		}
+		shaderPtr = LoadShader(shaderPtr->GetName(), shaderPtr->GetVertexPath(), shaderPtr->GetFragmentPath(), shaderPtr->GetGeometryPath(), true);
+		break;
+	}
 }
