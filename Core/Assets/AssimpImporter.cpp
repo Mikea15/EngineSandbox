@@ -21,10 +21,10 @@ AssimpImporter::AssimpImporter()
 	};
 }
 
-std::shared_ptr<Model> AssimpImporter::LoadModel(const std::string& path)
+LoadedModelInfo AssimpImporter::LoadModel(const std::string& path)
 {
-	std::shared_ptr<Model> model = std::make_shared<Model>();
-
+	LoadedModelInfo loadedModelInfo;
+	
 	Assimp::Importer importer;
 
 	std::cout << "[Import] Model: " << path << " loading...";
@@ -34,9 +34,8 @@ std::shared_ptr<Model> AssimpImporter::LoadModel(const std::string& path)
 	{
 		std::cerr << "failed to load.\n";
 		std::cerr << "[Error] Assimp: " << importer.GetErrorString() << "\n";
-		return std::shared_ptr<Model>();
+		return loadedModelInfo;
 	}
-
 	std::cout << " [ok]\n";
 
 	const std::string currentDirectory = path.substr(0, path.find_last_of('/') + 1);
@@ -49,8 +48,11 @@ std::shared_ptr<Model> AssimpImporter::LoadModel(const std::string& path)
 		{
 			std::cout << "[Import] ["<< i <<"/"<< materialCount <<"] Material: " << scene->mMaterials[i]->GetName().C_Str();
 
-			auto material = LoadMaterial(scene->mMaterials[i], currentDirectory);
-			model->AddMaterial(material);
+			MaterialInfo materialInfo = LoadMaterial(scene->mMaterials[i], currentDirectory);
+			
+			// Defer setup of textures in material, to asset loader.
+			// we will lookup the model and material later on to update the material.
+			loadedModelInfo.materials.push_back(materialInfo);
 
 			std::cout << " [ok]\n";
 		}
@@ -63,24 +65,22 @@ std::shared_ptr<Model> AssimpImporter::LoadModel(const std::string& path)
 		for (unsigned int i = 0; i < meshCount; ++i)
 		{
 			std::cout << "[Import] [" << i << "/" << meshCount << "] Mesh: " << scene->mMeshes[i]->mName.C_Str();
-
-			auto mesh = LoadMesh(scene->mMeshes[i]);
-			model->AddMesh(mesh);
+			
+			Mesh mesh = LoadMesh(scene->mMeshes[i]);
+			loadedModelInfo.meshes.push_back(mesh);
 
 			std::cout << " [ok]\n";
 		}
 	}
-
 	std::cout << "[Import] Model imported.\n";
 
-	return model;
+	return loadedModelInfo;
 }
 
-std::shared_ptr<Mesh> AssimpImporter::LoadMesh(const aiMesh* mesh)
+Mesh AssimpImporter::LoadMesh(const aiMesh* mesh)
 {
-	std::shared_ptr<Mesh> meshData = std::make_shared<Mesh>();
-
-	meshData->SetName(mesh->mName.C_Str());
+	Mesh meshData;
+	meshData.SetName(mesh->mName.C_Str());
 
 	std::vector<VertexInfo> vertices;
 	for (unsigned int i = 0; i < mesh->mNumVertices; ++i)
@@ -112,7 +112,7 @@ std::shared_ptr<Mesh> AssimpImporter::LoadMesh(const aiMesh* mesh)
 
 		vertices.push_back(vertex);
 	}
-	meshData->SetVertices(vertices);
+	meshData.SetVertices(vertices);
 
 	std::vector<unsigned int> indices;
 	for (unsigned int i = 0; i < mesh->mNumFaces; ++i)
@@ -123,17 +123,17 @@ std::shared_ptr<Mesh> AssimpImporter::LoadMesh(const aiMesh* mesh)
 			indices.push_back(face.mIndices[j]);
 		}
 	}
-	meshData->SetIndices(indices);
 
-	meshData->SetMaterialIndex(mesh->mMaterialIndex);
+	meshData.SetIndices(indices);
+	meshData.SetMaterialIndex(mesh->mMaterialIndex);
 	
 	return meshData;
 }
 
-std::shared_ptr<Material> AssimpImporter::LoadMaterial(const aiMaterial* material, const std::string& dir)
+MaterialInfo AssimpImporter::LoadMaterial(const aiMaterial* material, const std::string& dir)
 {
-	std::shared_ptr<Material> newMaterial = std::make_shared<Material>();
-
+	MaterialInfo matInfo;
+	
 	for (aiTextureType type : m_supportedTypes)
 	{
 		const unsigned int textureCount = material->GetTextureCount(type);
@@ -141,11 +141,16 @@ std::shared_ptr<Material> AssimpImporter::LoadMaterial(const aiMaterial* materia
 		{
 			aiString path;
 			material->GetTexture(type, i, &path);
-			newMaterial->AddTexturePath(m_typeConversion[type], dir + path.C_Str());
+
+			TextureInfo textureInfo;
+			textureInfo.path = dir + path.C_Str();
+			textureInfo.type = GetTextureTypeFrom(type);
+
+			matInfo.textures.push_back(textureInfo);
 		}
 	}
 
-	return newMaterial;
+	return matInfo;
 }
 
 TextureType AssimpImporter::GetTextureTypeFrom(aiTextureType type) 

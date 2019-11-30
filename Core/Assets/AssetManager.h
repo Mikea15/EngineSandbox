@@ -21,7 +21,6 @@
 #include "Systems/Rendering/Shader.h"
 #include "Systems/Rendering/Texture.h"
 
-
 struct TextureLoadJob
 {
 	std::shared_ptr<Material> materialOwner;
@@ -71,9 +70,11 @@ public:
 	unsigned int GetHDRTexture(const std::string& path);
 
 	Texture GetDefaultTexture() const { return m_defaultTexture; }
-	Material GetDefaultMaterial() const { return *m_defaultMaterial; }
+	Material GetDefaultMaterial() const { return m_defaultMaterial; }
+
 	Shader GetDefaultShader() const { return m_defaultShader; }
 	Shader GetWireframeShader() const { return m_wireframeShader; }
+	Shader GetErrorShader() const { return m_errorShader; }
 
 	ShaderManager* GetShaderManager() { return &m_shaderManager; }
 
@@ -81,6 +82,7 @@ public:
 
 private:
 	Properties m_properties;
+
 	TextureManager m_textureManager;
 	ShaderManager m_shaderManager;
 
@@ -88,16 +90,16 @@ private:
 	std::vector<TextureType> m_supportedTextureTypes;
 
 	std::unordered_map<size_t, std::shared_ptr<Model>> m_modelsMap;
+	std::vector<Material> m_materialCache;
 
 	Shader m_defaultShader;
+	Shader m_errorShader;
 	Shader m_wireframeShader;
-	std::shared_ptr<Material> m_defaultMaterial;
+	Material m_defaultMaterial;
 	Texture m_defaultTexture;
 
 	ThreadSafeQueue<TextureLoadJob> m_loadingTexturesQueue;
 	ThreadSafeQueue<TextureLoadJob> m_processingTexturesQueue;
-
-	std::vector<std::shared_ptr<Material>> m_materialCache;
 
 	int m_maxThreads = 1;
 	std::vector<std::thread> m_workerThreads;

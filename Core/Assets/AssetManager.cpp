@@ -70,14 +70,16 @@ AssetManager::~AssetManager()
 
 void AssetManager::Initialize()
 {
-	m_defaultShader = LoadShader("model_loading.vert", "model_loading.frag");
-	m_wireframeShader = LoadShader("color.vert", "color.frag");
 	m_defaultTexture = LoadTexture(s_mainAssetDirectory + s_assetImagesDir + "default.jpg");
 
-	m_defaultMaterial = std::make_shared<Material>();
-	m_defaultMaterial->AddTexture(m_defaultTexture);
-	m_defaultMaterial->SetShader(m_defaultShader);
-	RegisterMaterial(m_defaultMaterial);
+	m_errorShader = LoadShader("base.vert", "error.frag");
+	m_defaultShader = LoadShader("model_loading.vert", "model_loading.frag");
+	m_wireframeShader = LoadShader("color.vert", "color.frag");
+
+	m_defaultMaterial.AddTexture(m_defaultTexture);
+	m_defaultMaterial.SetShader(m_defaultShader);
+
+	// RegisterMaterial(m_defaultMaterial);
 }
 
 void AssetManager::LoaderThread()
@@ -125,20 +127,54 @@ void AssetManager::Update(float frameTime)
 
 std::shared_ptr<Model> AssetManager::LoadModel(const std::string& path)
 {
-	std::string filePath = s_mainAssetDirectory + path;
+	std::string filePath = s_mainAssetDirectory + s_assetModelDir + path;
 	std::string lowercasePath = Utils::Lowercase(filePath);
 	size_t pathHash = Utils::Hash(lowercasePath);
 
-	std::shared_ptr<Model> model = m_assimpImporter.LoadModel(lowercasePath);
-	if (!model)
+	LoadedModelInfo loadedModelInfo = m_assimpImporter.LoadModel(lowercasePath);
+	
+	// Load All Materials.
+	std::vector<Material> materials;
+	for (MaterialInfo info : loadedModelInfo.materials)
 	{
-		return std::shared_ptr<Model>();
+		Material mat = info.material;
+		for (TextureInfo textureInfo : info.textures)
+		{
+			Texture texture = LoadTexture(textureInfo.path, textureInfo.type);
+			mat.AddTexture(texture);
+		}
+
+		// Set default shader
+		mat.SetShader(m_defaultShader);
+
+		materials.push_back(mat);
 	}
+
+	// Cache Materials with Model Id.
+	// Add material with loaded textures to model
+	for (Material mat : materials)
+	{
+		loadedModelInfo.model.AddMaterial(mat);
+
+		// NOTE (MA): I know I know, I'll make the hash function
+		m_materialCache.push_back(mat);
+	}
+
+	// Cache Meshes with Model Id (?)
+	for (Mesh mesh : loadedModelInfo.meshes)
+	{
+		loadedModelInfo.model.AddMesh(mesh);
+	}
+
+	// Initialize Model
+	loadedModelInfo.model.Initialize();
+
+	// Make Shared Model from Setup-Model
+	std::shared_ptr<Model> model = std::make_shared<Model>(loadedModelInfo.model);
 	m_modelsMap.emplace(pathHash, model);
 
-	const std::vector<std::shared_ptr<Material>>& materials = model->GetMaterials();
-	const unsigned int meshCount = static_cast<unsigned int>(materials.size());
-	for (const std::shared_ptr<Material>& material : materials)
+#if 0
+	for (Material material : materials)
 	{
 		m_materialCache.push_back(material);
 
@@ -167,14 +203,14 @@ std::shared_ptr<Model> AssetManager::LoadModel(const std::string& path)
 #endif
 		}
 	}
-
+#endif
 	std::cout << "[AssetManager] Model Finished loading\n";
-
 	return model;
 }
 
 void AssetManager::LoadTexture(Material& material)
 {
+#if 0
 	for (TextureType type : m_supportedTextureTypes)
 	{
 		auto texturePaths = material.GetTexturePaths(type);
@@ -184,6 +220,7 @@ void AssetManager::LoadTexture(Material& material)
 			material.AddTexture(texture);
 		}
 	}
+#endif
 }
 
 Texture AssetManager::LoadTexture(const std::string& path, TextureType type)
@@ -209,13 +246,20 @@ Texture AssetManager::LoadTexture(const std::string& path, TextureType type)
 
 void AssetManager::RegisterMaterial(std::shared_ptr<Material> material)
 {
+#if 0
 	m_materialCache.push_back(material);
+#endif
 }
 
 Shader AssetManager::LoadShader(const std::string& vertPath, const std::string& fragPath)
 {
 	const std::string shaderPath = s_mainAssetDirectory + s_assetShaderDir;
-	return m_shaderManager.LoadShader(shaderPath, vertPath, fragPath);
+	Shader shader = m_shaderManager.LoadShader(shaderPath, vertPath, fragPath);
+	if (shader.IsValid()) 
+	{
+		return shader;
+	}
+	return m_errorShader;
 }
 
 void AssetManager::LoadTextureAsync(const std::string& path, Texture& outTexture)
@@ -297,6 +341,7 @@ void AssetManager::OnShaderFileUpdated(const std::string& filepath)
 	std::vector<Shader> shadersToUpdate = m_shaderManager.GetShaderFromPathDependency(filepath);
 	for (Shader shader : shadersToUpdate) 
 	{
+#if 0
 		// find materials that use this shader.
 		std::vector<std::shared_ptr<Material>> dependentMaterials;
 		for (std::shared_ptr<Material> mat : m_materialCache)
@@ -314,6 +359,7 @@ void AssetManager::OnShaderFileUpdated(const std::string& filepath)
 		{
 			mat->SetShader(updatedShader);
 		}
+#endif
 	}
 }
 

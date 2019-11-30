@@ -8,21 +8,41 @@
 #include <vector>
 #include <memory>
 
-#include "../Systems/Rendering/Texture.h"
+#include "AssetId.h"
 
-class Mesh;
-class Model;
-class Material;
+#include "Systems/Model.h"
+#include "Systems/Material.h"
+#include "Systems/Rendering/Mesh.h"
+#include "Systems/Rendering/Texture.h"
+
+struct TextureInfo
+{
+	std::string path;
+	TextureType type;
+};
+
+struct MaterialInfo
+{
+	Material material;
+	std::vector<TextureInfo> textures;
+};
+
+struct LoadedModelInfo
+{
+	Model model;
+	std::vector<Mesh> meshes;
+	std::vector<MaterialInfo> materials;
+};
 
 class AssimpImporter
 {
 public:
 	AssimpImporter();
 	
-	std::shared_ptr<Model> LoadModel(const std::string& path);
+	LoadedModelInfo LoadModel(const std::string& path);
 
-	std::shared_ptr<Mesh> LoadMesh(const aiMesh* mesh);
-	std::shared_ptr<Material> LoadMaterial( const aiMaterial* material, const std::string& dir);
+	Mesh LoadMesh(const aiMesh* mesh);
+	MaterialInfo LoadMaterial( const aiMaterial* material, const std::string& dir);
 
 	TextureType GetTextureTypeFrom(aiTextureType type);
 	std::vector<aiTextureType> GetSupportedTypes() const { return m_supportedTypes; }
