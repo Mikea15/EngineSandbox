@@ -24,7 +24,12 @@ public:
 	void RenderUI() override;
 	void Cleanup() override;
 
-	Camera& GetCamera() { return static_cast<Camera>(m_camera); }
+	// Deprecate
+	Camera GetCamera() { return static_cast<Camera>(m_camera); }
+
+	glm::vec3 GetCameraPosition() const { return m_camera.GetPosition(); }
+	glm::mat4 GetCameraProjection() const { return m_camera.GetProjection(); }
+	glm::mat4 GetCameraView() const { return m_camera.GetView(); }
 
 private:
 	WindowParams m_windowParams;
