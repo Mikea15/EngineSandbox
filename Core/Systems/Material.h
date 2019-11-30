@@ -1,11 +1,11 @@
 #pragma once
 
 #include <vector>
-#include <variant>
 
 #include "Rendering/Shader.h"
 #include "Rendering/Texture.h"
 
+#include "Assets/AssetId.h"
 #include "Assets/TextureManager.h"
 
 class Material
@@ -25,26 +25,15 @@ public:
 	void BindTextures();
 
 	void AddTexture(Texture texture);
-	void AddTexturePath(TextureType type, const std::string& path);
-
 	const std::vector<Texture> GetTextures() { return m_textures; }
 
-	std::vector<std::string> GetTexturePaths(TextureType type) { return m_texturePathPerType[type]; }
-	const std::vector<std::string> GetTexturePathsConst(TextureType type) const 
-	{ 
-		const auto findIt = m_texturePathPerType.find(type);
-		if (findIt != m_texturePathPerType.end())
-		{
-			return findIt->second;
-		}
-		return std::vector<std::string>();
-	}
+	AssetId GetId() const { return m_id; }
+	bool IsValid() const { return m_id.IsValid() && m_shader.IsValid(); }
 
 private:
+	AssetId m_id;
+
 	Shader m_shader;
 	std::vector<Texture> m_textures;
-
-	std::unordered_map<TextureType, std::vector<std::string>> m_texturePathPerType;
-
 };
 

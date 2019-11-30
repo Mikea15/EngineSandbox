@@ -10,6 +10,8 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
+#include "Assets/AssetId.h"
+
 #include "Rendering/Mesh.h"
 #include "Light.h"
 
@@ -29,23 +31,29 @@ public:
 	void SetShader(Shader shader);
 
 	void Draw(const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection);
-	void Draw(const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection, Material& material);
+	void Draw(const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection, Material material);
+	void Draw(const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection, Shader shader);
 
-	void AddMesh(std::shared_ptr<Mesh> mesh);
-	std::vector<std::shared_ptr<Mesh>>& GetMeshes() { return m_meshes; }
+	void AddMesh(Mesh mesh);
+	std::vector<Mesh>& GetMeshes() { return m_meshes; }
 	unsigned int GetMeshCount() const { return static_cast<unsigned int>(m_meshes.size()); }
 
-	void AddMaterial(std::shared_ptr<Material> material);
-	std::vector<std::shared_ptr<Material>>& GetMaterials() { return m_materials; }
+	void AddMaterial(Material material);
+	std::vector<Material>& GetMaterials() { return m_materials; }
 	unsigned int GetMaterialCount() const { return static_cast<unsigned int>(m_materials.size()); }
 
-	void SetMaterialOverride(std::shared_ptr<Material> material) { m_materialOverride = std::move(material); }
+	void SetMaterialOverride(Material material) { m_materialOverride = std::move(material); }
 
 	void ApplyLight(ILight& light);
 
-private:
-	std::vector<std::shared_ptr<Mesh>> m_meshes;
-	std::vector<std::shared_ptr<Material>> m_materials;
+	AssetId GetId() const { return m_id; }
+	bool IsValid() const { return m_id.IsValid(); }
 
-	std::shared_ptr<Material> m_materialOverride;
+private:
+	AssetId m_id;
+
+	std::vector<Mesh> m_meshes;
+	std::vector<Material> m_materials;
+
+	Material m_materialOverride;
 };

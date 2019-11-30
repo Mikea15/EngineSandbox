@@ -12,7 +12,6 @@
 
 Model::Model()
 {
-
 }
 
 Model::Model(const Model& copy)
@@ -47,7 +46,7 @@ void Model::Initialize()
 	const unsigned int meshCount = static_cast<unsigned int>(m_meshes.size());
 	for (unsigned int i = 0; i < meshCount; ++i)
 	{
-		m_meshes[i]->CreateBuffers();
+		m_meshes[i].CreateBuffers();
 	}
 }
 
@@ -56,7 +55,7 @@ void Model::SetShader(Shader shader)
 	const unsigned int materialCount = static_cast<unsigned int>(m_materials.size());
 	for (unsigned int i = 0; i < materialCount; ++i)
 	{
-		m_materials[i]->SetShader(shader);
+		m_materials[i].SetShader(shader);
 	}
 }
 
@@ -64,51 +63,65 @@ void Model::Draw(const glm::mat4& model, const glm::mat4& view, const glm::mat4&
 {
 	const unsigned int meshCount = static_cast<unsigned int>(m_meshes.size());
 
-	if (m_materialOverride != nullptr)
+	if (m_materialOverride.IsValid())
 	{
-		m_materialOverride->SetMVP(model, view, projection);
-		m_materialOverride->BindTextures();
+		m_materialOverride.SetMVP(model, view, projection);
+		m_materialOverride.BindTextures();
 	}
 
 	for (unsigned int i = 0; i < meshCount; ++i)
 	{
-		if (m_materialOverride != nullptr)
+		if (m_materialOverride.IsValid())
 		{
-			m_meshes[i]->Draw();
+			m_meshes[i].Draw();
 		}
 		else
 		{
-			unsigned int matIndex = m_meshes[i]->GetMaterialIndex();
+			unsigned int matIndex = m_meshes[i].GetMaterialIndex();
 			const bool hasMaterial = matIndex >= 0 && matIndex < m_materials.size();
 			if (hasMaterial)
 			{
-				Material& matRef = *m_materials[matIndex];
+				Material mat = m_materials[matIndex];
+				mat.SetMVP(model, view, projection);
+				mat.BindTextures();
 
-				matRef.SetMVP(model, view, projection);
-				matRef.BindTextures();
-				m_meshes[i]->Draw();
+				m_meshes[i].Draw();
 			}
 		}
 	}
 }
 
-void Model::Draw(const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection, Material& material)
+void Model::Draw(const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection, Material material)
 {
 	const unsigned int meshCount = static_cast<unsigned int>(m_meshes.size());
 	for (unsigned int i = 0; i < meshCount; ++i)
 	{
 		material.SetMVP(model, view, projection);
 		material.BindTextures();
-		m_meshes[i]->Draw();
+		m_meshes[i].Draw();
 	}
 }
 
-void Model::AddMesh(std::shared_ptr<Mesh> mesh)
+void Model::Draw(const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection, Shader shader)
+{
+	shader.Use();
+	shader.SetMat4("view", view);
+	shader.SetMat4("projection", projection);
+	shader.SetMat4("model", model);
+
+	const unsigned int meshCount = static_cast<unsigned int>(m_meshes.size());
+	for (unsigned int i = 0; i < meshCount; ++i)
+	{
+		m_meshes[i].Draw();
+	}
+}
+
+void Model::AddMesh(Mesh mesh)
 {
 	m_meshes.push_back(mesh);
 }
 
-void Model::AddMaterial(std::shared_ptr<Material> material)
+void Model::AddMaterial(Material material)
 {
 	m_materials.push_back(material);
 }
@@ -117,17 +130,17 @@ void Model::ApplyLight(ILight& light)
 {
 	const unsigned int matCount = static_cast<unsigned int>(m_materials.size());
 
-	if (m_materialOverride != nullptr)
+	if (m_materialOverride.IsValid())
 	{
-		m_materialOverride->GetShader().Use();
-		light.SetProperties(m_materialOverride->GetShader());
+		m_materialOverride.GetShader().Use();
+		light.SetProperties(m_materialOverride.GetShader());
 	}
 	else
 	{
 		for (unsigned int i = 0; i < matCount; ++i)
 		{
-			m_materials[i]->GetShader().Use();
-			light.SetProperties(m_materials[i]->GetShader());
+			m_materials[i].GetShader().Use();
+			light.SetProperties(m_materials[i].GetShader());
 		}
 	}
 }
