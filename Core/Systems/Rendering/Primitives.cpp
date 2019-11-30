@@ -6,6 +6,7 @@
 Cube Primitives::cube = Cube();
 Quad Primitives::quad = Quad();
 Sphere Primitives::sphere = Sphere();
+PlanePrimitive Primitives::plane = PlanePrimitive();
 
 unsigned int Primitives::indexCount = 0;
 unsigned int Primitives::pointVao = 0;
@@ -98,6 +99,29 @@ void Primitives::RenderQuad(bool wireframe, bool instanced, unsigned int count)
 	else
 	{
 		quad.DrawInstanced(count);
+	}
+
+	if (wireframe)
+	{
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	}
+}
+
+void Primitives::RenderPlane(bool wireframe /*= false*/, bool instanced /*= false*/, unsigned int count /*= 0*/)
+{
+	if (wireframe)
+	{
+		glLineWidth(1);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	}
+
+	if (!instanced)
+	{
+		plane.Draw();
+	}
+	else
+	{
+		plane.DrawInstanced(count);
 	}
 
 	if (wireframe)

@@ -8,6 +8,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "Assets/AssetId.h"
+
 #include "Vertex.h"
 #include "Texture.h"
 #include "../Material.h"
@@ -46,23 +48,22 @@ public:
 	const unsigned int GetVBO() const { return m_VBO; }
 	const unsigned int GetEBO() const { return m_EBO; }
 
-	const unsigned int GetId() const { return m_id; }
+	const AssetId GetId() const { return m_id; }
 
 	void SetMaterialIndex(unsigned int index) { m_materialIndex = index; }
 	const unsigned int GetMaterialIndex() const { return m_materialIndex; }
 
 private:
+	AssetId m_id;
+
 	std::vector<VertexInfo> m_vertices;
 	std::vector<unsigned int> m_indices;
 	std::string m_name;
 
-	unsigned int m_id;
 	unsigned int m_VAO; // vertex array object
 	unsigned int m_VBO; // vertex buffer object
 	unsigned int m_EBO; // element buffer object
 	unsigned int m_materialIndex;
 
 	bool m_isReady;
-
-	static unsigned int ID;
 };

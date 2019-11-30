@@ -1,18 +1,10 @@
 #include "Mesh.h"
 
-#include <fstream>
-#include <sstream>
-
 #include "Shader.h"
-
 #include "Vertex.h"
 
-
-
-unsigned int Mesh::ID = 0;
-
 Mesh::Mesh()
-	: m_id(++ID)
+	: m_id()
 	, m_VAO(0)
 	, m_VBO(0)
 	, m_EBO(0)

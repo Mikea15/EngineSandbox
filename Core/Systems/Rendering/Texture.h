@@ -10,13 +10,55 @@ enum class TextureType : int
 	None			= -1,
 	DiffuseMap		= 0,
 	NormalMap		= 1,
-	SpecularMap,
-	HeightMap,
-	MetallicMap,
-	AOMap,
-	RoughnessMap,
+	SpecularMap		= 2,
+	HeightMap		= 3,
+	MetallicMap		= 4,
+	AOMap			= 5,
+	RoughnessMap	= 6,
+
+
 	Count
 };
+
+static std::string GetTextureTypeName(TextureType type)
+{
+	static const std::unordered_map<TextureType, std::string> TextureTypeToName = {
+		{ TextureType::DiffuseMap,		"diffuse" },
+		{ TextureType::NormalMap,		"normal" },
+		{ TextureType::SpecularMap,		"specular" },
+		{ TextureType::HeightMap,		"height" },
+		{ TextureType::MetallicMap,		"metallic" },
+		{ TextureType::AOMap,			"ao" },
+		{ TextureType::RoughnessMap,	"roughness" }
+	};
+
+	auto find = TextureTypeToName.find(type);
+	if (find != TextureTypeToName.end())
+	{
+		return find->second;
+	}
+	return "InvalidTextureName";
+}
+
+static GLenum GetTextureSlot(TextureType type)
+{
+	static const std::unordered_map<TextureType, GLenum> TextureTypeToSlot = {
+		{ TextureType::DiffuseMap,		GL_TEXTURE0 },
+		{ TextureType::NormalMap,		GL_TEXTURE1 },
+		{ TextureType::SpecularMap,		GL_TEXTURE2 },
+		{ TextureType::HeightMap,		GL_TEXTURE3 },
+		{ TextureType::MetallicMap,		GL_TEXTURE4 },
+		{ TextureType::AOMap,			GL_TEXTURE5 },
+		{ TextureType::RoughnessMap,	GL_TEXTURE6 }
+	};
+
+	auto find = TextureTypeToSlot.find(type);
+	if (find != TextureTypeToSlot.end())
+	{
+		return find->second;
+	}
+	return GL_TEXTURE0;
+}
 
 struct TextureOp
 {
@@ -91,11 +133,12 @@ public:
 
 private:
 	unsigned int m_id;
+	TextureType m_type;
+
 	int m_width = 0;
 	int m_height = 0;
 	int m_channels = 0;
 	std::string m_path;
-	TextureType m_type;
 };
 
 

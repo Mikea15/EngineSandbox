@@ -5,6 +5,7 @@
 #include "Primitives/Quad.h"
 #include "Primitives/Cube.h"
 #include "Primitives/Sphere.h"
+#include "Primitives/PlanePrimitive.h"
 
 class Primitives
 {
@@ -13,11 +14,13 @@ public:
 	static void RenderLine(const glm::vec3& start, const glm::vec3& end);
 	static void RenderCube(bool wireframe = false, bool instanced = false, unsigned int count = 0);
 	static void RenderQuad(bool wireframe = false, bool instanced = false, unsigned int count = 0);
+	static void RenderPlane(bool wireframe = false, bool instanced = false, unsigned int count = 0);
 	static void RenderSphere(bool wireframe = false, bool instanced = false, unsigned int count = 0);
 
 	static Cube cube;
 	static Quad quad;
 	static Sphere sphere;
+	static PlanePrimitive plane;
 
 	static unsigned int indexCount;
 	static unsigned int pointVao, pointVbo;
