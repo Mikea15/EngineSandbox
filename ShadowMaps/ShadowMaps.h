@@ -48,8 +48,7 @@ protected:
 private:
 	Transform m_lightTransform;
 	glm::vec3 m_lightPos;
-	Material m_depthMaterial;
-	Shader m_simpleDepthShader;
+
 	Shader m_shadowMappingShader;
 	Shader m_debugDepthShader;
 

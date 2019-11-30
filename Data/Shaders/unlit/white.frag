@@ -1,6 +1,10 @@
 #version 330 core
 out vec4 FragColor;
 
+in vec2 TexCoords;
+
+uniform vec2 uvScale = vec2(1, 1);
+
 #include "common.frag"
 
 void main()

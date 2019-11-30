@@ -1,3 +1,6 @@
+/// -----------------------
+/// Start Common.vert file.
+/// -----------------------
 
 out VS_OUT {
     vec3 FragPos;

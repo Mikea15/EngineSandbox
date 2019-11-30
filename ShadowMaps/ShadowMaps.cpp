@@ -23,80 +23,12 @@ int main(int argc, char* argv[])
 	return g.Execute();
 }
 
-// renderQuad() renders a 1x1 XY quad in NDC
-// -----------------------------------------
-unsigned int quadVAO = 0;
-unsigned int quadVBO = 0;
-void renderQuad()
-{
-	if (quadVAO == 0)
-	{
-		float quadVertices[] = {
-			// positions        // texture Coords
-			-1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
-			-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
-			 1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
-			 1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
-		};
-		// setup plane VAO
-		glGenVertexArrays(1, &quadVAO);
-		glGenBuffers(1, &quadVBO);
-		glBindVertexArray(quadVAO);
-		glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-	}
-	glBindVertexArray(quadVAO);
-	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-	glBindVertexArray(0);
-}
-
-unsigned int planeVAO = 0;
-unsigned int planeVBO = 0;
-void renderPlane()
-{
-	if (planeVAO == 0)
-	{
-		// set up vertex data (and buffer(s)) and configure vertex attributes
-		// ------------------------------------------------------------------
-		float planeVertices[] = {
-			// positions            // normals         // texcoords
-			 25.0f, 0.0f,  25.0f,  0.0f, 1.0f, 0.0f,  25.0f,  0.0f,
-			-25.0f, 0.0f,  25.0f,  0.0f, 1.0f, 0.0f,   0.0f,  0.0f,
-			-25.0f, 0.0f, -25.0f,  0.0f, 1.0f, 0.0f,   0.0f, 25.0f,
-
-			 25.0f, 0.0f,  25.0f,  0.0f, 1.0f, 0.0f,  25.0f,  0.0f,
-			-25.0f, 0.0f, -25.0f,  0.0f, 1.0f, 0.0f,   0.0f, 25.0f,
-			 25.0f, 0.0f, -25.0f,  0.0f, 1.0f, 0.0f,  25.0f, 25.0f
-		};
-		// plane VAO
-		glGenVertexArrays(1, &planeVAO);
-		glGenBuffers(1, &planeVBO);
-		glBindVertexArray(planeVAO);
-		glBindBuffer(GL_ARRAY_BUFFER, planeVBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(planeVertices), planeVertices, GL_STATIC_DRAW);
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-		glEnableVertexAttribArray(2);
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-		glBindVertexArray(0);
-	}
-	glBindVertexArray(planeVAO);
-	glDrawArrays(GL_TRIANGLES, 0, 6);
-	glBindVertexArray(0);
-}
-
 void renderScene(const Shader& shader)
 {
 	// floor
 	glm::mat4 model = glm::mat4(1.0f);
 	shader.SetMat4("model", model);
-	renderPlane();
+	Primitives::RenderPlane();
 
 	Transform trans;
 	trans.SetPosition(glm::vec3(0.0f, 1.0f, 2.0f));
@@ -134,9 +66,6 @@ void ShadowMapState::Init(Game* game)
 	m_sdlHandler = game->GetSDLHandler();
 	m_assetManager = game->GetAssetManager();
 	m_sceneCamera = &game->GetSystemComponentManager()->GetComponent<SceneCameraComponent>();
-
-	Camera& cam = m_sceneCamera->GetCamera();
-	cam.SetPosition(glm::vec3(0.0, 2.0f, 0.0f));
 	m_windowParams = game->GetWindowParameters();
 
 	{
@@ -175,20 +104,14 @@ void ShadowMapState::Init(Game* game)
 
 	// shader configuration
 	// --------------------
-	m_assetManager->LoadShader("color.vert", "unlit/white.frag");
 	m_shadowMappingShader = m_assetManager->LoadShader("screen/shadow_mapping.vert", "screen/shadow_mapping.frag");
-	m_simpleDepthShader = m_assetManager->LoadShader("screen/shadow_depth.vert", "screen/shadow_depth.frag");
-	m_debugDepthShader = m_assetManager->LoadShader("screen/debug_quad.vert", "screen/debug_quad.frag");
-
-	m_depthMaterial.SetShader(m_simpleDepthShader);
-	
 	m_shadowMappingShader.Use();
 	m_shadowMappingShader.SetInt("diffuseTexture", 0);
 	m_shadowMappingShader.SetInt("shadowMap", 1);
 
+	m_debugDepthShader = m_assetManager->LoadShader("screen/debug_quad.vert", "screen/debug_quad.frag");
 	m_debugDepthShader.Use();
 	m_debugDepthShader.SetInt("depthMap", 0);
-
 
 	// Refactor this.
 	m_lightMaterial = std::make_shared<Material>();
@@ -199,10 +122,7 @@ void ShadowMapState::Init(Game* game)
 	// -------------
 	m_lightPos = glm::vec3(-2.0f, 6.0f, -1.0f);
 
-	auto model = m_assetManager->LoadModel("objects/nanosuit/nanosuit.obj");
-	model->Initialize();
-	model->SetShader(m_shadowMappingShader);
-	// model->SetMaterialOverride(std::make_shared<Material>(m_assetManager->GetDefaultMaterial()));
+	auto model = m_assetManager->LoadModel("nanosuit/nanosuit.obj");
 
 	std::shared_ptr<Entity> entity = std::make_shared<Entity>();
 	entity->SetModel(*model);
@@ -213,10 +133,10 @@ void ShadowMapState::Init(Game* game)
 
 	m_shadowRenderPass.Initialize();
 	m_shadowRenderPass.SetWindowParams(m_windowParams);
-	m_shadowRenderPass.SetShader(m_simpleDepthShader);
+	m_shadowRenderPass.SetShader(m_assetManager->LoadShader("screen/shadow_depth.vert", "screen/shadow_depth.frag"));
 	m_shadowRenderPass.SetDirLight(m_directionalLight);
 
-	// configure global open gl state
+	// configure global opengl state
 	// -----------------------------
 	glEnable(GL_DEPTH_TEST);
 
@@ -226,38 +146,13 @@ void ShadowMapState::HandleInput(SDL_Event* event)
 {
 	if (event->type == SDL_KEYDOWN)
 	{
-		switch (event->key.keysym.sym) {
-		case SDLK_g:
+		switch (event->key.keysym.sym) 
 		{
-			Camera& cam = m_sceneCamera->GetCamera();
-
-			// Update Spotlight Position and Direction;
-			m_spotLight->position = cam.GetPosition();
-			m_spotLight->direction = cam.GetForward();
-		}
-		break;
 		case SDLK_t:
 		{
-			Camera& cam = m_sceneCamera->GetCamera();
-			m_directionalLight->direction = cam.GetForward();
+			m_directionalLight->direction = glm::normalize(m_sceneCamera->GetCameraPosition() - glm::vec3(0.0));
 		}
 		break;
-		case SDLK_7:
-			m_directionalLight->direction = glm::normalize(glm::vec3(0.0f, -1.0f, 0.0f));
-			std::cout << "[DirectionalLight] SetDirection : glm::vec3(0.0f, -1.0f, 0.0f) \n";
-			break;
-		case SDLK_8:
-			m_directionalLight->direction = glm::normalize(glm::vec3(0.0f, 0.0f, 1.0f));
-			std::cout << "[DirectionalLight] SetDirection : glm::vec3(0.0f, 0.0f, 1.0f) \n";
-			break;
-		case SDLK_9:
-			m_directionalLight->direction = glm::normalize(glm::vec3(0.0f, 0.0f,-1.0f));
-			std::cout << "[DirectionalLight] SetDirection : glm::vec3(0.0f, 0.0f,-1.0f) \n";
-			break;
-		case SDLK_0:
-			m_directionalLight->direction = glm::normalize(glm::vec3(-1.0f, -1.0f, 0.0f));
-			std::cout << "[DirectionalLight] SetDirection : glm::vec3(-1.0f, -1.0f, 0.0f) \n";
-			break;
 		default: break;
 
 		}
@@ -276,7 +171,7 @@ void ShadowMapState::Update(float deltaTime)
 	 );
 
 	if (m_updateDirLightOnUpdate) {
-		m_directionalLight->direction = glm::normalize(glm::vec3(0.0f) - m_lightPos);
+		m_directionalLight->direction = m_sceneCamera->GetCamera().GetForward();
 	}
 
 	m_lightMaterial->GetShader().Use();
@@ -285,15 +180,14 @@ void ShadowMapState::Update(float deltaTime)
 
 void ShadowMapState::Render(float alpha)
 {
-	Camera& cam = m_sceneCamera->GetCamera();
-	glm::mat4 projection = cam.GetProjection();
-	glm::mat4 view = cam.GetView();
-	glm::vec3 camPos = cam.GetPosition();
+	const glm::vec3 cameraPosition = m_sceneCamera->GetCameraPosition();
+	const glm::mat4 cameraProjection = m_sceneCamera->GetCameraProjection();
+	const glm::mat4 cameraView = m_sceneCamera->GetCameraView();
 
 	auto wShader = m_assetManager->GetWireframeShader();
 	wShader.Use();
-	wShader.SetMat4("projection", projection);
-	wShader.SetMat4("view", view);
+	wShader.SetMat4("projection", cameraProjection);
+	wShader.SetMat4("view", cameraView);
 
 	// render
 	// ------
@@ -303,7 +197,9 @@ void ShadowMapState::Render(float alpha)
 	glm::mat4 lightSpaceMatrix= m_directionalLight->GetProjectionView();
 	
 	// 1 Shadow Pass
-	m_shadowRenderPass.Render(cam, lightSpaceMatrix, m_sceneManager.GetSceneLights(), m_sceneManager.GetSceneObjects(), m_depthMaterial, renderScene);
+	m_shadowRenderPass.Render(cameraView, cameraProjection, lightSpaceMatrix,
+		m_sceneManager.GetSceneLights(), 
+		m_sceneManager.GetSceneObjects(), renderScene);
 	
 	// 2. render scene as normal using the generated depth/shadow map  
 	// --------------------------------------------------------------
@@ -311,11 +207,11 @@ void ShadowMapState::Render(float alpha)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
 	m_shadowMappingShader.Use();
-	m_shadowMappingShader.SetMat4("projection", projection);
-	m_shadowMappingShader.SetMat4("view", view);
+	m_shadowMappingShader.SetMat4("projection", cameraProjection);
+	m_shadowMappingShader.SetMat4("view", cameraView);
 	
 	// set light uniforms
-	m_shadowMappingShader.SetVec3("viewPos", camPos);
+	m_shadowMappingShader.SetVec3("viewPos", cameraPosition);
 	m_shadowMappingShader.SetVec3("lightPos", m_lightPos);
 	m_shadowMappingShader.SetMat4("lightSpaceMatrix", lightSpaceMatrix);
 
@@ -325,23 +221,21 @@ void ShadowMapState::Render(float alpha)
 	glBindTexture(GL_TEXTURE_2D, m_shadowRenderPass.GetDepthMap());
 	
 	renderScene(m_shadowMappingShader);
-
-	m_sceneManager.Draw(cam);
+	m_sceneManager.Draw(cameraView, cameraProjection);
 
 	m_lightMaterial->GetShader().Use();
 	Transform pointLightTransform;
 	
 	// Render default cube at origin
 	pointLightTransform.SetPosition(glm::vec3(0.0f, 0.5f, 0.0f));
-	m_lightMaterial->SetMVP(pointLightTransform.GetTransform(), view, projection);
+	m_lightMaterial->SetMVP(pointLightTransform.GetTransform(), cameraView, cameraProjection);
 	Primitives::RenderCube();
 
 	pointLightTransform.SetPosition(m_lightPos);
 	pointLightTransform.SetScale(glm::vec3(0.1f));
-	m_lightMaterial->SetMVP(pointLightTransform.GetTransform(), view, projection);
+	m_lightMaterial->SetMVP(pointLightTransform.GetTransform(), cameraView, cameraProjection);
 	Primitives::RenderCube();
 	pointLightTransform.RenderGizmo(wShader);
-	//pointLightTransform.SetScale(glm::vec3(1.0f));
 
 	// render Depth map to quad for visual debugging
 	// ---------------------------------------------

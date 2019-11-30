@@ -30,11 +30,8 @@ void SceneManager::Update(float deltaTime)
 	}
 }
 
-void SceneManager::Draw(const Camera& camera)
+void SceneManager::Draw(glm::mat4 cameraView, glm::mat4 cameraProjection)
 {
-	const glm::mat4& view = camera.GetView();
-	const glm::mat4& projection = camera.GetProjection();
-
 	for (auto& entity : m_sceneObjects)
 	{
 		for (auto& light : m_lightSources) 
@@ -42,16 +39,7 @@ void SceneManager::Draw(const Camera& camera)
 			entity->ApplyLightingPass(*light);
 		}
 		
-		entity->Draw(view, projection);
-	}
-}
-
-void SceneManager::Draw(const Camera& camera, Shader& shader)
-{
-
-	for (auto& entity : m_sceneObjects)
-	{
-
+		entity->Draw(cameraView, cameraProjection);
 	}
 }
 

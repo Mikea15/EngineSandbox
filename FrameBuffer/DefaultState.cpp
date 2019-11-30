@@ -1,10 +1,10 @@
 #include "DefaultState.h"
 
-#include "../Core/Game.h"
-#include "../Core/Utils.h"
-#include "../Core/Systems/Rendering/Primitives.h"
+#include "Game.h"
+#include "Utils.h"
+#include "Systems/Rendering/Primitives.h"
 
-#include "../Core/Systems/Rendering/TextureBuffer.h"
+#include "Systems/Rendering/TextureBuffer.h"
 
 void DefaultState::Init(Game* game)
 {
@@ -32,12 +32,12 @@ void DefaultState::Init(Game* game)
 	m_skybox.Initialize();
 
 	skyboxShader = m_assetManager->LoadShader("skybox/skybox.vert", "skybox/horizon_sun.frag");
-	m_simpleShader = m_assetManager->LoadShader("lit/basic.vert", "lit/basic.frag");
+	m_simpleShader = m_assetManager->LoadShader("model_loading.vert", "model_loading.frag");
 	
 	m_simpleShader.Use();
-	m_simpleShader.SetVec3("objectColor", 1.0f, 0.5f, 0.31f);
-	m_simpleShader.SetVec3("lightColor", 1.0f, 1.0f, 1.0f);
-	m_simpleShader.SetFloat("material.shininess", shininess);
+	// m_simpleShader.SetVec3("objectColor", 1.0f, 0.5f, 0.31f);
+	// m_simpleShader.SetVec3("lightColor", 1.0f, 1.0f, 1.0f);
+	// m_simpleShader.SetFloat("material.shininess", shininess);
 
 	m_model = m_assetManager->LoadModel("/objects/sponza/sponza_.fbx");
 	// m_model = m_assetManager->LoadModel("Data/Objects/sanmiguel/san-miguel-low-poly.obj");
@@ -142,7 +142,6 @@ void DefaultState::Update(float deltaTime)
 
 void DefaultState::Render(float alpha)
 {
-
 	// render
 	// ------
 	glBindFramebuffer(GL_FRAMEBUFFER, m_frameBufferId);
@@ -154,7 +153,10 @@ void DefaultState::Render(float alpha)
 
 	const Camera& camera = m_sceneCamera->GetCamera();
 
-	m_sceneManager.Draw(camera);
+	m_simpleShader.Use();
+	// m_sceneManager.Draw(camera);
+
+	Primitives::RenderPlane();
 
 	// render skybox last. but before transparent objects
 	skyboxShader.Use();
@@ -164,10 +166,10 @@ void DefaultState::Render(float alpha)
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glDisable(GL_DEPTH_TEST);
-
+	
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
-
+	
 	glBindTexture(GL_TEXTURE_2D, m_textureColorId);	// use the color attachment texture as the texture of the quad plane
 	m_screenShader.Use();
 	Primitives::RenderQuad();

@@ -1,15 +1,14 @@
 #version 330 core
 out vec4 FragColor;
 
-#include "../common.frag"
-
 in vec3 FragPos;
 in vec3 Normal;
 in vec2 TexCoords;
 
 uniform vec3 viewPos;
-
 uniform vec2 uvScale = vec2(1, 1);
+
+#include "common.frag"
 
 void main()
 {

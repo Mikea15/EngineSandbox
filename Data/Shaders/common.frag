@@ -1,17 +1,16 @@
+/// -----------------------
+/// Start Common.frag file.
+/// -----------------------
 
+#define NR_POINT_LIGHTS 4
 
 uniform float time;
-
-uniform vec2 TexCoords;
-uniform vec2 uvScale;
 
 struct Material {
     sampler2D diffuse;
     sampler2D specular;
     float shininess;
 }; 
-
-#define NR_POINT_LIGHTS 4
 
 struct DirLight {
     vec3 direction;
@@ -73,7 +72,7 @@ vec3 CalcDirLight( DirLight light, vec3 normal, vec3 viewDir )
     return (ambient + diffuse + specular);
 }
 
-vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
+vec3 CalcPointLight( PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
 {
     vec3 lightDir = normalize(light.position - fragPos);
     
@@ -101,7 +100,7 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
     return (ambient + diffuse + specular);
 } 
 
-vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
+vec3 CalcSpotLight( SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
 {
     vec3 lightDir = normalize(light.position - fragPos);
     

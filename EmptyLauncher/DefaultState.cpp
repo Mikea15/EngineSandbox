@@ -38,10 +38,10 @@ void DefaultState::Init(Game* game)
 
 	m_groundShader = m_assetManager->LoadShader("model_loading.vert", "model_loading.frag");
 
-	m_model = m_assetManager->LoadModel("Data/Objects/nanosuit/nanosuit.obj");
+	m_model = m_assetManager->LoadModel("nanosuit/nanosuit.obj");
 	m_model->Initialize();
-	m_model->SetShader(m_simpleShader);
-	// m_model->SetMaterialOverride(std::make_shared<Material>(m_defaultMat));
+	// m_model->SetShader(m_simpleShader);
+	m_model->SetMaterialOverride( m_assetManager->GetDefaultMaterial()  );
 
 	std::shared_ptr<Entity> entity = std::make_shared<Entity>();
 	entity->SetModel(*m_model);
@@ -160,7 +160,7 @@ void DefaultState::Render(float alpha)
 	m_simpleShader.Use();
 	m_simpleShader.SetVec3("viewPos", cameraPosition);
 
-	m_sceneManager.Draw(camera);
+	m_sceneManager.Draw(view, projection);
 
 	// render skybox last. but before transparent objects
 	skyboxShader.Use();
@@ -174,7 +174,6 @@ void DefaultState::RenderUI()
 	m_sceneManager.RenderUI();
 
 	m_skybox.DrawUIPanel();
-
 	m_sdlHandler->RenderUI();
 
 	ImGui::Begin("Directional Light Settings");
@@ -223,6 +222,7 @@ void DefaultState::RenderUI()
 	if (corner != -1)
 		ImGui::SetNextWindowPos(window_pos, ImGuiCond_Always, window_pos_pivot);
 	ImGui::SetNextWindowBgAlpha(0.3f); // Transparent background
+	
 	static bool open = true;
 	if (ImGui::Begin("Example: Simple overlay", &open, (corner != -1 ? ImGuiWindowFlags_NoMove : 0)
 		| ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize 
@@ -237,17 +237,6 @@ void DefaultState::RenderUI()
 		ImGui::Text("R - Reset Camera Position");
 		ImGui::Text("G - Set Spotlight Pos/Direction");
 		ImGui::Text("T - Set Directional Light Direction");
-
-		if (ImGui::BeginPopupContextWindow())
-		{
-			if (ImGui::MenuItem("Custom", NULL, corner == -1)) corner = -1;
-			if (ImGui::MenuItem("Top-left", NULL, corner == 0)) corner = 0;
-			if (ImGui::MenuItem("Top-right", NULL, corner == 1)) corner = 1;
-			if (ImGui::MenuItem("Bottom-left", NULL, corner == 2)) corner = 2;
-			if (ImGui::MenuItem("Bottom-right", NULL, corner == 3)) corner = 3;
-			if (open && ImGui::MenuItem("Close")) open = false;
-			ImGui::EndPopup();
-		}
 	}
 	ImGui::End();
 }

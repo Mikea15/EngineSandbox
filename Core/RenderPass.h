@@ -54,10 +54,10 @@ public:
 		m_directionalLight = light;
 	}
 
-	void Render(Camera& camera, glm::mat4 lightSpaceMatrix,
+	void Render(glm::mat4 cameraView, glm::mat4 cameraProjection, glm::mat4 lightSpaceMatrix,
 		const std::vector<std::shared_ptr<ILight>>& lights, 
 		const std::vector<std::shared_ptr<Entity>>& entities,
-		Material& mat, std::function<void(Shader)> renderScene) 
+		std::function<void(Shader)> renderScene) 
 	{
 		// 1. render depth of scene to texture (from light's perspective)
 		// --------------------------------------------------------------
@@ -76,7 +76,7 @@ public:
 				entity->ApplyLightingPass(*light);
 			}
 			glm::mat4 model = entity->GetTransform().GetTransform();
-			entity->Draw(model, camera.GetView(), camera.GetProjection(), mat);
+			entity->Draw(model, cameraView, cameraProjection, m_shader);
 		}
 
 		// TEMP: extra scene

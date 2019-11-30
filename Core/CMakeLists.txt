@@ -4,6 +4,8 @@ set(MODULE_NAME Core)
 add_library(
 	${MODULE_NAME} STATIC 
 
+	Assets/AssetId.cpp
+	Assets/AssetId.h
 	Assets/AssetManager.cpp
 	Assets/AssetManager.h
 	Assets/AssimpImporter.cpp
@@ -46,6 +48,8 @@ add_library(
 
 	Systems/Rendering/Primitives/Quad.cpp
 	Systems/Rendering/Primitives/Quad.h
+	Systems/Rendering/Primitives/PlanePrimitive.cpp
+	Systems/Rendering/Primitives/PlanePrimitive.h
 	Systems/Rendering/Primitives/Sphere.cpp
 	Systems/Rendering/Primitives/Sphere.h
 	Systems/Rendering/Primitives/Cube.cpp
