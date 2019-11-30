@@ -122,14 +122,15 @@ void ShadowMapState::Init(Game* game)
 	// -------------
 	m_lightPos = glm::vec3(-2.0f, 6.0f, -1.0f);
 
-	auto model = m_assetManager->LoadModel("nanosuit/nanosuit.obj");
+	m_model = m_assetManager->LoadModel("nanosuit/nanosuit.obj");
+	m_model->SetShader(m_assetManager->GetErrorShader());
 
 	std::shared_ptr<Entity> entity = std::make_shared<Entity>();
-	entity->SetModel(*model);
+	entity->SetModel(*m_model);
 	entity->GetTransform().SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
-	entity->GetTransform().SetScale(glm::vec3(0.1f));
+	entity->GetTransform().SetScale(glm::vec3(0.4f));
 
-	m_sceneManager.AddEntity(entity);
+	// m_sceneManager.AddEntity(entity);
 
 	m_shadowRenderPass.Initialize();
 	m_shadowRenderPass.SetWindowParams(m_windowParams);
@@ -150,7 +151,7 @@ void ShadowMapState::HandleInput(SDL_Event* event)
 		{
 		case SDLK_t:
 		{
-			m_directionalLight->direction = glm::normalize(m_sceneCamera->GetCameraPosition() - glm::vec3(0.0));
+			m_directionalLight->direction = glm::normalize(glm::vec3(0.0) - m_sceneCamera->GetCameraPosition());
 		}
 		break;
 		default: break;
@@ -200,6 +201,12 @@ void ShadowMapState::Render(float alpha)
 	m_shadowRenderPass.Render(cameraView, cameraProjection, lightSpaceMatrix,
 		m_sceneManager.GetSceneLights(), 
 		m_sceneManager.GetSceneObjects(), renderScene);
+
+	m_shadowMappingShader.Use();
+	Transform modelTransform;
+	modelTransform.SetPosition(glm::vec3(0.0f, 1.0f, 0.0f));
+	modelTransform.SetScale(1.0f);
+	m_model->Draw(modelTransform.GetTransform(), cameraView, cameraProjection);
 	
 	// 2. render scene as normal using the generated depth/shadow map  
 	// --------------------------------------------------------------
@@ -221,7 +228,11 @@ void ShadowMapState::Render(float alpha)
 	glBindTexture(GL_TEXTURE_2D, m_shadowRenderPass.GetDepthMap());
 	
 	renderScene(m_shadowMappingShader);
-	m_sceneManager.Draw(cameraView, cameraProjection);
+
+	m_shadowMappingShader.Use();
+	m_model->Draw(modelTransform.GetTransform(), cameraView, cameraProjection);
+
+	// m_sceneManager.Draw(cameraView, cameraProjection);
 
 	m_lightMaterial->GetShader().Use();
 	Transform pointLightTransform;
@@ -232,7 +243,7 @@ void ShadowMapState::Render(float alpha)
 	Primitives::RenderCube();
 
 	pointLightTransform.SetPosition(m_lightPos);
-	pointLightTransform.SetScale(glm::vec3(0.1f));
+	pointLightTransform.SetScale(glm::vec3(0.5f));
 	m_lightMaterial->SetMVP(pointLightTransform.GetTransform(), cameraView, cameraProjection);
 	Primitives::RenderCube();
 	pointLightTransform.RenderGizmo(wShader);
