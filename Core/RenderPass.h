@@ -59,6 +59,8 @@ public:
 		const std::vector<std::shared_ptr<Entity>>& entities,
 		std::function<void(Shader)> renderScene) 
 	{
+		
+
 		// 1. render depth of scene to texture (from light's perspective)
 		// --------------------------------------------------------------
 		// render scene from light's point of view

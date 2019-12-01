@@ -123,14 +123,13 @@ void ShadowMapState::Init(Game* game)
 	m_lightPos = glm::vec3(-2.0f, 6.0f, -1.0f);
 
 	m_model = m_assetManager->LoadModel("nanosuit/nanosuit.obj");
-	m_model->SetShader(m_assetManager->GetErrorShader());
 
 	std::shared_ptr<Entity> entity = std::make_shared<Entity>();
 	entity->SetModel(*m_model);
-	entity->GetTransform().SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
-	entity->GetTransform().SetScale(glm::vec3(0.4f));
+	entity->GetTransform().SetPosition(glm::vec3(0.0f, 0.0f, 10.0f));
+	entity->GetTransform().SetScale(glm::vec3(0.2f));
 
-	// m_sceneManager.AddEntity(entity);
+	m_sceneManager.AddEntity(entity);
 
 	m_shadowRenderPass.Initialize();
 	m_shadowRenderPass.SetWindowParams(m_windowParams);
@@ -171,7 +170,8 @@ void ShadowMapState::Update(float deltaTime)
 	 	cos(time * 2.0f) * 10.0f
 	 );
 
-	if (m_updateDirLightOnUpdate) {
+	if (m_updateDirLightOnUpdate)
+	{
 		m_directionalLight->direction = m_sceneCamera->GetCamera().GetForward();
 	}
 
@@ -190,24 +190,27 @@ void ShadowMapState::Render(float alpha)
 	wShader.SetMat4("projection", cameraProjection);
 	wShader.SetMat4("view", cameraView);
 
+	Transform modelTransform;
+	modelTransform.SetPosition(glm::vec3(0.0f, 1.0f, 0.0f));
+	modelTransform.SetScale(1.0f);
+
+	glm::mat4 lightSpaceMatrix = m_directionalLight->GetProjectionView();
+	
 	// render
 	// ------
+	
+	// Clear
 	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	glm::mat4 lightSpaceMatrix= m_directionalLight->GetProjectionView();
-	
 	// 1 Shadow Pass
 	m_shadowRenderPass.Render(cameraView, cameraProjection, lightSpaceMatrix,
 		m_sceneManager.GetSceneLights(), 
 		m_sceneManager.GetSceneObjects(), renderScene);
 
 	m_shadowMappingShader.Use();
-	Transform modelTransform;
-	modelTransform.SetPosition(glm::vec3(0.0f, 1.0f, 0.0f));
-	modelTransform.SetScale(1.0f);
 	m_model->Draw(modelTransform.GetTransform(), cameraView, cameraProjection);
-	
+
 	// 2. render scene as normal using the generated depth/shadow map  
 	// --------------------------------------------------------------
 	glViewport(0, 0, m_windowParams.Width, m_windowParams.Height);
@@ -229,10 +232,7 @@ void ShadowMapState::Render(float alpha)
 	
 	renderScene(m_shadowMappingShader);
 
-	m_shadowMappingShader.Use();
-	m_model->Draw(modelTransform.GetTransform(), cameraView, cameraProjection);
-
-	// m_sceneManager.Draw(cameraView, cameraProjection);
+	m_sceneManager.Draw(cameraView, cameraProjection);
 
 	m_lightMaterial->GetShader().Use();
 	Transform pointLightTransform;

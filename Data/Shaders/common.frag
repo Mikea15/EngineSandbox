@@ -8,7 +8,7 @@ uniform float time;
 
 struct Material {
     sampler2D diffuse;
-    sampler2D specular;
+    sampler2D specular;   
     float shininess;
 }; 
 

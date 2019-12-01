@@ -1,7 +1,7 @@
 #include "AssimpImporter.h"
 
-#include "../Systems/Model.h"
-#include "../Systems/Rendering/Mesh.h"
+#include "Systems/Model.h"
+#include "Systems/Rendering/Mesh.h"
 
 AssimpImporter::AssimpImporter()
 {

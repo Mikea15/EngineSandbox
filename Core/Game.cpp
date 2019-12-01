@@ -128,11 +128,10 @@ int Game::Execute()
 
 		// ui
 		m_sdlHandler.BeginUIRender();
-
 		m_systemComponentManager->RenderUI();
 		m_gameState->RenderUI();
-
 		m_sdlHandler.EndUIRender();
+
 		m_sdlHandler.EndRender();
 	}
 

@@ -55,7 +55,7 @@ Mesh& Mesh::operator=(const Mesh & assign)
 
 Mesh::~Mesh()
 {
-	Cleanup();
+	// Cleanup();
 }
 
 void Mesh::SetVertices(const std::vector<VertexInfo>& vertices)
@@ -136,9 +136,7 @@ void Mesh::Draw(unsigned int instanceCount /*= 1*/) const
 			static_cast<GLsizei>(m_indices.size()),
 			GL_UNSIGNED_INT, 0);
 	}
-
 	glBindVertexArray(0);
-
 
 	// always good practice to set everything back to defaults once configured.
 	glActiveTexture(GL_TEXTURE0);

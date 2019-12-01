@@ -10,12 +10,12 @@ class Skybox
 public:
 	struct Settings
 	{
-		glm::vec3 topColor = glm::vec3(0.22, 0.351, 0.491);
-		float topExp = 50.0f;
+		glm::vec3 topColor = glm::vec3(0.206f, 0.505f, 0.824f);
+		float topExp = 22.1f;
 		glm::vec3 horizonColor = glm::vec3(1, 1, 1);
 
-		glm::vec3 bottomColor = glm::vec3(0.475, 0.316, 0.228);
-		float bottomExp = 50.0f;
+		glm::vec3 bottomColor = glm::vec3(0.521f, 0.786f, 0.843f);
+		float bottomExp = 22.5f;
 
 		float skyIntensity = 1.10f;
 

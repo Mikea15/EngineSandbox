@@ -27,7 +27,7 @@ GLuint ShaderManager::CreateProgram(const std::string& vertexCode, const std::st
 	return programId;
 }
 
-Shader ShaderManager::LoadShader(const std::string& rootDir, const std::string& vertexFilePath, const std::string& fragmentFilePath)
+Shader ShaderManager::LoadShader(const std::string& rootDir, const std::string& vertexFilePath, const std::string& fragmentFilePath, bool reload)
 {
 	std::vector<std::string> vertexDependencies;
 	std::string vertexCodeString = FileIO::ReadTextFile(rootDir, vertexFilePath, true,
@@ -48,21 +48,25 @@ Shader ShaderManager::LoadShader(const std::string& rootDir, const std::string& 
 	GLuint programId = CreateProgram(vertexCodeString, fragmentCodeString);
 	Shader shader(programId);
 
-	unsigned int index = m_shaders.size();
-	m_shaders.push_back(shader);
-
-	ShaderFiles files = { rootDir, vertexFilePath, fragmentFilePath };
-	m_shaderOriginalFiles.emplace(index, files);
-
-	for (const std::string& vertexDependency : vertexDependencies)
+	if (!reload) 
 	{
-		m_dependentVertexShaders[vertexDependency].emplace(index);
+		unsigned int index = m_shaders.size();
+		m_shaders.push_back(shader);
+
+		ShaderFiles files = { rootDir, vertexFilePath, fragmentFilePath };
+		m_shaderOriginalFiles.emplace(index, files);
+
+		for (const std::string& vertexDependency : vertexDependencies)
+		{
+			m_dependentVertexShaders[vertexDependency].emplace(index);
+		}
+
+		for (const std::string& fragmentDependency : fragmentDependencies)
+		{
+			m_dependentFragmentShaders[fragmentDependency].emplace(index);
+		}
 	}
 
-	for (const std::string& fragmentDependency : fragmentDependencies)
-	{
-		m_dependentFragmentShaders[fragmentDependency].emplace(index);
-	}
 	return programId;
 }
 
@@ -82,7 +86,8 @@ Shader ShaderManager::NotifyShaderFileChanged(const Shader& oldShader)
 		auto it = m_shaderOriginalFiles.find(index);
 		if (it != m_shaderOriginalFiles.end())
 		{
-			Shader newShader = LoadShader(it->second.rootDir, it->second.vertexFile, it->second.fragmentFile);
+			const bool reloadShader = true;
+			Shader newShader = LoadShader(it->second.rootDir, it->second.vertexFile, it->second.fragmentFile, reloadShader);
 			
 			// Update internal data structures
 			m_shaders[index] = newShader;

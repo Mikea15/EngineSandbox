@@ -9,9 +9,8 @@ set(MODULE_NAME EmptyLauncher)
 add_executable (
 	${MODULE_NAME}
 	
-	main.cpp
-	DefaultState.cpp
-	DefaultState.h
+	EmptyLauncher.cpp
+	EmptyLauncher.h
 )
 	
 # TODO: Add tests and install targets if needed.

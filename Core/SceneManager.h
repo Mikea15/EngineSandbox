@@ -24,6 +24,8 @@ public:
 	void Update(float deltaTime);
 	void Draw(glm::mat4 cameraView, glm::mat4 cameraProjection);
 
+	void Clear();
+
 	void RenderUI();
 
 private:

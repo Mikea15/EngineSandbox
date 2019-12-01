@@ -16,6 +16,7 @@
 #include "AssimpImporter.h"
 #include "ThreadSafeQueue.h"
 
+#include "Systems/Entity.h"
 #include "Systems/Material.h"
 #include "Systems/Model.h"
 #include "Systems/Rendering/Shader.h"
@@ -56,6 +57,7 @@ public:
 	void LoadTexture(Material& material);
 
 	void RegisterMaterial(std::shared_ptr<Material> material);
+	void RegisterEntity(std::shared_ptr<Entity> entity);
 
 	// Shaders
 	Shader LoadShader(const std::string& vertPath, const std::string& fragPath);
@@ -91,6 +93,7 @@ private:
 
 	std::unordered_map<size_t, std::shared_ptr<Model>> m_modelsMap;
 	std::vector<Material> m_materialCache;
+	std::vector<std::shared_ptr<Entity>> m_entityCache; // HACK:.... :(
 
 	Shader m_defaultShader;
 	Shader m_errorShader;

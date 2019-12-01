@@ -78,8 +78,6 @@ void AssetManager::Initialize()
 
 	m_defaultMaterial.AddTexture(m_defaultTexture);
 	m_defaultMaterial.SetShader(m_defaultShader);
-
-	// RegisterMaterial(m_defaultMaterial);
 }
 
 void AssetManager::LoaderThread()
@@ -251,6 +249,11 @@ void AssetManager::RegisterMaterial(std::shared_ptr<Material> material)
 #endif
 }
 
+void AssetManager::RegisterEntity(std::shared_ptr<Entity> entity)
+{
+	m_entityCache.push_back(entity);
+}
+
 Shader AssetManager::LoadShader(const std::string& vertPath, const std::string& fragPath)
 {
 	const std::string shaderPath = s_mainAssetDirectory + s_assetShaderDir;
@@ -341,25 +344,43 @@ void AssetManager::OnShaderFileUpdated(const std::string& filepath)
 	std::vector<Shader> shadersToUpdate = m_shaderManager.GetShaderFromPathDependency(filepath);
 	for (Shader shader : shadersToUpdate) 
 	{
-#if 0
+		Shader updatedShader = m_shaderManager.NotifyShaderFileChanged(shader);
 		// find materials that use this shader.
-		std::vector<std::shared_ptr<Material>> dependentMaterials;
-		for (std::shared_ptr<Material> mat : m_materialCache)
+		for (Material& mat : m_materialCache)
 		{
-			if (mat->GetShader() == shader)
+			if (mat.GetShader() == shader)
 			{
-				dependentMaterials.push_back(mat);
+				// Replace shader
+				mat.SetShader(updatedShader);
 			}
 		}
 
-		Shader updatedShader = m_shaderManager.NotifyShaderFileChanged(shader);
-		
-		// update materials with new shader.
-		for (std::shared_ptr<Material> mat : dependentMaterials)
+		// find in all models, and replace all materials
+		for (auto& modelInfo : m_modelsMap)
 		{
-			mat->SetShader(updatedShader);
+			for (auto& modelMaterial : modelInfo.second->GetMaterials() ) 
+			{
+				if (modelMaterial.GetShader() == shader)
+				{
+					// Replace shader
+					modelMaterial.SetShader(updatedShader);
+				}
+			}
 		}
-#endif
+
+		// Loop All Entities for the materials.
+		for (auto& entity : m_entityCache)
+		{
+			for (auto& modelMaterial : entity->GetModel().GetMaterials())
+			{
+				if (modelMaterial.GetShader() == shader)
+				{
+					// Replace shader
+					modelMaterial.SetShader(updatedShader);
+				}
+			}
+		}
+		
 	}
 }
 

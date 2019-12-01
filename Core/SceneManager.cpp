@@ -16,7 +16,6 @@ void SceneManager::AddEntity(std::shared_ptr<Entity> entity)
 	m_sceneObjects.push_back(entity);
 }
 
-
 void SceneManager::AddLightSource(std::shared_ptr<ILight> light)
 {
 	m_lightSources.push_back(light);
@@ -41,6 +40,11 @@ void SceneManager::Draw(glm::mat4 cameraView, glm::mat4 cameraProjection)
 		
 		entity->Draw(cameraView, cameraProjection);
 	}
+}
+
+void SceneManager::Clear()
+{
+	m_sceneObjects.clear();
 }
 
 void SceneManager::RenderUI()

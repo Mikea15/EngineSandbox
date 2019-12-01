@@ -1,8 +1,12 @@
 #include "Transform.h"
 
 Transform::Transform()
-	: m_position(0.0f)
+	: m_transform(glm::identity<glm::mat4>())
+	, m_prevTransform(1.0f)
+	, m_position(0.0f)
+	, m_rotation(1.0f, 0.0f, 0.0f, 0.0f)
 	, m_scale(1.0f)
+	, m_isDirty(true)
 {
 	m_orientation = glm::quat(1.0f, 0, 0, 0);
 }
