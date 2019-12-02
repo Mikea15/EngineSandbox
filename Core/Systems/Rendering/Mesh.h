@@ -8,7 +8,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "Assets/AssetId.h"
+#include "Assets/BaseResource.h"
 
 #include "Vertex.h"
 #include "Texture.h"
@@ -17,6 +17,7 @@
 class Shader;
 
 class Mesh 
+	: public BaseResource
 {
 public:
 	Mesh();
@@ -48,14 +49,10 @@ public:
 	const unsigned int GetVBO() const { return m_VBO; }
 	const unsigned int GetEBO() const { return m_EBO; }
 
-	const AssetId GetId() const { return m_id; }
-
 	void SetMaterialIndex(unsigned int index) { m_materialIndex = index; }
 	const unsigned int GetMaterialIndex() const { return m_materialIndex; }
 
 private:
-	AssetId m_id;
-
 	std::vector<VertexInfo> m_vertices;
 	std::vector<unsigned int> m_indices;
 	std::string m_name;

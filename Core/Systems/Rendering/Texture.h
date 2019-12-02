@@ -85,7 +85,6 @@ struct TextureOp
 		// GL_NEAREST_MIPMAP_LINEAR
 		// GL_LINEAR_MIPMAP_LINEAR
 		// glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-
 	}
 
 	void GenerateMipMaps(unsigned int textureId)
@@ -114,9 +113,7 @@ public:
 		, m_channels(channels)
 		, m_path(path)
 		, m_type(type)
-	{
-
-	}
+	{ }
 
 
 	bool IsValid() const { return m_id != InvalidId; }

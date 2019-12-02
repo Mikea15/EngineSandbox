@@ -5,10 +5,11 @@
 #include "Rendering/Shader.h"
 #include "Rendering/Texture.h"
 
-#include "Assets/AssetId.h"
+#include "Assets/BaseResource.h"
 #include "Assets/TextureManager.h"
 
 class Material
+	: public BaseResource
 {
 public:
 	Material();
@@ -27,12 +28,9 @@ public:
 	void AddTexture(Texture texture);
 	const std::vector<Texture> GetTextures() { return m_textures; }
 
-	AssetId GetId() const { return m_id; }
-	bool IsValid() const { return m_id.IsValid() && m_shader.IsValid(); }
+	bool IsValid() const override { return m_id.IsValid() && m_shader.HasValidProgram(); }
 
 private:
-	AssetId m_id;
-
 	Shader m_shader;
 	std::vector<Texture> m_textures;
 };

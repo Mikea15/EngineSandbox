@@ -9,8 +9,8 @@ public:
 	virtual ~BaseResource() {}
 
 	AssetId GetId() const { return m_id; }
-	bool IsValid() const { return m_id.IsValid(); }
+	virtual bool IsValid() const { return m_id.IsValid(); }
 
-private:
+protected:
 	AssetId m_id;
 };

@@ -24,7 +24,7 @@
 
 struct TextureLoadJob
 {
-	std::shared_ptr<Material> materialOwner;
+	AssetId materialId;
 	std::string texturePath;
 	TextureType textureType = TextureType::DiffuseMap;
 	TextureLoadData loadedData;
@@ -45,16 +45,11 @@ public:
 	~AssetManager();
 
 	void Initialize();
-
 	void LoaderThread( );
-
 	void Update(float frameTime);
 
 	// Models
 	std::shared_ptr<Model> LoadModel(const std::string& path);
-
-	// Materials
-	void LoadTexture(Material& material);
 
 	void RegisterMaterial(std::shared_ptr<Material> material);
 	void RegisterEntity(std::shared_ptr<Entity> entity);
@@ -64,6 +59,7 @@ public:
 	
 	// Textures
 	Texture LoadTexture(const std::string& path, TextureType type = TextureType::DiffuseMap);
+	void LoadTexture(Material& material);
 	void LoadTextureAsync(const std::string& path, Texture& outTexture);
 
 	// Cubemaps
@@ -92,14 +88,15 @@ private:
 	std::vector<TextureType> m_supportedTextureTypes;
 
 	std::unordered_map<size_t, std::shared_ptr<Model>> m_modelsMap;
-	std::vector<Material> m_materialCache;
+	std::unordered_map<AssetId, Material> m_materialCache;
 	std::vector<std::shared_ptr<Entity>> m_entityCache; // HACK:.... :(
 
-	Shader m_defaultShader;
 	Shader m_errorShader;
 	Shader m_wireframeShader;
-	Material m_defaultMaterial;
+
+	Shader m_defaultShader;
 	Texture m_defaultTexture;
+	Material m_defaultMaterial;
 
 	ThreadSafeQueue<TextureLoadJob> m_loadingTexturesQueue;
 	ThreadSafeQueue<TextureLoadJob> m_processingTexturesQueue;

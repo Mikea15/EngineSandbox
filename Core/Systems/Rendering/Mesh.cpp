@@ -4,8 +4,7 @@
 #include "Vertex.h"
 
 Mesh::Mesh()
-	: m_id()
-	, m_VAO(0)
+	: m_VAO(0)
 	, m_VBO(0)
 	, m_EBO(0)
 	, m_materialIndex(0)
@@ -14,8 +13,7 @@ Mesh::Mesh()
 }
 
 Mesh::Mesh(const Mesh& copy)
-	: m_id(copy.m_id)
-	, m_vertices(copy.m_vertices)
+	: m_vertices(copy.m_vertices)
 	, m_indices(copy.m_indices)
 	, m_VAO(copy.m_VAO)
 	, m_VBO(copy.m_VBO)
@@ -27,8 +25,7 @@ Mesh::Mesh(const Mesh& copy)
 }
 
 Mesh::Mesh(Mesh&& move)
-	: m_id(move.m_id)
-	, m_vertices(move.m_vertices)
+	: m_vertices(move.m_vertices)
 	, m_indices(move.m_indices)
 	, m_VAO(move.m_VAO)
 	, m_VBO(move.m_VBO)
@@ -41,7 +38,6 @@ Mesh::Mesh(Mesh&& move)
 
 Mesh& Mesh::operator=(const Mesh & assign)
 {
-	m_id = assign.m_id;
 	m_vertices = assign.m_vertices;
 	m_indices = assign.m_indices;
 	m_VAO = assign.m_VAO;

@@ -118,7 +118,7 @@ void AssetManager::Update(float frameTime)
 			// Generate OpenGL texture
 			Texture outputTexture = m_textureManager.GenerateTexture(assetJob.loadedData, assetJob.textureType, m_properties.m_gammaCorrection);
 			// Update Material
-			assetJob.materialOwner->AddTexture(outputTexture);
+			// assetJob.materialOwner->AddTexture(outputTexture);
 		}
 	}
 }
@@ -153,9 +153,7 @@ std::shared_ptr<Model> AssetManager::LoadModel(const std::string& path)
 	for (Material mat : materials)
 	{
 		loadedModelInfo.model.AddMaterial(mat);
-
-		// NOTE (MA): I know I know, I'll make the hash function
-		m_materialCache.push_back(mat);
+		m_materialCache.emplace(mat.GetId(), mat);
 	}
 
 	// Cache Meshes with Model Id (?)
@@ -258,7 +256,7 @@ Shader AssetManager::LoadShader(const std::string& vertPath, const std::string& 
 {
 	const std::string shaderPath = s_mainAssetDirectory + s_assetShaderDir;
 	Shader shader = m_shaderManager.LoadShader(shaderPath, vertPath, fragPath);
-	if (shader.IsValid()) 
+	if (shader.HasValidProgram()) 
 	{
 		return shader;
 	}
@@ -346,12 +344,12 @@ void AssetManager::OnShaderFileUpdated(const std::string& filepath)
 	{
 		Shader updatedShader = m_shaderManager.NotifyShaderFileChanged(shader);
 		// find materials that use this shader.
-		for (Material& mat : m_materialCache)
+		for (auto& matInfo : m_materialCache)
 		{
-			if (mat.GetShader() == shader)
+			if (matInfo.second.GetShader() == shader)
 			{
 				// Replace shader
-				mat.SetShader(updatedShader);
+				matInfo.second.SetShader(updatedShader);
 			}
 		}
 

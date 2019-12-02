@@ -16,7 +16,7 @@ SDLHandler::~SDLHandler()
 {
 	m_uiHandler.Cleanup();
 
-	SDL_GL_DeleteContext(m_glContext);
+	SDL_GL_DeleteContext(m_mainGLContext);
 	SDL_DestroyWindow(m_window);
 	SDL_Quit();
 }
@@ -42,10 +42,10 @@ bool SDLHandler::Init()
 	const bool initialSetup = true;
 	SetWindowParameters(*m_params, initialSetup);
 
-	m_glContext = SDL_GL_CreateContext(m_window);
+	m_mainGLContext = SDL_GL_CreateContext(m_window);
 
 	glewInit();
-
+	
 	// have this by default
 	glEnable(GL_DEPTH_TEST);
 	glDepthMask(GL_TRUE);
@@ -53,7 +53,7 @@ bool SDLHandler::Init()
 	glDepthRange(0.0f, 1.0f);
 
 	m_uiHandler = IMGUIHandler();
-	m_uiHandler.Initialize(m_window, &m_glContext, m_glslVersion);
+	m_uiHandler.Initialize(m_window, &m_mainGLContext, m_glslVersion);
 
 	return true;
 }
@@ -77,7 +77,7 @@ void SDLHandler::Update(float deltaTime)
 
 void SDLHandler::BeginRender()
 {
-	SDL_GL_MakeCurrent(m_window, m_glContext);
+	SDL_GL_MakeCurrent(m_window, m_mainGLContext);
 }
 
 void SDLHandler::EndRender()

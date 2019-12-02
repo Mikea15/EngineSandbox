@@ -1,5 +1,7 @@
 #pragma once
 
+#include <functional>
+
 class AssetId
 {
 public:
@@ -10,6 +12,11 @@ public:
 	AssetId(unsigned int id)
 		: m_id(id)
 	{ }
+
+	bool operator<(const AssetId& rhs) const
+	{
+		return m_id < rhs.m_id;
+	}
 
 	bool operator==(const AssetId& rhs) const
 	{
@@ -36,3 +43,16 @@ private:
 
 	static unsigned int ID;
 };
+
+namespace std
+{
+	template<>
+	struct hash<AssetId>
+	{
+		std::size_t operator()(const AssetId& key) const noexcept
+		{
+			return std::hash<unsigned int>{}(key.GetId());
+		}
+	};
+}
+

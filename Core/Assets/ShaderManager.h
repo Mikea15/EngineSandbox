@@ -26,8 +26,8 @@ private:
 	Shader GetShader(unsigned int i) const;
 
 private:
-
-	struct ShaderFiles {
+	struct ShaderFiles 
+	{
 		std::string rootDir;
 		std::string vertexFile;
 		std::string fragmentFile;

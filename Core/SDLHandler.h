@@ -34,7 +34,7 @@ public:
 	const Uint32 GetTicks() const { return SDL_GetTicks(); }
 
 	SDL_Window* GetSDLWindow() const { return m_window; }
-	const SDL_GLContext& GetGLContext() const { return m_glContext; }
+	const SDL_GLContext& GetGLContext() const { return m_mainGLContext; }
 
 	const char* GetGLSLVersion() const { return m_glslVersion; }
 
@@ -57,7 +57,7 @@ private:
 	WindowParams m_tempWindowParams;
 
 	SDL_Window* m_window;
-	SDL_GLContext m_glContext;
+	SDL_GLContext m_mainGLContext;
 
 	IMGUIHandler m_uiHandler;
 

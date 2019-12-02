@@ -136,7 +136,7 @@ std::vector<Shader> ShaderManager::GetShaderFromPathDependency(const std::string
 		if (filePath == vertFile || filePath == fragFile)
 		{
 			Shader shader = GetShader(dependency.first);
-			if (shader.IsValid())
+			if (shader.HasValidProgram())
 			{
 				shadersAffected.push_back(shader);
 			}
@@ -150,7 +150,7 @@ std::vector<Shader> ShaderManager::GetShaderFromPathDependency(const std::string
 			for (unsigned int index : dependency.second) 
 			{
 				Shader shader = GetShader(index);
-				if (shader.IsValid()) 
+				if (shader.HasValidProgram()) 
 				{
 					shadersAffected.push_back(shader);
 				}
@@ -165,7 +165,7 @@ std::vector<Shader> ShaderManager::GetShaderFromPathDependency(const std::string
 			for (unsigned int index : dependency.second)
 			{
 				Shader shader = GetShader(index);
-				if (shader.IsValid())
+				if (shader.HasValidProgram())
 				{
 					shadersAffected.push_back(shader);
 				}
