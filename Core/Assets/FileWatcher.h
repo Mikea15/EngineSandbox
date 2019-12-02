@@ -2,7 +2,7 @@
 
 #include <iostream>
 #include <filesystem>
-#include <chrono>
+#include <set>
 
 // Until Cpp2a is not here.
 #include <sys/types.h>
@@ -76,7 +76,8 @@ public:
 					continue;
 				}
 
-				// std::chrono::system_clock time = std::filesystem::last_write_time(pathIt);
+				m_watchedFilesPaths[info.first].insert(pathIt.path().string());
+
 				long long time = GetLastModifiedTime(pathString);
 				
 				auto findIt = m_lastEditTime.find(pathString);
@@ -107,11 +108,9 @@ public:
 		return result.st_mtime;
 	}
 
-	
-
 private:
 	std::unordered_map<FileType, FileTypeInfo> m_watchedFilesTypes;
-	std::unordered_map<FileType, std::vector<std::string>> m_watchedFilesPaths;
+	std::unordered_map<FileType, std::set<std::string>> m_watchedFilesPaths;
 	std::unordered_map<std::string, long long> m_lastEditTime;
 
 	float m_currentTime = 0.0f;
