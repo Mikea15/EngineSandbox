@@ -28,7 +28,7 @@ LoadedModelInfo AssimpImporter::LoadModel(const std::string& path)
 	Assimp::Importer importer;
 
 	std::cout << "[Import] Model: " << path << " loading...";
-	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_CalcTangentSpace /* | aiProcess_GenNormals */);
+	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate /* | aiProcess_CalcTangentSpace | aiProcess_GenNormals */);
 
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 	{

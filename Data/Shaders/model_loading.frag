@@ -42,7 +42,8 @@ void main()
     spec = pow(max(dot(normal, halfwayDir), 0.0), 64.0);
 	
     vec3 specular = spec * vec3(1.0, 1.0, 1.0) * texture(material.specular, TexCoords).rgb;
-	vec3 lighting = (ambient + (1.0) * (diffuse + specular)) * color;    
+
+	vec3 lighting = (ambient + (diffuse + specular)) * color;    
     
     FragColor = vec4(lighting, 1.0);
 }

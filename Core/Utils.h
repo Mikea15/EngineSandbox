@@ -14,6 +14,19 @@ namespace Utils
 		return a + t * (b - a);
 	}
 
+	static float InverseLerp(float a, float b, float v)
+	{
+		assert(abs(b - a) > FLT_EPSILON);
+
+		return (v - a) / (b - a);
+	}
+
+	static float Remap(float minA, float maxA, float minB, float maxB, float value)
+	{
+		float t = InverseLerp(minA, maxA, value);
+		return Lerp(minB, maxB, t);
+	}
+
 	static std::string Lowercase(const std::string& text)
 	{
 		std::string lowercase = text;

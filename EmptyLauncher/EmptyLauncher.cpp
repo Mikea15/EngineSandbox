@@ -30,19 +30,6 @@ void EmptyLauncher::Init(Game* game)
 	m_windowParams = game->GetWindowParameters();
 	m_tempWindowParams = m_windowParams;
 
-	std::vector<std::string> faces
-	{
-		std::string("Data/Images/skybox/lake/posx.jpg"),
-		std::string("Data/Images/skybox/lake/negx.jpg"),
-		std::string("Data/Images/skybox/lake/posy.jpg"),
-		std::string("Data/Images/skybox/lake/negy.jpg"),
-		std::string("Data/Images/skybox/lake/posz.jpg"),
-		std::string("Data/Images/skybox/lake/negz.jpg")
-	};
-
-	m_skybox.SetTexture(m_assetManager->LoadCubemap("lake", faces));
-	m_skybox.Initialize();
-
 	skyboxShader = m_assetManager->LoadShader("skybox/skybox.vert", "skybox/horizon_sun.frag");
 	m_simpleShader = m_assetManager->LoadShader("base.vert", "model_loading.frag");
 
@@ -51,9 +38,10 @@ void EmptyLauncher::Init(Game* game)
 	m_simpleShader.SetVec3("lightColor", 1.0f, 1.0f, 1.0f);
 
 	// m_model = m_assetManager->LoadModel("nanosuit/nanosuit.obj");
-	m_model = m_assetManager->LoadModel("sponza/sponza_.fbx");
+	// m_model = m_assetManager->LoadModel("sponza/sponza_.fbx");
+	m_model = m_assetManager->LoadModel("sanmiguel/san-miguel-low-poly.obj");
 	m_entity = std::make_shared<Entity>();
-	m_entity->GetTransform().SetPosition(glm::vec3(5.0f, 0.0f, -5.0f));
+	// m_entity->GetTransform().SetPosition(glm::vec3(5.0f, 0.0f, -5.0f));
 	// m_entity->GetTransform().SetScale(0.3f);
 
 	m_entity->SetModel(*m_model);

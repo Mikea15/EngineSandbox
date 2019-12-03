@@ -122,12 +122,14 @@ void ShadowMapState::Init(Game* game)
 	// -------------
 	m_lightPos = glm::vec3(-2.0f, 6.0f, -1.0f);
 
-	m_model = m_assetManager->LoadModel("nanosuit/nanosuit.obj");
+	// m_model = m_assetManager->LoadModel("nanosuit/nanosuit.obj");
+	m_model = m_assetManager->LoadModel("sanmiguel/san-miguel-low-poly.obj");
+	m_model->SetShader(m_shadowMappingShader);
 
 	std::shared_ptr<Entity> entity = std::make_shared<Entity>();
 	entity->SetModel(*m_model);
-	entity->GetTransform().SetPosition(glm::vec3(0.0f, 0.0f, 10.0f));
-	entity->GetTransform().SetScale(glm::vec3(0.2f));
+	// entity->GetTransform().SetPosition(glm::vec3(0.0f, 0.0f, 10.0f));
+	// entity->GetTransform().SetScale(glm::vec3(0.5f));
 
 	m_sceneManager.AddEntity(entity);
 
