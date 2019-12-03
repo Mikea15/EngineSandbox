@@ -18,6 +18,8 @@ public:
 	BoundingBox(const glm::vec3& origin, const glm::vec3& min, const glm::vec3& max);
 	~BoundingBox();
 
+	void SetBounds(glm::vec3 min, glm::vec3 max);
+
 	ContainmentType Contains(const BoundingBox& box) const;
 	ContainmentType Contains(const BoundingFrustum& frustum) const;
 	ContainmentType Contains(const glm::vec3& point) const;

@@ -68,39 +68,39 @@ void ShadowMapState::Init(Game* game)
 	m_sceneCamera = &game->GetSystemComponentManager()->GetComponent<SceneCameraComponent>();
 	m_windowParams = game->GetWindowParameters();
 
-	{
-		// lights
-		auto pointLight0 = std::make_shared<PointLight>();
-		pointLight0->position = glm::vec4(1, 3, 1, 1);
-		pointLight0->ambient = glm::vec3(0.1f, 0.1f, 0.1f);
-		pointLight0->diffuse = glm::vec3(0.8f, 0.8f, 0.8f);
-		pointLight0->specular = glm::vec3(1.0f, 1.0f, 1.0f);
-		pointLight0->constant = 1.0f;
-		pointLight0->linear = 0.09f;
-		pointLight0->quadratic = 0.032f;
+	
+	// lights
+	auto pointLight0 = std::make_shared<PointLight>();
+	pointLight0->position = glm::vec4(1, 3, 1, 1);
+	pointLight0->ambient = glm::vec3(0.1f, 0.1f, 0.1f);
+	pointLight0->diffuse = glm::vec3(0.8f, 0.8f, 0.8f);
+	pointLight0->specular = glm::vec3(1.0f, 1.0f, 1.0f);
+	pointLight0->constant = 1.0f;
+	pointLight0->linear = 0.09f;
+	pointLight0->quadratic = 0.032f;
 
-		m_directionalLight = std::make_shared<DirectionalLight>();
-		m_directionalLight->direction = glm::vec3(0.0f, 0.0f, 1.0f);
-		m_directionalLight->ambient = glm::vec3(0.05f, 0.05f, 0.05f);
-		m_directionalLight->diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
-		m_directionalLight->specular = glm::vec3(1.0f, 1.0f, 1.0f);
+	m_directionalLight = std::make_shared<DirectionalLight>();
+	m_directionalLight->direction = glm::vec3(0.0f, 0.0f, 1.0f);
+	m_directionalLight->ambient = glm::vec3(0.05f, 0.05f, 0.05f);
+	m_directionalLight->diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
+	m_directionalLight->specular = glm::vec3(1.0f, 1.0f, 1.0f);
 
-		m_spotLight = std::make_shared<SpotLight>();
-		m_spotLight->position = glm::vec3(3.0f, 3.0f, 0.0f);
-		m_spotLight->diffuse = glm::vec3(3.0f, 3.0f, 0.0f) - glm::vec3(0.0f);
-		m_spotLight->ambient = glm::vec3(0.2f, 0.2f, 0.2f);
-		m_spotLight->diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
-		m_spotLight->specular = glm::vec3(1.0f, 1.0f, 1.0f);
-		m_spotLight->constant = 1.0f;
-		m_spotLight->linear = 0.06f;
-		m_spotLight->quadratic = 0.032f;
-		m_spotLight->cutOff = 30.0f;
-		m_spotLight->outerCutOff = 45.0f;
+	m_spotLight = std::make_shared<SpotLight>();
+	m_spotLight->position = glm::vec3(3.0f, 3.0f, 0.0f);
+	m_spotLight->diffuse = glm::vec3(3.0f, 3.0f, 0.0f) - glm::vec3(0.0f);
+	m_spotLight->ambient = glm::vec3(0.2f, 0.2f, 0.2f);
+	m_spotLight->diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
+	m_spotLight->specular = glm::vec3(1.0f, 1.0f, 1.0f);
+	m_spotLight->constant = 1.0f;
+	m_spotLight->linear = 0.06f;
+	m_spotLight->quadratic = 0.032f;
+	m_spotLight->cutOff = 30.0f;
+	m_spotLight->outerCutOff = 45.0f;
 
-		m_sceneManager.AddLightSource(pointLight0);
-		m_sceneManager.AddLightSource(m_directionalLight);
-		m_sceneManager.AddLightSource(m_spotLight);
-	}
+	m_sceneManager.AddLightSource(pointLight0);
+	m_sceneManager.AddLightSource(m_directionalLight);
+	m_sceneManager.AddLightSource(m_spotLight);
+	
 
 	// shader configuration
 	// --------------------

@@ -115,6 +115,27 @@ void Mesh::Cleanup()
 	glDeleteBuffers(1, &m_EBO);
 }
 
+void Mesh::UpdateBounds()
+{
+	glm::vec3 min = { -FLT_MAX, -FLT_MAX, -FLT_MAX };
+	glm::vec3 max = { FLT_MAX, FLT_MAX, FLT_MAX };
+
+	for (VertexInfo vi : m_vertices)
+	{
+		if ( vi.Position.x < min.x && vi.Position.y < min.y && vi.Position.z < min.z )
+		{
+			min = vi.Position;
+		}
+
+		if (vi.Position.x > max.x && vi.Position.y > max.y && vi.Position.z > max.z)
+		{
+			max = vi.Position;
+		}
+	}
+
+	m_aabb.SetBounds(min, max);
+}
+
 void Mesh::Draw(unsigned int instanceCount /*= 1*/) const
 {
 	// draw mesh

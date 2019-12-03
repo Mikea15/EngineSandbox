@@ -14,6 +14,8 @@
 #include "Texture.h"
 #include "../Material.h"
 
+#include "Systems/Geometry/BoundingBox.h"
+
 class Shader;
 
 class Mesh 
@@ -40,8 +42,9 @@ public:
 	const std::string& GetName() const { return m_name; }
 	
 	void CreateBuffers();
-	void UpdateBuffers(const std::vector<VertexInfo>& vertices, const std::vector<unsigned int>& indices);
 	void Cleanup();
+
+	void UpdateBounds();
 
 	void Draw(unsigned int instanceCount = 1) const;
 
@@ -56,6 +59,8 @@ private:
 	std::vector<VertexInfo> m_vertices;
 	std::vector<unsigned int> m_indices;
 	std::string m_name;
+
+	BoundingBox m_aabb;
 
 	unsigned int m_VAO; // vertex array object
 	unsigned int m_VBO; // vertex buffer object

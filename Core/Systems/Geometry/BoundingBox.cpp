@@ -56,6 +56,20 @@ BoundingBox::~BoundingBox()
 	m_points.clear();
 }
 
+void BoundingBox::SetBounds(glm::vec3 min, glm::vec3 max)
+{
+	m_points[0] = m_min = m_origin + min;
+	m_points[3] = m_origin + glm::vec3(min.x, min.y, max.z);
+	m_points[1] = m_origin + glm::vec3(min.x, max.y, min.z);
+	m_points[2] = m_origin + glm::vec3(min.x, max.y, max.z);
+	m_points[5] = m_origin + glm::vec3(max.x, min.y, min.z);
+	m_points[6] = m_origin + glm::vec3(max.x, min.y, max.z);
+	m_points[4] = m_origin + glm::vec3(max.x, max.y, min.z);
+	m_points[7] = m_max = m_origin + max;
+
+	m_halfSize = GetExtent() * 0.5f;
+}
+
 ContainmentType BoundingBox::Contains(const BoundingBox& box) const
 {
 	if (box.m_max.x < m_min.x || box.m_min.x > m_max.x
