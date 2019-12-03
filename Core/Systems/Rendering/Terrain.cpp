@@ -9,7 +9,7 @@ Terrain::Terrain(float tileSize, float width, float length, float height)
 	, m_planeSize(width, length)
 	, m_heightSize(height)
 {
-	
+	m_heightmapParams = {};
 }
 
 void Terrain::SetTerrainSize(const glm::vec2& size)
@@ -315,6 +315,33 @@ void Terrain::UpdateHeightMap()
 			vertices[index + 1].Position.y = GetPerlinNoise(glm::vec2(x + 1, z))		* m_heightSize;
 			vertices[index + 2].Position.y = GetPerlinNoise(glm::vec2(x, z + 1))		* m_heightSize;
 			vertices[index + 3].Position.y = GetPerlinNoise(glm::vec2(x + 1, z + 1))	* m_heightSize;
+		}
+	}
+
+	CalculateNormals(m_mesh.GetIndices(), vertices);
+	m_mesh.SetVertices(vertices);
+	m_mesh.CreateBuffers();
+}
+
+void Terrain::UpdateHeightMapFromImage(float* heightData)
+{
+	int length = static_cast<int>(m_planeSize.x);
+	int width = static_cast<int>(m_planeSize.y);
+
+	auto& vertices = m_mesh.GetVertices();
+
+	for (int z = 0; z < length; ++z)
+	{
+		for (int x = 0; x < width; ++x)
+		{
+			int index = (z * width + x) * 4;
+
+			int imageIndex = (z * width + x);
+
+			vertices[index + 0].Position.y = heightData[imageIndex] * m_heightSize;
+			vertices[index + 1].Position.y = heightData[imageIndex] * m_heightSize;
+			vertices[index + 2].Position.y = heightData[imageIndex] * m_heightSize;
+			vertices[index + 3].Position.y = heightData[imageIndex] * m_heightSize;
 		}
 	}
 

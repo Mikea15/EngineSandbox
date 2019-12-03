@@ -41,8 +41,10 @@ protected:
 
 private:
 	Shader m_terrainShader;
-	Terrain m_terrain = Terrain(1, 50, 50, 15);
+	Terrain m_terrain = Terrain(1.0f, 513.0f, 513.0f, 50.0f);
 	Transform m_terrainPosition;
+
+	float* m_heightMapData = nullptr;
 
 	Shader m_skyboxShader;
 	Skybox m_skybox;

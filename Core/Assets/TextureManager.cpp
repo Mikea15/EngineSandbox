@@ -33,7 +33,16 @@ void TextureManager::LoadTexture(const std::string& path, TextureLoadData& outDa
 	{
 		std::cout << "[fail]\n";
 	}
+}
 
+float* TextureManager::LoadHeightMap(const std::string& path)
+{
+	std::cout << "[TextureManager] Loading " << path << "\n";
+
+	stbi_set_flip_vertically_on_load(true);
+
+	int width = 0, height = 0, channels = 0;
+	return stbi_loadf(path.c_str(), &width, &height, &channels, 0);
 }
 
 void TextureManager::LoadHDRTexture(const std::string& path, HDRTextureLoadData& outData, bool flipVertically)

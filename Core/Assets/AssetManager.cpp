@@ -286,6 +286,11 @@ void AssetManager::LoadTextureAsync(const std::string& path, Texture& outTexture
 	outTexture = m_defaultTexture;
 }
 
+float* AssetManager::LoadHeightMapTexture(const std::string& path)
+{
+	return m_textureManager.LoadHeightMap(s_mainAssetDirectory + s_assetImagesDir + path);
+}
+
 unsigned int AssetManager::LoadCubemap(const std::string& cubemapName, const std::vector<std::string>& paths)
 {
 	unsigned int cubemapId = 0;

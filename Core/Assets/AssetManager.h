@@ -61,6 +61,7 @@ public:
 	Texture LoadTexture(const std::string& path, TextureType type = TextureType::DiffuseMap);
 	void LoadTexture(Material& material);
 	void LoadTextureAsync(const std::string& path, Texture& outTexture);
+	float* LoadHeightMapTexture(const std::string& path);
 
 	// Cubemaps
 	unsigned int LoadCubemap(const std::string& cubemapName, const std::vector<std::string>& paths);

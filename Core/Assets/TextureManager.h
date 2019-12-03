@@ -40,7 +40,7 @@ public:
 	TextureManager() = default;
 
 	void LoadTexture(const std::string& path, TextureLoadData& outData, bool flipVertically = true);
-
+	float* LoadHeightMap(const std::string& path);
 	void LoadHDRTexture(const std::string& path, HDRTextureLoadData& outData, bool flipVertically = true);
 
 	Texture GenerateTexture(TextureLoadData textureData, TextureType type, bool useGammaCorrection);

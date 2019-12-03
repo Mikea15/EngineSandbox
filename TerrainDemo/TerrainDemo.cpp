@@ -39,17 +39,19 @@ void TerrainDemoState::Init(Game* game)
 	m_terrainShader = m_assetManager->LoadShader("model_loading.vert", "model_loading.frag");
 	m_skyboxShader = m_assetManager->LoadShader("skybox/skybox.vert", "skybox/horizon_sun.frag");
 
+	m_heightMapData = m_assetManager->LoadHeightMapTexture("WorldMap-Height513.png");
+	assert(m_heightMapData != nullptr);
+
+
+
 	// configure global open gl state
 	// -----------------------------
 	glEnable(GL_DEPTH_TEST);
 
+	m_terrainPosition.SetPosition(glm::vec3(-256.0f, 0.0f, -256.0f));
+
 	m_terrain.GenerateMesh();
-	m_terrainPosition.SetPosition(
-		glm::vec3(
-			-m_terrain.GetPlaneSize().x * 0.5f,
-			0.0f,
-			-m_terrain.GetPlaneSize().y * 0.5f)
-	);
+	m_terrain.UpdateHeightMapFromImage(m_heightMapData);
 }
 
 void TerrainDemoState::HandleInput(SDL_Event* event)

@@ -61,6 +61,7 @@ public:
 
 	void CalculateNormals(const std::vector<unsigned int>& indices, std::vector<VertexInfo>& inOutVertices) const;
 	void UpdateHeightMap();
+	void UpdateHeightMapFromImage(float* heightData);
 
 	Mesh& GetMesh() { return m_mesh; }
 
