@@ -6,6 +6,8 @@
 #include "Assets/ShaderManager.h"
 #include "Renderer/Renderer.h"
 
+#include "Logger.h"
+
 #include "Systems/Entity.h"
 #include "Systems/Camera/Camera.h"
 #include "Systems/Rendering/Skybox.h"

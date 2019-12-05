@@ -49,6 +49,12 @@ void EmptyLauncher::Init(Game* game)
 	m_sceneManager.AddEntity(m_entity);
 
 	m_assetManager->RegisterEntity(m_entity);
+
+	LOG("This is a test log (%s) (%d)", "with an argument!", 1)
+	LOG_WARNING("This is a test log (%s) (%d)", "with an argument!", 1)
+	LOG_INFO("This is a test log (%s) (%d)", "with an argument!", 1)
+	LOG_ERROR("This is a test log (%s) (%d)", "with an argument!", 1)
+	LOG_FATAL("This is a test log (%s) (%d)", "with an argument!", 1)
 }
 
 void EmptyLauncher::HandleInput(SDL_Event* event)
