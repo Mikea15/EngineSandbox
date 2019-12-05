@@ -4,7 +4,7 @@
 #include "State.h"
 
 #include "Assets/ShaderManager.h"
-#include "SceneManager.h"
+#include "Renderer/Renderer.h"
 
 #include "Systems/Entity.h"
 #include "Systems/Camera/Camera.h"
@@ -12,7 +12,7 @@
 #include "Systems/Rendering/Primitives.h"
 #include "Systems/Rendering/Primitives/Quad.h"
 #include "Systems/Rendering/Terrain.h"
-#include "Systems/Light.h"
+#include "Renderer/Light.h"
 
 #include "Components/System/SceneCameraComponent.h"
 
@@ -38,12 +38,12 @@ protected:
 	WindowParams m_windowParams;
 	WindowParams m_tempWindowParams;
 
-	SceneManager m_sceneManager;
+	Renderer m_sceneManager;
 	
-	Shader skyboxShader;
+	Shader* skyboxShader;
 	Skybox m_skybox;
 
 	std::shared_ptr<Model> m_model;
 	std::shared_ptr<Entity> m_entity;
-	Shader m_simpleShader;
+	Shader* m_simpleShader;
 };

@@ -41,9 +41,9 @@ namespace Utils
 		return result;
 	}
 
-	static size_t Hash(const std::string& text)
+	static unsigned int Hash(const std::string& text)
 	{
-		return std::hash<std::string>{}(text);
+		return static_cast<unsigned int>(std::hash<std::string>{}(text));
 	}
 }
 

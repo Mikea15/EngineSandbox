@@ -4,8 +4,8 @@
 
 #include <random>
 
-#include "../Rendering/Shader.h"
-#include "../Rendering/Primitives.h"
+#include "Renderer/Shader.h"
+#include "Systems/Rendering/Primitives.h"
 
 class ShaderManager;
 

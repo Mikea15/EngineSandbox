@@ -4,7 +4,9 @@
 #include "State.h"
 
 #include "Assets/ShaderManager.h"
-#include "SceneManager.h"
+
+#include "Renderer/Renderer.h"
+#include "Renderer/RenderPass.h"
 
 #include "Systems/Entity.h"
 #include "Systems/Camera/Camera.h"
@@ -12,10 +14,9 @@
 #include "Systems/Rendering/Primitives.h"
 #include "Systems/Rendering/Primitives/Quad.h"
 #include "Systems/Rendering/Terrain.h"
-#include "Systems/Light.h"
+#include "Renderer/Light.h"
 
 #include "Components/System/SceneCameraComponent.h"
-#include "RenderPass.h"
 
 class ShadowMapState
 	: public State
@@ -38,7 +39,7 @@ protected:
 
 	SceneCameraComponent* m_sceneCamera;
 	AssetManager* m_assetManager;
-	SceneManager m_sceneManager;
+	Renderer m_sceneManager;
 
 	bool m_updateOnTick = true;
 	std::shared_ptr<SpotLight> m_spotLight;
@@ -49,8 +50,8 @@ private:
 	Transform m_lightTransform;
 	glm::vec3 m_lightPos;
 
-	Shader m_shadowMappingShader;
-	Shader m_debugDepthShader;
+	Shader* m_shadowMappingShader;
+	Shader* m_debugDepthShader;
 
 	std::shared_ptr<Model> m_model;
 	std::shared_ptr<Material> m_lightMaterial;

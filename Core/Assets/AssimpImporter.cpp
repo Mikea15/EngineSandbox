@@ -48,6 +48,9 @@ LoadedModelInfo AssimpImporter::LoadModel(const std::string& path)
 		{
 			std::cout << "[Import] ["<< i <<"/"<< materialCount <<"] Material: " << scene->mMaterials[i]->GetName().C_Str();
 
+			aiMaterial* material = scene->mMaterials[i];
+			std::string materialName = material->GetName().C_Str();
+
 			MaterialInfo materialInfo = LoadMaterial(scene->mMaterials[i], currentDirectory);
 			
 			// Defer setup of textures in material, to asset loader.
@@ -133,6 +136,8 @@ Mesh AssimpImporter::LoadMesh(const aiMesh* mesh)
 MaterialInfo AssimpImporter::LoadMaterial(const aiMaterial* material, const std::string& dir)
 {
 	MaterialInfo matInfo;
+
+	
 	
 	for (aiTextureType type : m_supportedTypes)
 	{

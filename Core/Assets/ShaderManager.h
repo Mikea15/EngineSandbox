@@ -5,7 +5,7 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#include "Systems/Rendering/Shader.h"
+#include "Renderer/Shader.h"
 
 class ShaderManager
 {
@@ -13,7 +13,7 @@ public:
 	GLuint CreateProgram(const std::string& vertexCode, const std::string& fragmentCode);
 	Shader LoadShader(const std::string& rootDir, const std::string& vertexFilePath, const std::string& fragmentFilePath, bool reload = false);
 
-	Shader NotifyShaderFileChanged(const Shader& oldShader);
+	Shader* NotifyShaderFileChanged(const Shader& oldShader);
 
 	std::vector<Shader>& GetShaders() { return m_shaders; }
 

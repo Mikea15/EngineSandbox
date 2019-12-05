@@ -1,9 +1,9 @@
 #pragma once
 
 #include "Mesh.h"
-#include "Shader.h"
+#include "Renderer/Shader.h"
 
-#include "../Transform.h"
+#include "Systems/Transform.h"
 
 class Skybox
 {
@@ -36,7 +36,7 @@ public:
 	void SetTexture(unsigned int texture) { m_texture = texture; }
 	void SetSettings(const Settings& settings) { m_currentSettings = settings; }
 
-	void Draw(const Shader& shader);
+	void Draw(const Shader* shader);
 
 	void DrawUIPanel();
 

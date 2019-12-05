@@ -72,27 +72,27 @@ void Skybox::Initialize()
 	transform.SetScale(10000.0f);
 }
 
-void Skybox::Draw(const Shader& shader)
+void Skybox::Draw(const Shader* shader)
 {
 	if (m_VAO == 0)
 	{
 		Initialize();
 	}
 
-	shader.SetVec3("TopColor",			m_currentSettings.topColor);
-	shader.SetFloat("TopExponent",		m_currentSettings.topExp);
-	shader.SetVec3("HorizonColor",		m_currentSettings.horizonColor);
-	shader.SetVec3("BottomColor",		m_currentSettings.bottomColor);
-	shader.SetFloat("BottomExponent",	m_currentSettings.bottomExp);
-	shader.SetFloat("SkyIntensity",		m_currentSettings.skyIntensity);
-	shader.SetVec3("SunColor",			m_currentSettings.sunColor);
-	shader.SetFloat("SunIntensity",		m_currentSettings.sunIntensity);
-	shader.SetFloat("SunAlpha",			m_currentSettings.sunAlpha);
-	shader.SetFloat("SunBeta",			m_currentSettings.sunBeta);
-	shader.SetFloat("SunAzimuth",		m_currentSettings.sunAzimuth);
-	shader.SetFloat("SunAltitude",		m_currentSettings.sunAltitude);
+	shader->SetVector("TopColor",			m_currentSettings.topColor);
+	shader->SetFloat("TopExponent",		m_currentSettings.topExp);
+	shader->SetVector("HorizonColor",		m_currentSettings.horizonColor);
+	shader->SetVector("BottomColor",		m_currentSettings.bottomColor);
+	shader->SetFloat("BottomExponent",	m_currentSettings.bottomExp);
+	shader->SetFloat("SkyIntensity",		m_currentSettings.skyIntensity);
+	shader->SetVector("SunColor",			m_currentSettings.sunColor);
+	shader->SetFloat("SunIntensity",		m_currentSettings.sunIntensity);
+	shader->SetFloat("SunAlpha",			m_currentSettings.sunAlpha);
+	shader->SetFloat("SunBeta",			m_currentSettings.sunBeta);
+	shader->SetFloat("SunAzimuth",		m_currentSettings.sunAzimuth);
+	shader->SetFloat("SunAltitude",		m_currentSettings.sunAltitude);
 
-	shader.SetMat4("model", transform.GetTransform());
+	shader->SetMatrix("model", transform.GetTransform());
 
 	glDepthFunc(GL_LEQUAL);
 

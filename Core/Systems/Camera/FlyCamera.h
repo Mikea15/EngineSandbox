@@ -24,7 +24,8 @@ private:
 	float m_targetYaw;
 	float m_targetPitch;
 
-	float m_speed = 50.0f;
+	float m_speed = 25.0f;
+	float m_boostSpeedFactor = 2.0f;
 	float m_mouseSensitivity = 0.1f;
 	float m_damping = 5.0f;
 

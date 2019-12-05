@@ -30,16 +30,16 @@ void EmptyLauncher::Init(Game* game)
 	m_windowParams = game->GetWindowParameters();
 	m_tempWindowParams = m_windowParams;
 
-	skyboxShader = m_assetManager->LoadShader("skybox/skybox.vert", "skybox/horizon_sun.frag");
-	m_simpleShader = m_assetManager->LoadShader("base.vert", "model_loading.frag");
+	skyboxShader = m_assetManager->LoadShader("skybox", "skybox/skybox.vert", "skybox/horizon_sun.frag");
+	m_simpleShader = m_assetManager->LoadShader("base", "base.vert", "model_loading.frag");
 
-	m_simpleShader.Use();
-	m_simpleShader.SetVec3("objectColor", 1.0f, 0.5f, 0.31f);
-	m_simpleShader.SetVec3("lightColor", 1.0f, 1.0f, 1.0f);
+	m_simpleShader->Use();
+	m_simpleShader->SetVector("objectColor", glm::vec3(1.0f, 0.5f, 0.31f));
+	m_simpleShader->SetVector("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
 
 	// m_model = m_assetManager->LoadModel("nanosuit/nanosuit.obj");
-	// m_model = m_assetManager->LoadModel("sponza/sponza_.fbx");
-	m_model = m_assetManager->LoadModel("sanmiguel/san-miguel-low-poly.obj");
+	m_model = m_assetManager->LoadModel("sponza/sponza_.fbx");
+	// m_model = m_assetManager->LoadModel("sanmiguel/san-miguel-low-poly.obj");
 	m_entity = std::make_shared<Entity>();
 	// m_entity->GetTransform().SetPosition(glm::vec3(5.0f, 0.0f, -5.0f));
 	// m_entity->GetTransform().SetScale(0.3f);
@@ -86,33 +86,33 @@ void EmptyLauncher::Render(float alpha)
 		Material defaultMat = m_assetManager->GetDefaultMaterial();
 		defaultMat.SetMVP(t.GetTransform(), view, projection);
 		defaultMat.BindTextures();
-		defaultMat.GetShader().SetVec3("viewPos", cameraPosition);
+		defaultMat.GetShader()->SetVector("viewPos", cameraPosition);
 
 		t.SetPosition(glm::vec3(-5.0f, 0.0f, 5.0f));
-		defaultMat.GetShader().SetMat4("model", t.GetTransform());
+		defaultMat.GetShader()->SetMatrix("model", t.GetTransform());
 		Primitives::RenderCube();
 
 		t.SetPosition(glm::vec3(0.0f, 0.0f, 10.0f));
-		defaultMat.GetShader().SetMat4("model", t.GetTransform());
+		defaultMat.GetShader()->SetMatrix("model", t.GetTransform());
 		Primitives::RenderCube();
 
 		t.SetPosition(glm::vec3(5.0f, 0.0f, 5.0f));
-		defaultMat.GetShader().SetMat4("model", t.GetTransform());
+		defaultMat.GetShader()->SetMatrix("model", t.GetTransform());
 		Primitives::RenderCube();
 
 		// Reset Shader call
 		glUseProgram(0);
 	}
 
-	m_simpleShader.Use();
-	m_simpleShader.SetVec3("viewPos", cameraPosition);
+	m_simpleShader->Use();
+	m_simpleShader->SetVector("viewPos", cameraPosition);
 
 	m_sceneManager.Draw(view, projection);
 
 	// render skybox last. but before transparent objects
-	skyboxShader.Use();
-	skyboxShader.SetMat4("projection", camera.GetProjection());
-	skyboxShader.SetMat4("view", camera.GetView());
+	skyboxShader->Use();
+	skyboxShader->SetMatrix("projection", camera.GetProjection());
+	skyboxShader->SetMatrix("view", camera.GetView());
 	m_skybox.Draw(skyboxShader);
 }
 

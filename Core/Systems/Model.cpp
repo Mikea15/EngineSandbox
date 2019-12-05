@@ -4,11 +4,11 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "Renderer/Shader.h"
 
-#include "Rendering/Vertex.h"
-#include "Rendering/Shader.h"
+#include "Assets/AssetManager.h"
+#include "Systems/Rendering/Vertex.h"
 
-#include "../Assets/AssetManager.h"
 
 Model::Model()
 {
@@ -50,7 +50,7 @@ void Model::Initialize()
 	}
 }
 
-void Model::SetShader(Shader shader)
+void Model::SetShader(Shader* shader)
 {
 	const unsigned int materialCount = static_cast<unsigned int>(m_materials.size());
 	for (unsigned int i = 0; i < materialCount; ++i)
@@ -102,12 +102,12 @@ void Model::Draw(const glm::mat4& model, const glm::mat4& view, const glm::mat4&
 	}
 }
 
-void Model::Draw(const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection, Shader shader)
+void Model::Draw(const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection, const Shader* shader)
 {
-	shader.Use();
-	shader.SetMat4("view", view);
-	shader.SetMat4("projection", projection);
-	shader.SetMat4("model", model);
+	shader->Use();
+	shader->SetMatrix("view", view);
+	shader->SetMatrix("projection", projection);
+	shader->SetMatrix("model", model);
 
 	const unsigned int meshCount = static_cast<unsigned int>(m_meshes.size());
 	for (unsigned int i = 0; i < meshCount; ++i)
@@ -132,14 +132,14 @@ void Model::ApplyLight(ILight& light)
 
 	if (m_materialOverride.IsValid())
 	{
-		m_materialOverride.GetShader().Use();
+		m_materialOverride.GetShader()->Use();
 		light.SetProperties(m_materialOverride.GetShader());
 	}
 	else
 	{
 		for (unsigned int i = 0; i < matCount; ++i)
 		{
-			m_materials[i].GetShader().Use();
+			m_materials[i].GetShader()->Use();
 			light.SetProperties(m_materials[i].GetShader());
 		}
 	}

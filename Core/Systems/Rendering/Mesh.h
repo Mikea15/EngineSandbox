@@ -12,7 +12,7 @@
 
 #include "Vertex.h"
 #include "Texture.h"
-#include "../Material.h"
+#include "Renderer/Material.h"
 
 #include "Systems/Geometry/BoundingBox.h"
 

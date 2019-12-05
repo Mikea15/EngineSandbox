@@ -12,8 +12,8 @@
 
 #include "Assets/AssetId.h"
 
-#include "Rendering/Mesh.h"
-#include "Light.h"
+#include "Systems/Rendering/Mesh.h"
+#include "Renderer/Light.h"
 
 class AssetManager;
 class Shader;
@@ -28,11 +28,11 @@ public:
 	~Model();
 
 	void Initialize();
-	void SetShader(Shader shader);
+	void SetShader(Shader* shader);
 
 	void Draw(const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection);
 	void Draw(const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection, Material material);
-	void Draw(const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection, Shader shader);
+	void Draw(const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection, const Shader* shader);
 
 	void AddMesh(Mesh mesh);
 	std::vector<Mesh>& GetMeshes() { return m_meshes; }

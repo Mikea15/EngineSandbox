@@ -26,9 +26,9 @@ void Sphere::Init()
 			const float xSegment = static_cast<float>(x / static_cast<float>(xDiv));
 			const float ySegment = static_cast<float>(y / static_cast<float>(yDiv));
 
-			const float xPos = std::cos(xSegment * 2.0f * PI) * std::sin(ySegment * PI);
-			const float yPos = std::cos(ySegment * PI);
-			const float zPos = std::sin(xSegment * 2.0f * PI) * std::sin(ySegment * PI);
+			const float xPos = std::cos(xSegment * 2.0f * PI) * std::sin(ySegment * PI) * 0.5f;
+			const float yPos = std::cos(ySegment * PI) * 0.5f;
+			const float zPos = std::sin(xSegment * 2.0f * PI) * std::sin(ySegment * PI) * 0.5f;
 
 			positions.push_back(glm::vec3(xPos, yPos, zPos));
 			uv.push_back(glm::vec2(xSegment, ySegment));

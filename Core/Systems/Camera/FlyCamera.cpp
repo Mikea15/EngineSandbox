@@ -4,7 +4,7 @@
 
 FlyCamera::FlyCamera(glm::vec3 pos, glm::vec3 forward /*= glm::vec3(0, 0, -1)*/, glm::vec3 up /*= glm::vec3(0, 1, 0)*/)
 	: Camera(pos, forward, up)
-	, m_yaw(-90.0f)
+	, m_yaw(0.0f)
 	, m_pitch(0.0f)
 	, m_targetPitch(0.0f)
 	, m_targetYaw(0.0f)
@@ -58,7 +58,7 @@ void FlyCamera::InputMouse(glm::vec2 delta)
 
 void FlyCamera::InputKey(float deltaTime, glm::vec3 moveInput, bool boostSpeed)
 {
-	const float velocity = m_speed * (boostSpeed ? boostSpeed : 1.0f) * deltaTime;
+	const float velocity = m_speed * (boostSpeed ? m_boostSpeedFactor : 1.0f) * deltaTime;
 
 	glm::vec3 movement = m_right * moveInput.x + m_up * moveInput.y + m_forward * moveInput.z;
 

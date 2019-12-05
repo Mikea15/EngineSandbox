@@ -3,10 +3,12 @@
 #include <gl/glew.h>
 #include <vector>
 
-#include "../Transform.h"
 #include "Primitives.h"
 #include "Primitives/Cube.h"
-#include "Shader.h"
+
+#include "Renderer/Shader.h"
+
+#include "Systems/Transform.h"
 
 class IBLSkybox
 {

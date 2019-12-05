@@ -1,27 +1,27 @@
-#include "SceneManager.h"
+#include "Renderer.h"
 
 #include <imgui.h>
 #include <glm/glm.hpp>
 
-SceneManager::SceneManager()
+Renderer::Renderer()
 {
 }
 
-SceneManager::~SceneManager()
+Renderer::~Renderer()
 {
 }
 
-void SceneManager::AddEntity(std::shared_ptr<Entity> entity)
+void Renderer::AddEntity(std::shared_ptr<Entity> entity)
 {
 	m_sceneObjects.push_back(entity);
 }
 
-void SceneManager::AddLightSource(std::shared_ptr<ILight> light)
+void Renderer::AddLightSource(std::shared_ptr<ILight> light)
 {
 	m_lightSources.push_back(light);
 }
 
-void SceneManager::Update(float deltaTime)
+void Renderer::Update(float deltaTime)
 {
 	for (auto entity : m_sceneObjects)
 	{
@@ -29,7 +29,7 @@ void SceneManager::Update(float deltaTime)
 	}
 }
 
-void SceneManager::Draw(glm::mat4 cameraView, glm::mat4 cameraProjection)
+void Renderer::Draw(glm::mat4 cameraView, glm::mat4 cameraProjection)
 {
 	for (auto& entity : m_sceneObjects)
 	{
@@ -42,12 +42,12 @@ void SceneManager::Draw(glm::mat4 cameraView, glm::mat4 cameraProjection)
 	}
 }
 
-void SceneManager::Clear()
+void Renderer::Clear()
 {
 	m_sceneObjects.clear();
 }
 
-void SceneManager::RenderUI()
+void Renderer::RenderUI()
 {
 
 }

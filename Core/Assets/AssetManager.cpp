@@ -72,9 +72,9 @@ void AssetManager::Initialize()
 {
 	m_defaultTexture = LoadTexture(s_mainAssetDirectory + s_assetImagesDir + "default.jpg");
 
-	m_errorShader = LoadShader("base.vert", "error.frag");
-	m_defaultShader = LoadShader("model_loading.vert", "model_loading.frag");
-	m_wireframeShader = LoadShader("color.vert", "color.frag");
+	m_errorShader = LoadShader("error", "base.vert", "error.frag");
+	m_defaultShader = LoadShader("default", "model_loading.vert", "model_loading.frag");
+	m_wireframeShader = LoadShader("wireframe", "color.vert", "color.frag");
 
 	m_defaultMaterial.AddTexture(m_defaultTexture);
 	m_defaultMaterial.SetShader(m_defaultShader);
@@ -252,14 +252,37 @@ void AssetManager::RegisterEntity(std::shared_ptr<Entity> entity)
 	m_entityCache.push_back(entity);
 }
 
-Shader AssetManager::LoadShader(const std::string& vertPath, const std::string& fragPath)
+Shader* AssetManager::LoadShader(const std::string& name, const std::string& vertPath, const std::string& fragPath)
 {
+	unsigned int id = Utils::Hash(name);
+
+	auto it = m_shaders.find(id);
+	if (it != m_shaders.end())
+	{
+		return &it->second;
+	}
+
 	const std::string shaderPath = s_mainAssetDirectory + s_assetShaderDir;
 	Shader shader = m_shaderManager.LoadShader(shaderPath, vertPath, fragPath);
-	if (shader.HasValidProgram()) 
+	auto result = m_shaders.emplace(id, shader);
+	if (result.second) 
 	{
-		return shader;
+		return &result.first->second;
 	}
+
+	return m_errorShader;
+}
+
+Shader* AssetManager::GetShader(const std::string& name)
+{
+	unsigned int id = Utils::Hash(name);
+
+	auto it = m_shaders.find(id);
+	if (it != m_shaders.end())
+	{
+		return &it->second;
+	}
+
 	return m_errorShader;
 }
 
@@ -344,6 +367,7 @@ unsigned int AssetManager::GetHDRTexture(const std::string& path)
 
 void AssetManager::OnShaderFileUpdated(const std::string& filepath)
 {
+#if 0
 	std::vector<Shader> shadersToUpdate = m_shaderManager.GetShaderFromPathDependency(filepath);
 	for (Shader shader : shadersToUpdate) 
 	{
@@ -383,8 +407,8 @@ void AssetManager::OnShaderFileUpdated(const std::string& filepath)
 				}
 			}
 		}
-		
 	}
+#endif 
 }
 
 

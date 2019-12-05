@@ -2,8 +2,8 @@
 
 #include <vector>
 
-#include "Rendering/Shader.h"
-#include "Rendering/Texture.h"
+#include "Shader.h"
+#include "Systems/Rendering/Texture.h"
 
 #include "Assets/BaseResource.h"
 #include "Assets/TextureManager.h"
@@ -13,10 +13,11 @@ class Material
 {
 public:
 	Material();
+	Material(Shader* shader);
 	~Material() = default;
 
-	void SetShader(Shader shader);
-	Shader GetShader() { return m_shader; }
+	void SetShader(Shader* shader);
+	const Shader* GetShader() const { return m_shader; }
 
 	void SetModel(const glm::mat4& model);
 	void SetView(const glm::mat4& view);
@@ -28,10 +29,10 @@ public:
 	void AddTexture(Texture texture);
 	const std::vector<Texture> GetTextures() { return m_textures; }
 
-	bool IsValid() const override { return m_id.IsValid() && m_shader.HasValidProgram(); }
+	bool IsValid() const override { return m_id.IsValid() && m_shader && m_shader->HasValidProgram(); }
 
 private:
-	Shader m_shader;
+	Shader* m_shader = nullptr;
 	std::vector<Texture> m_textures;
 };
 

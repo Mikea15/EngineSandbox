@@ -31,7 +31,7 @@ void SSAO::LoadShaders(ShaderManager& shaderManager, unsigned int width, unsigne
 	
 	shaderSSAOBlur.Use();
 	shaderSSAOBlur.SetInt("ssaoInput", 0);
-	shaderSSAOBlur.SetVec2("resolution", glm::vec2(width, height));
+	shaderSSAOBlur.SetVector("resolution", glm::vec2(width, height));
 }
 
 void SSAO::GenBuffers()
@@ -135,11 +135,11 @@ void SSAO::Process(const glm::mat4& projection, unsigned int gPosition, unsigned
 	glClear(GL_COLOR_BUFFER_BIT);
 	
 	shaderSSAO.Use();
-	shaderSSAO.SetMat4("projection", projection);
+	shaderSSAO.SetMatrix("projection", projection);
 
 	for (unsigned int i = 0; i < static_cast<unsigned int>(m_params.KernelSize); ++i)
 	{
-		shaderSSAO.SetVec3("samples[" + std::to_string(i) + "]", ssaoKernel[i]);
+		shaderSSAO.SetVector("samples[" + std::to_string(i) + "]", ssaoKernel[i]);
 	}
 
 	shaderSSAO.SetInt("kernelSize", m_params.KernelSize);

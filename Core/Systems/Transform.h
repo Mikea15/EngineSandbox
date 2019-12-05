@@ -10,8 +10,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/quaternion.hpp>
 
+#include "Renderer/Shader.h"
 #include "Rendering/Gizmo.h"
-#include "Rendering/Shader.h"
 
 class Transform
 {
@@ -45,7 +45,7 @@ public:
 	glm::vec3 GetRight() { return m_orientation * glm::vec3(1, 0, 0); }
 	glm::vec3 GetForward() { return m_orientation * glm::vec3(0, 0, 1); }
 
-	void RenderGizmo(Shader shader);
+	void RenderGizmo(const Shader* shader);
 
 private:
 	glm::mat4 m_transform;

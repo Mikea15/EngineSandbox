@@ -58,7 +58,7 @@ void IBLSkybox::GenBuffers(unsigned int texture, unsigned int size)
 	// ----------------------------------------------------------------------
 	equirectangularToCubemapShader.Use();
 	equirectangularToCubemapShader.SetInt("equirectangularMap", 0);
-	equirectangularToCubemapShader.SetMat4("projection", captureProjection);
+	equirectangularToCubemapShader.SetMatrix("projection", captureProjection);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texture);
 
@@ -66,7 +66,7 @@ void IBLSkybox::GenBuffers(unsigned int texture, unsigned int size)
 	glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
 	for (unsigned int i = 0; i < 6; ++i)
 	{
-		equirectangularToCubemapShader.SetMat4("view", captureViews[i]);
+		equirectangularToCubemapShader.SetMatrix("view", captureViews[i]);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, envCubemap, 0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -100,7 +100,7 @@ void IBLSkybox::GenBuffers(unsigned int texture, unsigned int size)
 	// -----------------------------------------------------------------------------
 	irradianceShader.Use();
 	irradianceShader.SetInt("environmentMap", 0);
-	irradianceShader.SetMat4("projection", captureProjection);
+	irradianceShader.SetMatrix("projection", captureProjection);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, envCubemap);
 
@@ -108,7 +108,7 @@ void IBLSkybox::GenBuffers(unsigned int texture, unsigned int size)
 	glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
 	for (unsigned int i = 0; i < 6; ++i)
 	{
-		irradianceShader.SetMat4("view", captureViews[i]);
+		irradianceShader.SetMatrix("view", captureViews[i]);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, irradianceMap, 0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -136,7 +136,7 @@ void IBLSkybox::GenBuffers(unsigned int texture, unsigned int size)
 	// ----------------------------------------------------------------------------------------------------
 	prefilterShader.Use();
 	prefilterShader.SetInt("environmentMap", 0);
-	prefilterShader.SetMat4("projection", captureProjection);
+	prefilterShader.SetMatrix("projection", captureProjection);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, envCubemap);
 
@@ -155,7 +155,7 @@ void IBLSkybox::GenBuffers(unsigned int texture, unsigned int size)
 		prefilterShader.SetFloat("roughness", roughness);
 		for (unsigned int i = 0; i < 6; ++i)
 		{
-			prefilterShader.SetMat4("view", captureViews[i]);
+			prefilterShader.SetMatrix("view", captureViews[i]);
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, prefilterMap, mip);
 
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -202,8 +202,8 @@ void IBLSkybox::BindTextureMaps()
 void IBLSkybox::DrawSkybox(Shader shader, const glm::mat4& view, const glm::mat4& projection)
 {
 	shader.Use();
-	shader.SetMat4("projection", projection);
-	shader.SetMat4("view", view);
+	shader.SetMatrix("projection", projection);
+	shader.SetMatrix("view", view);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, envCubemap);
 	// glBindTexture(GL_TEXTURE_CUBE_MAP, irradianceMap); // display irradiance map

@@ -11,7 +11,7 @@
 #include "AssetId.h"
 
 #include "Systems/Model.h"
-#include "Systems/Material.h"
+#include "Renderer/Material.h"
 #include "Systems/Rendering/Mesh.h"
 #include "Systems/Rendering/Texture.h"
 

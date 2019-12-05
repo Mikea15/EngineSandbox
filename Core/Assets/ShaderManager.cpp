@@ -67,10 +67,10 @@ Shader ShaderManager::LoadShader(const std::string& rootDir, const std::string& 
 		}
 	}
 
-	return programId;
+	return shader;
 }
 
-Shader ShaderManager::NotifyShaderFileChanged(const Shader& oldShader)
+Shader* ShaderManager::NotifyShaderFileChanged(const Shader& oldShader)
 {
 	unsigned int index = 0;
 	for (; index < m_shaders.size(); ++index)
@@ -94,11 +94,11 @@ Shader ShaderManager::NotifyShaderFileChanged(const Shader& oldShader)
 
 			std::cout << "[ShaderManager] Reloading Shader | v: " << it->second.vertexFile << " f: " << it->second.fragmentFile << "\n";
 
-			return newShader;
+			return &m_shaders[index];
 		}
 	}
 
-	return Shader();
+	return nullptr;
 }
 
 void ShaderManager::FindAndDisplayShaderError(GLuint shaderId, const std::string& name)

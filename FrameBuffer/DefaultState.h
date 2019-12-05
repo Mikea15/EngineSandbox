@@ -1,20 +1,20 @@
 #pragma once
 
-#include "../Core/SDLHandler.h"
-#include "../Core/State.h"
+#include "SDLHandler.h"
+#include "State.h"
 
-#include "../Core/Assets/ShaderManager.h"
-#include "../Core/SceneManager.h"
+#include "Assets/ShaderManager.h"
+#include "Renderer/Renderer.h"
 
-#include "../Core/Systems/Entity.h"
-#include "../Core/Systems/Camera/Camera.h"
-#include "../Core/Systems/Rendering/Skybox.h"
-#include "../Core/Systems/Rendering/Primitives.h"
-#include "../Core/Systems/Rendering/Primitives/Quad.h"
-#include "../Core/Systems/Rendering/Terrain.h"
-#include "../Core/Systems/Light.h"
+#include "Systems/Entity.h"
+#include "Systems/Camera/Camera.h"
+#include "Systems/Rendering/Skybox.h"
+#include "Systems/Rendering/Primitives.h"
+#include "Systems/Rendering/Primitives/Quad.h"
+#include "Systems/Rendering/Terrain.h"
+#include "Renderer/Light.h"
 
-#include "../Core/Components/System/SceneCameraComponent.h"
+#include "Components/System/SceneCameraComponent.h"
 
 class DefaultState
 	: public State
@@ -37,21 +37,21 @@ protected:
 
 	SceneCameraComponent* m_sceneCamera;
 	AssetManager* m_assetManager;
-	SceneManager m_sceneManager;
+	Renderer m_sceneManager;
 	
-	Shader skyboxShader;
+	Shader* skyboxShader;
 	Skybox m_skybox;
 
 	std::shared_ptr<Model> m_model;
-	Shader m_simpleShader;
-	Shader m_groundShader;
+	Shader* m_simpleShader;
+	Shader* m_groundShader;
 
 	bool m_updateOnTick = true;
 	std::shared_ptr<SpotLight> m_spotLight;
 	std::shared_ptr<DirectionalLight> m_directionalLight;
 	std::vector<PointLight> m_pointLights;
 
-	Shader m_screenShader;
+	Shader* m_screenShader;
 	Material m_defaultMat;
 
 	// materialShininess

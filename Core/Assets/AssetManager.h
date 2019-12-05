@@ -16,10 +16,11 @@
 #include "AssimpImporter.h"
 #include "ThreadSafeQueue.h"
 
+#include "Renderer/Shader.h"
+#include "Renderer/Material.h"
+
 #include "Systems/Entity.h"
-#include "Systems/Material.h"
 #include "Systems/Model.h"
-#include "Systems/Rendering/Shader.h"
 #include "Systems/Rendering/Texture.h"
 
 struct TextureLoadJob
@@ -55,8 +56,9 @@ public:
 	void RegisterEntity(std::shared_ptr<Entity> entity);
 
 	// Shaders
-	Shader LoadShader(const std::string& vertPath, const std::string& fragPath);
-	
+	Shader* LoadShader(const std::string& name, const std::string& vertPath, const std::string& fragPath);
+	Shader* GetShader(const std::string& name);
+
 	// Textures
 	Texture LoadTexture(const std::string& path, TextureType type = TextureType::DiffuseMap);
 	void LoadTexture(Material& material);
@@ -71,9 +73,9 @@ public:
 	Texture GetDefaultTexture() const { return m_defaultTexture; }
 	Material GetDefaultMaterial() const { return m_defaultMaterial; }
 
-	Shader GetDefaultShader() const { return m_defaultShader; }
-	Shader GetWireframeShader() const { return m_wireframeShader; }
-	Shader GetErrorShader() const { return m_errorShader; }
+	Shader* GetDefaultShader() const { return m_defaultShader; }
+	Shader* GetWireframeShader() const { return m_wireframeShader; }
+	Shader* GetErrorShader() const { return m_errorShader; }
 
 	ShaderManager* GetShaderManager() { return &m_shaderManager; }
 
@@ -88,14 +90,15 @@ private:
 	AssimpImporter m_assimpImporter;
 	std::vector<TextureType> m_supportedTextureTypes;
 
+	std::unordered_map<unsigned int, Shader> m_shaders;
 	std::unordered_map<size_t, std::shared_ptr<Model>> m_modelsMap;
 	std::unordered_map<AssetId, Material> m_materialCache;
 	std::vector<std::shared_ptr<Entity>> m_entityCache; // HACK:.... :(
 
-	Shader m_errorShader;
-	Shader m_wireframeShader;
+	Shader* m_errorShader;
+	Shader* m_wireframeShader;
 
-	Shader m_defaultShader;
+	Shader* m_defaultShader;
 	Texture m_defaultTexture;
 	Material m_defaultMaterial;
 

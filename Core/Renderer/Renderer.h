@@ -4,16 +4,16 @@
 #include <vector>
 #include <memory>
 
-#include "Systems/Camera/Camera.h"
+#include "Light.h"
 #include "Systems/Entity.h"
-#include "Systems/Light.h"
+#include "Systems/Camera/Camera.h"
 
 
-class SceneManager
+class Renderer
 {
 public:
-	SceneManager();
-	~SceneManager();
+	Renderer();
+	~Renderer();
 
 	void AddEntity(std::shared_ptr<Entity> entity);
 	void AddLightSource(std::shared_ptr<ILight> light);

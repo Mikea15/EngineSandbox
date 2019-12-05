@@ -25,6 +25,16 @@ add_library(
 	External/Imgui/imgui_impl_sdl.cpp
 	External/Imgui/imgui_stdlib.cpp
 	External/Imgui/imgui_stdlib.h
+
+	Renderer/RenderPass.h
+	Renderer/Renderer.cpp
+	Renderer/Renderer.h
+	Renderer/Shader.cpp
+	Renderer/Shader.h
+	Renderer/Material.cpp
+	Renderer/Material.h
+	Renderer/Light.cpp
+	Renderer/Light.h
 	
 	Systems/Camera/Camera.cpp
 	Systems/Camera/Camera.h
@@ -63,8 +73,7 @@ add_library(
 	Systems/Rendering/Mesh.h
 	Systems/Rendering/Primitives.cpp
 	Systems/Rendering/Primitives.h
-	Systems/Rendering/Shader.cpp
-	Systems/Rendering/Shader.h
+
 	Systems/Rendering/Skybox.cpp
 	Systems/Rendering/Skybox.h
 	Systems/Rendering/Terrain.cpp
@@ -79,10 +88,6 @@ add_library(
 	Systems/Entity.cpp
 	Systems/Entity.h
 	Systems/FileIO.h
-	Systems/Light.cpp
-	Systems/Light.h
-	Systems/Material.cpp
-	Systems/Material.h
 	Systems/Model.cpp
 	Systems/Model.h
 	Systems/Octree.cpp
@@ -98,9 +103,6 @@ add_library(
 	IMGUIHandler.h
 	Profiler.cpp
 	Profiler.h
-	RenderPass.h
-	SceneManager.cpp
-	SceneManager.h
 	SDLHandler.cpp
 	SDLHandler.h
 	State.h

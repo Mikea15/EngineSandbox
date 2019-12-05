@@ -124,7 +124,7 @@ void Transform::RotateLocal(const glm::vec3& axis, float degrees)
 	m_orientation = glm::normalize(m_orientation);
 }
 
-void Transform::RenderGizmo(Shader shader)
+void Transform::RenderGizmo(const Shader* shader)
 {
 	Gizmo::Render(shader, GetTransform(), GetLocalPosition(), GetForward(), GetUp(), GetRight());
 }

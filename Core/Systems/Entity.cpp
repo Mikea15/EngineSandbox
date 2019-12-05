@@ -47,7 +47,7 @@ void Entity::Draw(const glm::mat4& model, const glm::mat4& view, const glm::mat4
 	m_model.Draw(model, view, projection, material);
 }
 
-void Entity::Draw(const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection, Shader& shader)
+void Entity::Draw(const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection, const Shader* shader)
 {
 	m_model.Draw(model, view, projection, shader);
 }

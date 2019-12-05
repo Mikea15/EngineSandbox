@@ -3,7 +3,9 @@
 #include "State.h"
 
 #include "Assets/ShaderManager.h"
-#include "SceneManager.h"
+
+#include "Renderer/Renderer.h"
+#include "Renderer/RenderPass.h"
 
 #include "Systems/Entity.h"
 #include "Systems/Camera/Camera.h"
@@ -11,10 +13,9 @@
 #include "Systems/Rendering/Primitives.h"
 #include "Systems/Rendering/Primitives/Quad.h"
 #include "Systems/Rendering/Terrain.h"
-#include "Systems/Light.h"
+#include "Renderer/Light.h"
 
 #include "Components/System/SceneCameraComponent.h"
-#include "RenderPass.h"
 
 class TerrainDemoState
 	: public State
@@ -37,15 +38,15 @@ protected:
 
 	SceneCameraComponent* m_sceneCamera;
 	AssetManager* m_assetManager;
-	SceneManager m_sceneManager;
+	Renderer m_sceneManager;
 
 private:
-	Shader m_terrainShader;
+	Shader* m_terrainShader;
 	Terrain m_terrain = Terrain(1.0f, 513.0f, 513.0f, 50.0f);
 	Transform m_terrainPosition;
 
 	float* m_heightMapData = nullptr;
 
-	Shader m_skyboxShader;
+	Shader* m_skyboxShader;
 	Skybox m_skybox;
 };

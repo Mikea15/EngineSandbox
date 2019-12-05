@@ -1,10 +1,11 @@
 #pragma once
 
-#include "Systems/Light.h"
+#include "Light.h"
+#include "Material.h"
+#include "Shader.h"
+
 #include "Systems/Entity.h"
-#include "Systems/Material.h"
 #include "Systems/Camera/Camera.h"
-#include "Systems/Rendering/Shader.h"
 
 class RenderPass
 {
@@ -39,7 +40,7 @@ public:
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
-	void SetShader(Shader shader)
+	void SetShader(Shader* shader)
 	{
 		m_shader = shader;
 	}
@@ -57,15 +58,15 @@ public:
 	void Render(glm::mat4 cameraView, glm::mat4 cameraProjection, glm::mat4 lightSpaceMatrix,
 		const std::vector<std::shared_ptr<ILight>>& lights, 
 		const std::vector<std::shared_ptr<Entity>>& entities,
-		std::function<void(Shader)> renderScene) 
+		std::function<void(const Shader*)> renderScene) 
 	{
 		
 
 		// 1. render depth of scene to texture (from light's perspective)
 		// --------------------------------------------------------------
 		// render scene from light's point of view
-		m_shader.Use();
-		m_shader.SetMat4("lightSpaceMatrix", lightSpaceMatrix);
+		m_shader->Use();
+		m_shader->SetMatrix("lightSpaceMatrix", lightSpaceMatrix);
 
 		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
 		glBindFramebuffer(GL_FRAMEBUFFER, m_depthMapFBO);
@@ -92,7 +93,7 @@ public:
 
 	unsigned int GetDepthMap() const { return m_depthMap; }
 
-	Shader m_shader;
+	Shader* m_shader;
 	WindowParams m_windowParams;
 	std::shared_ptr<DirectionalLight> m_directionalLight;
 	glm::vec3 lightPos;
