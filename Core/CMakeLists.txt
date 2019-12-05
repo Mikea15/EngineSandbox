@@ -101,6 +101,7 @@ add_library(
 	Game.h
 	IMGUIHandler.cpp
 	IMGUIHandler.h
+	Logger.h
 	Profiler.cpp
 	Profiler.h
 	SDLHandler.cpp

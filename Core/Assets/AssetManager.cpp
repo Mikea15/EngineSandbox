@@ -263,7 +263,7 @@ Shader* AssetManager::LoadShader(const std::string& name, const std::string& ver
 	}
 
 	const std::string shaderPath = s_mainAssetDirectory + s_assetShaderDir;
-	Shader shader = m_shaderManager.LoadShader(shaderPath, vertPath, fragPath);
+	Shader shader = Shader(shaderPath, vertPath, fragPath);
 	auto result = m_shaders.emplace(id, shader);
 	if (result.second) 
 	{

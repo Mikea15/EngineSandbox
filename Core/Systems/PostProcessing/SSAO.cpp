@@ -19,19 +19,22 @@ void SSAO::LoadShaders(ShaderManager& shaderManager, unsigned int width, unsigne
 	m_screenWidth = width;
 	m_screenHeight = height;
 
-	shaderSSAO = shaderManager.LoadShader("../../../../data/shaders/", "screen/ssao.vert", "screen/ssao.frag");
-	shaderSSAO.Use();
-	shaderSSAO.SetInt("gPosition", 0);
-	shaderSSAO.SetInt("gNormal", 1);
-	shaderSSAO.SetInt("texNoise", 2);
-	shaderSSAO.SetInt("screenWidth", m_screenWidth);
-	shaderSSAO.SetInt("screenHeight", m_screenHeight);
+#if 0
+	shaderSSAO = shaderManager.LoadShader("ssao", "screen/ssao.vert", "screen/ssao.frag");
+#endif
+	shaderSSAO->Use();
+	shaderSSAO->SetInt("gPosition", 0);
+	shaderSSAO->SetInt("gNormal", 1);
+	shaderSSAO->SetInt("texNoise", 2);
+	shaderSSAO->SetInt("screenWidth", m_screenWidth);
+	shaderSSAO->SetInt("screenHeight", m_screenHeight);
 
-	shaderSSAOBlur = shaderManager.LoadShader("../../../../data/shaders/", "screen/ssao.vert", "screen/ssao_blur.frag");
-	
-	shaderSSAOBlur.Use();
-	shaderSSAOBlur.SetInt("ssaoInput", 0);
-	shaderSSAOBlur.SetVector("resolution", glm::vec2(width, height));
+#if 0
+	shaderSSAOBlur = shaderManager.LoadShader("ssaoblur", "screen/ssao.vert", "screen/ssao_blur.frag");
+#endif
+	shaderSSAOBlur->Use();
+	shaderSSAOBlur->SetInt("ssaoInput", 0);
+	shaderSSAOBlur->SetVector("resolution", glm::vec2(width, height));
 }
 
 void SSAO::GenBuffers()
@@ -80,7 +83,7 @@ void SSAO::GenSampleKernel()
 		m_params.KernelSize = s_MaxKernelSamples;
 	}
 
-	shaderSSAO.Use();
+	shaderSSAO->Use();
 
 	ssaoKernel.clear();
 	for (unsigned int i = 0; i < static_cast<unsigned int>(m_params.KernelSize); ++i)
@@ -134,18 +137,18 @@ void SSAO::Process(const glm::mat4& projection, unsigned int gPosition, unsigned
 	glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
 	glClear(GL_COLOR_BUFFER_BIT);
 	
-	shaderSSAO.Use();
-	shaderSSAO.SetMatrix("projection", projection);
+	shaderSSAO->Use();
+	shaderSSAO->SetMatrix("projection", projection);
 
 	for (unsigned int i = 0; i < static_cast<unsigned int>(m_params.KernelSize); ++i)
 	{
-		shaderSSAO.SetVector("samples[" + std::to_string(i) + "]", ssaoKernel[i]);
+		shaderSSAO->SetVector("samples[" + std::to_string(i) + "]", ssaoKernel[i]);
 	}
 
-	shaderSSAO.SetInt("kernelSize", m_params.KernelSize);
-	shaderSSAO.SetFloat("radius", m_params.Radius);
-	shaderSSAO.SetFloat("bias", m_params.Bias);
-	shaderSSAO.SetFloat("intensity", m_params.Intensity);
+	shaderSSAO->SetInt("kernelSize", m_params.KernelSize);
+	shaderSSAO->SetFloat("radius", m_params.Radius);
+	shaderSSAO->SetFloat("bias", m_params.Bias);
+	shaderSSAO->SetFloat("intensity", m_params.Intensity);
 
 	glActiveTexture(GL_TEXTURE0); glBindTexture(GL_TEXTURE_2D, gPosition);
 	glActiveTexture(GL_TEXTURE1); glBindTexture(GL_TEXTURE_2D, gNormal);
@@ -160,8 +163,8 @@ void SSAO::Process(const glm::mat4& projection, unsigned int gPosition, unsigned
 	glBindFramebuffer(GL_FRAMEBUFFER, m_blurFBO);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	shaderSSAOBlur.Use();
-	shaderSSAOBlur.SetInt("blurSize", m_params.BlurSize);
+	shaderSSAOBlur->Use();
+	shaderSSAOBlur->SetInt("blurSize", m_params.BlurSize);
 	// Send color buffer to blur phase.
 	glActiveTexture(GL_TEXTURE0); glBindTexture(GL_TEXTURE_2D, m_colorBuffer);
 

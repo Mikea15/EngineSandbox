@@ -69,8 +69,8 @@ private:
 
 	Params m_params;
 
-	Shader shaderSSAO;
-	Shader shaderSSAOBlur;
+	Shader* shaderSSAO = nullptr;
+	Shader* shaderSSAOBlur = nullptr;
 
 	static int s_MaxKernelSamples;
 };

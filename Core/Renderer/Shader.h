@@ -4,17 +4,17 @@
 #include <glm/glm.hpp>
 
 #include <string>
+#include <iostream>
 
 #include "Assets/BaseResource.h"
+#include "Systems/FileIO.h"
 
 class Shader
 	: public BaseResource
 {
 public:
 	Shader() = default;
-	Shader(GLuint programId)
-		: m_programId(programId)
-	{}
+	Shader(const std::string& rootDir, const std::string& vertexFilePath, const std::string& fragmentFilePath, bool reload = false);
 
 	bool operator==(const Shader& rhs) const {
 		return m_programId == rhs.m_programId;
@@ -40,6 +40,12 @@ public:
 	void SetMatrix(const std::string& name, const glm::mat4& mat) const;
 
 private:
+	GLuint CreateProgram(const std::string& vertexCode, const std::string& fragmentCode);
+	void LoadShader(const std::string& rootDir, const std::string& vertexFilePath, const std::string& fragmentFilePath, bool reload = false);
+	
+	void FindAndDisplayShaderError(GLuint shaderId, const std::string& name);
+	void FindAndDisplayProgramError(GLuint shaderId, const std::string& name);
+	
 	int GetUniformLocation(const std::string& name) const;
 
 private:
